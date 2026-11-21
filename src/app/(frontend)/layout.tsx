@@ -6,9 +6,11 @@ import type { ReactNode } from 'react'
 
 import { Footer } from '@/components/layout/Footer'
 import { Header } from '@/components/layout/Header'
+import { JsonLd } from '@/components/ui/Breadcrumbs'
 import { SmoothScroll } from '@/components/layout/SmoothScroll'
 import { themeInitScript } from '@/components/layout/ThemeToggle'
 import { DuotoneDefs } from '@/components/thinkers/DuotoneDefs'
+import { siteJsonLd } from '@/lib/seo/jsonld'
 import { getServerSideURL } from '@/lib/url'
 import { getNavigation } from '@/lib/data/navigation'
 import '@/styles/global.css'
@@ -54,6 +56,7 @@ export default async function RootLayout({ children }: Props) {
         </noscript>
       </head>
       <body>
+        <JsonLd data={siteJsonLd()} />
         <DuotoneDefs />
         <a
           href="#main"

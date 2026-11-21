@@ -55,3 +55,17 @@ export function faqPageJsonLd(items: { question: string; answer: string }[]) {
     })),
   }
 }
+
+export const SITE_NAME = 'UPSC OWL Sociology'
+
+/** Site-wide Organization + WebSite schema, rendered once in the root layout. */
+export function siteJsonLd() {
+  const base = getServerSideURL()
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      { '@type': 'Organization', '@id': `${base}/#org`, name: SITE_NAME, url: base, sameAs: ['https://t.me/sociologyoptional4'] },
+      { '@type': 'WebSite', '@id': `${base}/#site`, url: base, name: SITE_NAME, inLanguage: 'hi-Latn', publisher: { '@id': `${base}/#org` } },
+    ],
+  }
+}

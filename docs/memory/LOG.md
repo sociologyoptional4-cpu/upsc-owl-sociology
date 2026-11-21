@@ -252,3 +252,11 @@
 - Checks: deployment migration/compile/typecheck ✓; production blog smoke ✗ (deployment still Building); blog workflow ✗ (not dispatched); daily-ca pending first admin.
 - Contract changes: none.
 - Open issues / proposals: finish Vercel deployment and smoke routes; user create first admin at https://upsc-owl-sociology.vercel.app/admin; then create production ai-bot key and dispatch daily-ca dry run. Three high transitive npm audit advisories remain under Payload Lexical dependency.
+
+## 2026-11-21 21:10 · Claude (Sonnet 5.5) · SEO Control Center
+- Did: Took over the unstarted Codex claim at the user's direction ("complete it"; no code existed on any branch). Added `/admin/seo` (SEO Control Center): score 0-100, site checks (SITE_URL, published posts, GSC/Bing verification, IndexNow, CRON_SECRET, drafts, empty topic notes), per-post checks (title/description length, keyword in title, noindex, thin content, topic link, tags, FAQ, cover), tool links (sitemap, RSS, llms.txt, GSC, Bing, Rich Results, PageSpeed). Dashboard tile added. Site-wide Organization + WebSite JSON-LD in the root layout. Pure rules in `src/lib/seo/audit.ts`, DB loader in `audit-data.ts` (read-only).
+- Files: `src/lib/seo/{audit,audit-data,jsonld}.ts`, `src/components/admin/{SeoControlCenter.tsx,seo-control-center.module.css,OwlDashboard.tsx}`, `src/payload.config.ts`, `src/app/(frontend)/layout.tsx`, `tests/unit/seo-audit.test.ts` (13 tests), `docs/memory/{STATE,LOG}.md`.
+- Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-07, memory)
+- Checks: tsc ✓ eslint ✓ (0 errors) unit ✓ (100/100); build see next entry.
+- Contract changes: none (additive route + helper).
+- Open issues / proposals: Correction to an earlier status note: `sitemap.ts` already lists thinkers; production just has no thinkers seeded (seed not run in prod). User still must verify Search Console/Bing and publish posts.

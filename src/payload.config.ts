@@ -47,6 +47,7 @@ export default buildConfig({
       views: {
         dashboard: { Component: '/components/admin/OwlDashboard#OwlDashboard' },
         reviewQueue: { Component: '/components/admin/ReviewQueueView#ReviewQueueView', path: '/review' },
+        seoControlCenter: { Component: '/components/admin/SeoControlCenter#SeoControlCenter', path: '/seo' },
       },
     },
   },
