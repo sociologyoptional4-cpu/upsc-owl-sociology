@@ -1,13 +1,9 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 import type { Payload } from 'payload'
 import { getPayload } from 'payload'
 
 import config from '@payload-config'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
 
 interface ThinkerAsset {
   slug: string
@@ -63,7 +59,20 @@ export async function attachPortraits(payload: Payload): Promise<void> {
 
     if (existingMedia.length > 0) {
       mediaId = existingMedia[0].id
-      payload.logger.info(`Reusing existing media doc #${mediaId} for ${filename}`)
+      await payload.update({
+        collection: 'media',
+        id: mediaId,
+        context: CTX,
+        data: {
+          alt: `Portrait of ${entry.name}`,
+          license: entry.license,
+          credit: entry.attribution ?? entry.author ?? undefined,
+          sourceUrl: entry.sourceUrl ?? undefined,
+        },
+        filePath,
+        overwriteExistingFiles: true,
+      })
+      payload.logger.info(`Replaced file on existing media doc #${mediaId} for ${filename}`)
     } else {
       const createdMedia = await payload.create({
         collection: 'media',
