@@ -148,12 +148,20 @@
 - Open issues / proposals: GitHub Actions is not configured in the target repo yet; no live pipeline run or 5–7 day soak. GitHub repo has no daily workflow or Actions secrets and local git has no remote.
 
 ## 2026-11-21 16:39 · Codex (GPT-6) · Task C2 commit record
-- Did: created four scoped commits: `feat: ingest api, review workflow and pipeline bookkeeping`; `docs: pipeline prompts, style guide and eval set v1`; `feat: daily ai pipeline and scheduled workflow`; `feat: telegram auto-post, daily quiz and digests`. No `src/components/**` or `src/styles/**` files were staged.
+- Did: created the four C2 commits plus `fix: wire draft preview and async bot safeguards`. No `src/components/**` or `src/styles/**` files were staged.
 - Files: four Task 05–08 commit scopes plus `docs/memory/{STATE,DECISIONS,LOG}.md`, `docs/tasks/{MASTER-PLAN,README}.md`, `AGENTS.md`, and mirrored project rule.
 - Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-06, memory, Tasks 05-08, C2)
 - Checks: tsc ✓ eslint ✓ unit ✓ (56/56) build ✓; workflow dispatch check ✗ (no workflow/secrets in GitHub repo; no local remote).
 - Contract changes: none beyond Task 05/08 entries above.
 - Open issues / proposals: local commits are not pushed. Add GitHub Actions secrets and publish the workflow to the intended repo before expecting a 06:00 IST run.
+
+## 2026-11-21 16:40 · Codex (GPT-6) · Task 05 follow-through
+- Did: committed the draft-mode article route wiring and updated the existing access tests for the async bot safeguard hook.
+- Files: `src/app/(frontend)/current-affairs/[date]/[slug]/page.tsx`, `tests/unit/access.test.ts`
+- Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-06, memory, Task 05/C2)
+- Checks: tsc ✓ eslint ✓ (0 errors, 3 existing warnings) unit ✓ (56/56) build ✓
+- Contract changes: none.
+- Open issues / proposals: none.
 
 ## 2026-11-21 19:20 · Claude Code (Opus 5.5) · Notes batch 1 + PYQ block
 - Did: 8 original Hinglish topic notes (Paper 1 Unit 1: modernity, scope, common sense; Unit 2: science, strands, positivism, fact-value, non-positivist) in src/seed/notes/unit1-2.ts. Import script src/seed/notes-batch-1.ts (idempotent; creates unit 2 "Sociology as Science"; attaches PYQs by keyword: 52 of 52 Unit 1-2 PYQs placed). Layout: summary → richText body → keyTerms → pyqList → answer tip.
