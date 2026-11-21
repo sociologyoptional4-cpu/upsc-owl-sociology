@@ -22,7 +22,19 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Check production bot credential
+        id: bot-credential
+        env:
+          AI_BOT_API_KEY: ${{ secrets.AI_BOT_API_KEY }}
+        run: |
+          if [ -z "$AI_BOT_API_KEY" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Production ai-bot API key is not configured; skipping the pipeline."
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
       - run: npx tsx src/pipeline/run-daily.ts
+        if: steps.bot-credential.outputs.ready == 'true'
         env:
           DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
           SITE_URL: ${{ secrets.SITE_URL }}
