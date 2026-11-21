@@ -164,7 +164,7 @@ export interface Page {
    * Apne aap banta hai
    */
   path?: string | null;
-  layout: (HeroBlock | RichTextBlock | SummaryBlock | CalloutBlock | KeyTermsBlock | CtaBlock)[];
+  layout: (HeroBlock | RichTextBlock | SummaryBlock | CalloutBlock | KeyTermsBlock | CtaBlock | PyqListBlock)[];
   seo?: {
     title?: string | null;
     description?: string | null;
@@ -281,6 +281,22 @@ export interface CtaBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PyqListBlock".
+ */
+export interface PyqListBlock {
+  heading?: string | null;
+  items: {
+    year: number;
+    marks?: number | null;
+    question: string;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'pyqList';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "current-affairs".
  */
 export interface CurrentAffair {
@@ -319,7 +335,7 @@ export interface CurrentAffair {
     | boolean
     | null;
   telegramMessageId?: string | null;
-  layout?: (HeroBlock | RichTextBlock | SummaryBlock | CalloutBlock | KeyTermsBlock | CtaBlock)[] | null;
+  layout?: (HeroBlock | RichTextBlock | SummaryBlock | CalloutBlock | KeyTermsBlock | CtaBlock | PyqListBlock)[] | null;
   isAiGenerated?: boolean | null;
   aiMeta?: {
     model?: string | null;
@@ -347,7 +363,7 @@ export interface Topic {
    * 2-3 line overview (cards aur SEO mein)
    */
   summary?: string | null;
-  layout?: (HeroBlock | RichTextBlock | SummaryBlock | CalloutBlock | KeyTermsBlock | CtaBlock)[] | null;
+  layout?: (HeroBlock | RichTextBlock | SummaryBlock | CalloutBlock | KeyTermsBlock | CtaBlock | PyqListBlock)[] | null;
   thinkers?: (number | Thinker)[] | null;
   relatedTopics?: (number | Topic)[] | null;
   updatedAt: string;
@@ -411,7 +427,7 @@ export interface Thinker {
         id?: string | null;
       }[]
     | null;
-  layout?: (HeroBlock | RichTextBlock | SummaryBlock | CalloutBlock | KeyTermsBlock | CtaBlock)[] | null;
+  layout?: (HeroBlock | RichTextBlock | SummaryBlock | CalloutBlock | KeyTermsBlock | CtaBlock | PyqListBlock)[] | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -731,6 +747,7 @@ export interface PagesSelect<T extends boolean = true> {
         callout?: T | CalloutBlockSelect<T>;
         keyTerms?: T | KeyTermsBlockSelect<T>;
         cta?: T | CtaBlockSelect<T>;
+        pyqList?: T | PyqListBlockSelect<T>;
       };
   seo?:
     | T
@@ -828,6 +845,23 @@ export interface CtaBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PyqListBlock_select".
+ */
+export interface PyqListBlockSelect<T extends boolean = true> {
+  heading?: T;
+  items?:
+    | T
+    | {
+        year?: T;
+        marks?: T;
+        question?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "current-affairs_select".
  */
 export interface CurrentAffairsSelect<T extends boolean = true> {
@@ -859,6 +893,7 @@ export interface CurrentAffairsSelect<T extends boolean = true> {
         callout?: T | CalloutBlockSelect<T>;
         keyTerms?: T | KeyTermsBlockSelect<T>;
         cta?: T | CtaBlockSelect<T>;
+        pyqList?: T | PyqListBlockSelect<T>;
       };
   isAiGenerated?: T;
   aiMeta?:
@@ -891,6 +926,7 @@ export interface TopicsSelect<T extends boolean = true> {
         callout?: T | CalloutBlockSelect<T>;
         keyTerms?: T | KeyTermsBlockSelect<T>;
         cta?: T | CtaBlockSelect<T>;
+        pyqList?: T | PyqListBlockSelect<T>;
       };
   thinkers?: T;
   relatedTopics?: T;
@@ -946,6 +982,7 @@ export interface ThinkersSelect<T extends boolean = true> {
         callout?: T | CalloutBlockSelect<T>;
         keyTerms?: T | KeyTermsBlockSelect<T>;
         cta?: T | CtaBlockSelect<T>;
+        pyqList?: T | PyqListBlockSelect<T>;
       };
   updatedAt?: T;
   createdAt?: T;

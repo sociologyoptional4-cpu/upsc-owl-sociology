@@ -6,6 +6,7 @@ import { CalloutBlockComponent } from './callout/Component'
 import { CtaBlockComponent } from './cta/Component'
 import { HeroBlockComponent } from './hero/Component'
 import { KeyTermsTableComponent } from './key-terms-table/Component'
+import { PyqListComponent } from './pyq-list/Component'
 import { RichTextBlockComponent } from './rich-text/Component'
 import { SummaryBlockComponent } from './summary/Component'
 
@@ -25,6 +26,8 @@ function renderBlock(block: LayoutBlock): ReactNode {
       return <KeyTermsTableComponent block={block} />
     case 'cta':
       return <CtaBlockComponent block={block} />
+    case 'pyqList':
+      return <PyqListComponent block={block} />
     default:
       // Unknown block (e.g. added in admin before the frontend shipped): skip, never crash the page.
       return null

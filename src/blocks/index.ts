@@ -4,6 +4,7 @@ import { CalloutBlock } from './callout/config'
 import { CtaBlock } from './cta/config'
 import { HeroBlock } from './hero/config'
 import { KeyTermsTableBlock } from './key-terms-table/config'
+import { PyqListBlock } from './pyq-list/config'
 import { RichTextBlock } from './rich-text/config'
 import { SummaryBlock } from './summary/config'
 
@@ -15,4 +16,5 @@ export const LAYOUT_BLOCKS: Block[] = [
   CalloutBlock,
   KeyTermsTableBlock,
   CtaBlock,
+  PyqListBlock,
 ]

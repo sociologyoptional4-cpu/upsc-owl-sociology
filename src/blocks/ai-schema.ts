@@ -4,6 +4,7 @@ import { calloutSchema } from './callout/schema'
 import { ctaSchema } from './cta/schema'
 import { heroSchema } from './hero/schema'
 import { keyTermsSchema } from './key-terms-table/schema'
+import { pyqListSchema } from './pyq-list/schema'
 import { richTextSchema } from './rich-text/schema'
 import { summarySchema } from './summary/schema'
 
@@ -15,6 +16,7 @@ export const aiBlockSchema = z.discriminatedUnion('blockType', [
   calloutSchema,
   keyTermsSchema,
   ctaSchema,
+  pyqListSchema,
 ])
 
 export const aiLayoutSchema = z.array(aiBlockSchema).min(1).max(30)

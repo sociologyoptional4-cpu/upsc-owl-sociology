@@ -60,14 +60,14 @@ export const THINKERS = [
 export const ABOUT_PAGE = {
   title: 'About',
   slug: 'about',
-  seo: { description: 'AUM Sociology kya hai, kaise kaam karta hai aur content kahan se aata hai.' },
+  seo: { description: 'UPSC OWL Sociology kya hai, kaise kaam karta hai aur content kahan se aata hai.' },
   layout: [
     {
       blockType: 'hero' as const,
       kicker: 'About',
       heading: 'Ek journal jo roz khud likha jaata hai.',
       subheading:
-        'AUM Sociology UPSC Sociology Optional ke liye hai. Har subah khabrein syllabus topics se jodi jaati hain, aur har note ke saath original source diya jaata hai.',
+        'UPSC OWL Sociology UPSC Sociology Optional ke liye hai. Har subah khabrein syllabus topics se jodi jaati hain, aur har note ke saath original source diya jaata hai.',
       variant: 'plain' as const,
     },
     {
@@ -98,10 +98,10 @@ export const ABOUT_PAGE = {
     },
     {
       blockType: 'cta' as const,
-      heading: 'Roz ka issue seedha phone pe.',
-      body: 'Telegram channel join karo; naya issue publish hote hi wahan aa jaata hai.',
+      heading: 'Roz ka issue, Telegram pe bhi.',
+      body: 'Hamara Telegram channel join karo, updates aur discussion wahan bhi milte hain.',
       label: 'Telegram join karo',
-      href: '/telegram',
+      href: 'https://t.me/sociologyoptional4',
       style: 'telegram' as const,
     },
   ],
