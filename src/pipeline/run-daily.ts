@@ -78,16 +78,28 @@ async function writeCandidate(config: PipelineConfig, source: FeedItem, score: S
   return { ...item, date: localDate, paper: score.paper, relevance: score.score, model: config.WRITER_MODEL, promptVersion: 'writer.v1', costUsd: itemCost, sources: [{ name: source.source, url: source.link }] }
 }
 
+const SCORE_BATCH = 20
+
+/** Scores every candidate in batches of 20; ids are re-based to the candidate's global index. */
+async function scoreInBatches(config: PipelineConfig, candidates: FeedItem[], topicSlugs: string[], prompt: string, state: State, dailySpend: number, maxUsd: number): Promise<Score[]> {
+  const scores: Score[] = []
+  for (let offset = 0; offset < candidates.length; offset += SCORE_BATCH) {
+    const estimate = estimateCost({ input: 12000, output: 2000 }, config.PRICE_DEEPSEEK_INPUT, config.PRICE_DEEPSEEK_OUTPUT)
+    if (!canSpend(dailySpend + state.cost, estimate, maxUsd)) { state.errors.push({ stage: 'score', message: 'Daily budget reached; remaining items not scored' }); break }
+    const result = await scoreItems(config, candidates.slice(offset, offset + SCORE_BATCH), topicSlugs, prompt)
+    state.tokens.input += result.inputTokens; state.tokens.output += result.outputTokens
+    state.cost += estimateCost({ input: result.inputTokens, output: result.outputTokens }, config.PRICE_DEEPSEEK_INPUT, config.PRICE_DEEPSEEK_OUTPUT)
+    scores.push(...result.items.map((score) => ({ ...score, id: String(Number(score.id) + offset) })))
+  }
+  return scores
+}
+
 async function createNotes(config: PipelineConfig, candidates: FeedItem[], embeddings: Map<string, number[]>, settings: Settings, state: State, dailySpend: number): Promise<IngestItem[]> {
   const maxUsd = settings.maxDailyUsd ?? 1
   const [topics, thinkers, prompts] = await Promise.all([getTopics(config), getThinkerSlugs(config), getPrompts()])
-  const scorerEstimate = estimateCost({ input: 12000, output: 2000 }, config.PRICE_DEEPSEEK_INPUT, config.PRICE_DEEPSEEK_OUTPUT)
-  if (!canSpend(dailySpend + state.cost, scorerEstimate, maxUsd)) throw new Error('Daily budget would be exceeded before scoring')
-  const result = await scoreItems(config, candidates.slice(0, 20), topics.slugs, prompts.scorer)
-  state.tokens.input += result.inputTokens; state.tokens.output += result.outputTokens
-  state.cost += estimateCost({ input: result.inputTokens, output: result.outputTokens }, config.PRICE_DEEPSEEK_INPUT, config.PRICE_DEEPSEEK_OUTPUT)
-  state.counts.scored = result.items.length
-  const selected = result.items.filter((score) => score.relevant && score.score >= 0.6).sort((a, b) => b.score - a.score).slice(0, config.MAX_ITEMS_PER_DAY)
+  const allScores = await scoreInBatches(config, candidates, topics.slugs, prompts.scorer, state, dailySpend, maxUsd)
+  state.counts.scored = allScores.length
+  const selected = allScores.filter((score) => score.relevant && score.score >= 0.6).sort((a, b) => b.score - a.score).slice(0, config.MAX_ITEMS_PER_DAY)
   state.counts.kept = selected.length
   return writeSelected(config, selected, candidates, topics, thinkers, prompts, embeddings, state, dailySpend, maxUsd)
 }
@@ -109,7 +121,10 @@ async function main(): Promise<void> {
   const config = loadConfig()
   const settings = await apiRequest<Settings>(config, '/api/globals/site-settings')
   if (!settings.pipelineEnabled) { console.info('Pipeline disabled in site settings'); return }
-  const run = config.DRY_RUN ? null : await apiRequest<Run>(config, '/api/pipeline-runs', { method: 'POST', body: JSON.stringify({ startedAt: new Date().toISOString(), status: 'running', promptVersion: 'writer.v1', counts: {}, tokens: {}, costUsd: 0 }) })
+  // Payload REST create returns { doc, message }; unwrap so run.id is defined.
+  const created = config.DRY_RUN ? null : await apiRequest<{ doc?: Run } & Partial<Run>>(config, '/api/pipeline-runs', { method: 'POST', body: JSON.stringify({ startedAt: new Date().toISOString(), status: 'running', promptVersion: 'writer.v1', counts: {}, tokens: {}, costUsd: 0 }) })
+  const run = created ? ((created.doc ?? created) as Run) : null
+  if (created && typeof run?.id !== 'number') throw new Error('Could not create a pipeline-runs record')
   const state: State = { counts: { fetched: 0, deduped: 0, scored: 0, kept: 0, written: 0, failedValidation: 0, published: 0 }, tokens: { input: 0, output: 0, cached: 0 }, cost: 0, errors: [] }
   const dailySpend = await getDailySpend(config)
   try {
@@ -131,6 +146,8 @@ async function main(): Promise<void> {
     if (items.length && run) await sendIngest(config, run.id, items.slice(0, 10))
     if (config.DRY_RUN) console.info(JSON.stringify({ wouldWrite: items.map(({ headline, paper }) => ({ headline, paper })), counts: state.counts, spendEstimateUsd: state.cost }))
   } catch (error) { state.errors.push({ stage: 'run', message: error instanceof Error ? error.message.slice(0, 240) : 'pipeline failed' }) }
+  // Never fail silently: a dry run has no pipeline-runs doc, so print the errors.
+  if (config.DRY_RUN && state.errors.length) console.error(JSON.stringify({ errors: state.errors, counts: state.counts }, null, 2))
   if (run) await finishRun(config, run.id, state)
 }
 

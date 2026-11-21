@@ -2,7 +2,7 @@ import type { PipelineConfig } from './config'
 import type { IngestItem } from '@/lib/ingest/schema'
 
 export async function apiRequest<T>(config: PipelineConfig, path: string, init: RequestInit = {}): Promise<T> {
-  const response = await fetch(new URL(path, config.SITE_URL), { ...init, headers: { authorization: `Bearer ${config.AI_BOT_API_KEY}`, 'content-type': 'application/json', ...init.headers } })
+  const response = await fetch(new URL(path, config.SITE_URL), { ...init, headers: { authorization: `users API-Key ${config.AI_BOT_API_KEY}`, 'content-type': 'application/json', ...init.headers } })
   if (!response.ok) throw new Error(`Site API ${response.status} at ${path}`)
   const result = await response.json() as { success?: boolean; data?: T; errors?: unknown }
   if (result.success === false) throw new Error(`Site API rejected ${path}`)
