@@ -1,27 +1,35 @@
-/* AUM Sociology — design tokens ("The Living Journal"). See docs/02-design-system.md */
+/* UPSC OWL Sociology — design tokens. Direction D12: clean white notebook (sociocurrents-inspired). */
 
 :root {
-  /* Surfaces */
-  --paper: #f6f1e7;
-  --paper-raised: #fffdf8;
-  --paper-sunk: #ece4d3;
+  /* Surfaces — clean white "notebook" (style direction D12) */
+  --paper: #ffffff;
+  --paper-raised: #ffffff;
+  --paper-sunk: #f5f5f4;
+  --grid-line: #f0f0f0;
 
   /* Ink */
-  --ink: #14213d;
-  --ink-soft: #3d4a66;
-  --ink-mute: #6b7389;
-  --rule: #d9cfbc;
+  --ink: #0a0a0a;
+  --ink-soft: #404040;
+  --ink-mute: #6b7280;
+  --rule: #e5e5e5;
 
-  /* Accent */
-  --saffron: #e8833a;
-  --saffron-deep: #a84d14; /* text-safe on paper: ~5:1 contrast */
+  /* Accent: yellow for actions, red for emphasis */
+  --saffron: #facc15;
+  --saffron-deep: #dc2626; /* red-600: emphasis text, tags, "Read" links (4.8:1 on white) */
+  --cta-gradient: linear-gradient(to right, #facc15, #eab308, #ca8a04);
 
   /* Semantic */
-  --paper-1: #3b5ba9;
-  --paper-2: #2f7d6d;
-  --thinker: #8e4b8c;
-  --pyq: #b23a48;
-  --ai-draft: #c9a227;
+  --paper-1: #4f46e5;
+  --paper-2: #0f766e;
+  --thinker: #7e22ce;
+  --pyq: #b91c1c;
+  --ai-draft: #ca8a04;
+
+  /* Pastels for feature tiles */
+  --pastel-lavender: #ede9fe;
+  --pastel-yellow: #fef9c3;
+  --pastel-mint: #dcfce7;
+  --pastel-pink: #fce7f3;
 
   /* Type scale */
   --text-xs: 0.75rem;
@@ -30,7 +38,7 @@
   --text-lg: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
   --text-h3: clamp(1.5rem, 1.2rem + 1vw, 2rem);
   --text-h2: clamp(2rem, 1.4rem + 2.4vw, 3.25rem);
-  --text-hero: clamp(3rem, 1rem + 7vw, 7.5rem);
+  --text-hero: clamp(2.75rem, 1rem + 5.5vw, 6rem);
   --leading-body: 1.65;
   --measure: 68ch;
 
@@ -39,12 +47,12 @@
 
   /* Radius — deliberately not uniform */
   --radius-chip: 999px;
-  --radius-card: 14px;
-  --radius-sheet: 28px;
+  --radius-card: 10px;
+  --radius-sheet: 24px;
 
   /* Depth */
-  --shadow-paper: 0 1px 0 var(--rule), 0 8px 24px -12px rgb(20 33 61 / 0.18);
-  --shadow-float: 0 24px 60px -20px rgb(20 33 61 / 0.35);
+  --shadow-paper: 0 1px 2px rgb(0 0 0 / 0.06), 0 4px 16px -8px rgb(0 0 0 / 0.12);
+  --shadow-float: 0 20px 40px -16px rgb(0 0 0 / 0.25);
 
   /* Motion */
   --dur-fast: 150ms;
@@ -56,13 +64,19 @@
 }
 
 [data-theme='dark'] {
-  --paper: #0f1626;
-  --paper-raised: #172036;
-  --paper-sunk: #0b111e;
-  --ink: #efe8da;
-  --ink-soft: #c4bcae;
-  --ink-mute: #9a978f;
-  --rule: #2a3550;
-  --shadow-paper: 0 1px 0 var(--rule), 0 8px 24px -12px rgb(0 0 0 / 0.5);
-  --shadow-float: 0 24px 60px -20px rgb(0 0 0 / 0.6);
+  --paper: #0a0a0a;
+  --paper-raised: #141414;
+  --paper-sunk: #1c1c1c;
+  --grid-line: #161616;
+  --ink: #fafafa;
+  --ink-soft: #d4d4d4;
+  --ink-mute: #a3a3a3;
+  --rule: #2a2a2a;
+  --saffron-deep: #f87171;
+  --pastel-lavender: #2e1065;
+  --pastel-yellow: #3f3a0a;
+  --pastel-mint: #052e16;
+  --pastel-pink: #500724;
+  --shadow-paper: 0 1px 2px rgb(0 0 0 / 0.5);
+  --shadow-float: 0 20px 40px -16px rgb(0 0 0 / 0.7);
 }

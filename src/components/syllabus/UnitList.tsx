@@ -1,0 +1,44 @@
+import Link from 'next/link'
+
+import type { SyllabusUnit } from '@/lib/data/types'
+
+import { Reveal } from '../motion/Reveal'
+
+/** Coverage dots: one dot per linked story (max 5), so thin topics are visible at a glance. */
+function Coverage({ count }: { count: number }) {
+  const MAX_DOTS = 5
+  return (
+    <span className="flex items-center gap-1" aria-label={`${count} linked stories`}>
+      {Array.from({ length: MAX_DOTS }, (_, i) => (
+        <span key={i} aria-hidden className={`size-1.5 rounded-full ${i < count ? 'bg-saffron' : 'bg-rule'}`} />
+      ))}
+      {count > MAX_DOTS && <span className="text-[10px] text-ink-mute">+{count - MAX_DOTS}</span>}
+    </span>
+  )
+}
+
+export function UnitList({ units, accent }: { units: SyllabusUnit[]; accent: string }) {
+  return (
+    <ol className="divide-y divide-rule border-y border-rule">
+      {units.map((unit, index) => (
+        <Reveal as="li" key={unit.href} index={index % 5} className="grid gap-4 py-6 md:grid-cols-[4rem_1fr_1.3fr]">
+          <span className={`font-display text-4xl font-extrabold ${accent}`}>{String(unit.number).padStart(2, '0')}</span>
+          <h3 className="text-xl font-bold leading-snug">
+            <Link href={unit.href} className="link-draw">{unit.title}</Link>
+          </h3>
+          <ul className="space-y-2">
+            {unit.topics.length === 0 && <li className="text-sm text-ink-mute">Topics jald aa rahe hain</li>}
+            {unit.topics.map((topic) => (
+              <li key={topic.href} className="flex items-center justify-between gap-4">
+                <Link href={topic.href} className="group text-sm text-ink-soft hover:text-ink">
+                  <span className="link-draw">{topic.title}</span>
+                </Link>
+                <Coverage count={topic.caCount} />
+              </li>
+            ))}
+          </ul>
+        </Reveal>
+      ))}
+    </ol>
+  )
+}

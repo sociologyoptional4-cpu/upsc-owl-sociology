@@ -8,7 +8,7 @@ export const SiteSettings: GlobalConfig = {
   admin: { group: 'Admin' },
   access: { read: isLoggedIn, update: isAdmin },
   fields: [
-    { name: 'siteName', type: 'text', defaultValue: 'AUM Sociology' },
+    { name: 'siteName', type: 'text', defaultValue: 'UPSC OWL Sociology' },
     { name: 'telegramUrl', type: 'text', validate: validateHref },
     { name: 'featuredThinker', type: 'relationship', relationTo: 'thinkers' },
     {

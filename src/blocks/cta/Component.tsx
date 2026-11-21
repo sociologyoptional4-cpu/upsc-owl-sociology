@@ -14,7 +14,7 @@ export function CtaBlockComponent({ block }: Props) {
     <section className="mx-auto max-w-7xl px-5 py-10 md:px-8">
       <div
         className={`relative overflow-hidden rounded-sheet px-7 py-12 md:px-14 md:py-16 ${
-          isTelegram ? 'bg-[#1f6f9f] text-white' : 'bg-ink text-paper'
+          isTelegram ? 'bg-neutral-950 text-white' : 'bg-neutral-950 text-white'
         }`}
       >
         <div aria-hidden className="absolute -right-16 -top-16 size-64 rounded-full border border-current opacity-15" />
@@ -25,7 +25,7 @@ export function CtaBlockComponent({ block }: Props) {
           <Link
             href={href}
             {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-            className="relative mt-8 inline-flex items-center gap-2 rounded-chip bg-saffron px-6 py-3 text-sm font-semibold text-ink transition-transform duration-300 ease-out-expo hover:-translate-y-0.5 active:scale-[0.98]"
+            className="btn-cta relative mt-8 inline-flex items-center gap-2 rounded-md px-6 py-3 text-sm transition-transform duration-300 ease-out-expo hover:-translate-y-0.5 active:scale-[0.98]"
           >
             {block.label} <span aria-hidden>→</span>
           </Link>

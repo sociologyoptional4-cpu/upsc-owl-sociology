@@ -1,20 +1,21 @@
 import type { Metadata } from 'next'
-import { Fraunces, Inter } from 'next/font/google'
+import { Inter, Poppins } from 'next/font/google'
 import type { ReactNode } from 'react'
 
 import { Footer } from '@/components/layout/Footer'
 import { Header } from '@/components/layout/Header'
 import { SmoothScroll } from '@/components/layout/SmoothScroll'
 import { themeInitScript } from '@/components/layout/ThemeToggle'
+import { DuotoneDefs } from '@/components/thinkers/DuotoneDefs'
 import { getServerSideURL } from '@/lib/url'
 import { getNavigation } from '@/lib/data/navigation'
 import '@/styles/global.css'
 
-const fraunces = Fraunces({
+const poppins = Poppins({
   subsets: ['latin'],
-  variable: '--font-fraunces',
+  variable: '--font-poppins',
   display: 'swap',
-  axes: ['opsz', 'SOFT'],
+  weight: ['500', '600', '700', '800'],
 })
 
 const inter = Inter({
@@ -26,8 +27,8 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL(getServerSideURL()),
   title: {
-    default: 'AUM Sociology — UPSC Sociology Optional, roz update',
-    template: '%s · AUM Sociology',
+    default: 'UPSC OWL Sociology — Sociology Optional, roz update',
+    template: '%s · UPSC OWL Sociology',
   },
   description:
     'UPSC Sociology Optional ke notes, thinkers aur roz ke current affairs, syllabus topics se jude hue.',
@@ -38,12 +39,16 @@ type Props = { children: ReactNode }
 export default async function RootLayout({ children }: Props) {
   const navigation = await getNavigation()
   return (
-    <html lang="en" className={`${fraunces.variable} ${inter.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${poppins.variable} ${inter.variable}`} suppressHydrationWarning>
       <head>
         {/* Static, first-party script (no user input): sets theme before paint to avoid a flash. */}
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <noscript>
+          <style>{'[data-reveal]{opacity:1!important;transform:none!important}'}</style>
+        </noscript>
       </head>
       <body>
+        <DuotoneDefs />
         <a
           href="#main"
           className="sr-only z-50 rounded-card bg-ink px-4 py-2 text-paper focus:not-sr-only focus:fixed focus:left-4 focus:top-4"

@@ -1,0 +1,46 @@
+/* Admin UI uses Payload's own theme variables so it matches light + dark admin themes. */
+.page { padding-block: 2rem 4rem; }
+.head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
+.title { font-size: 2rem; font-weight: 800; margin: 0; }
+.sub { color: var(--theme-elevation-500); margin: 0.25rem 0 0; }
+.label { display: inline-block; background: var(--theme-text); color: var(--theme-bg); font-weight: 700; font-size: 0.75rem; padding: 0.3rem 1rem; transform: skewX(-14deg); }
+.label > span { display: inline-block; transform: skewX(14deg); }
+
+.list { display: grid; gap: 1rem; list-style: none; margin: 0; padding: 0; }
+.card { border: 2px solid var(--theme-text); border-radius: 10px; background: var(--theme-elevation-0); padding: 1.25rem 1.5rem; display: grid; gap: 0.75rem; transition: opacity 0.3s, transform 0.3s; }
+.cardLeaving { opacity: 0; transform: translateX(24px); }
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; }
+.meta { font-size: 0.8rem; color: var(--theme-elevation-500); }
+.headline { font-size: 1.15rem; font-weight: 700; margin: 0; line-height: 1.35; }
+.summary { margin: 0; color: var(--theme-elevation-750); }
+.chip { font-size: 0.75rem; border: 1px solid var(--theme-elevation-150); border-radius: 999px; padding: 0.15rem 0.6rem; }
+.chipThinker { composes: chip; color: #7e22ce; border-color: #e9d5ff; }
+.relevance { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; font-weight: 600; }
+.bar { width: 80px; height: 6px; border-radius: 999px; background: var(--theme-elevation-100); overflow: hidden; }
+.barFill { display: block; height: 100%; background: #16a34a; transform-origin: left; }
+.barFill[data-level='mid'] { background: #ca8a04; }
+.barFill[data-level='low'] { background: #dc2626; }
+.link { color: #dc2626; font-weight: 600; text-decoration: none; }
+.link:hover { text-decoration: underline; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: flex-start; }
+.btn { border: 2px solid var(--theme-text); border-radius: 6px; padding: 0.45rem 1rem; font-weight: 600; cursor: pointer; background: var(--theme-elevation-0); color: var(--theme-text); transition: transform 0.15s; }
+.btn:hover:not(:disabled) { transform: translateY(-1px); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btnApprove { composes: btn; background: linear-gradient(to right, #facc15, #eab308, #ca8a04); color: #0a0a0a; border-color: #ca8a04; }
+.btnReject { composes: btn; color: #dc2626; border-color: #dc2626; }
+.reason { flex: 1 1 260px; min-height: 2.6rem; border: 1px solid var(--theme-elevation-250); border-radius: 6px; padding: 0.5rem; background: var(--theme-input-bg, var(--theme-elevation-0)); color: var(--theme-text); font: inherit; }
+.error { color: #dc2626; font-size: 0.85rem; margin: 0; }
+.empty { border: 2px dashed var(--theme-elevation-200); border-radius: 10px; padding: 3rem 1rem; text-align: center; }
+
+/* Dashboard widget */
+.widget { border: 2px solid var(--theme-text); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 2rem; display: grid; gap: 1rem; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem; }
+.stat { border-radius: 10px; padding: 0.9rem 1rem; }
+.stat dt { font-size: 0.75rem; color: var(--theme-elevation-600); }
+.stat dd { margin: 0.2rem 0 0; font-size: 1.6rem; font-weight: 800; }
+.tintYellow { background: #fef9c3; color: #0a0a0a; }
+.tintMint { background: #dcfce7; color: #0a0a0a; }
+.tintLavender { background: #ede9fe; color: #0a0a0a; }
+.tintPink { background: #fce7f3; color: #0a0a0a; }
+.cta { justify-self: start; }

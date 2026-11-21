@@ -17,8 +17,12 @@
   --color-thinker: var(--thinker);
   --color-pyq: var(--pyq);
   --color-ai-draft: var(--ai-draft);
+  --color-pastel-lavender: var(--pastel-lavender);
+  --color-pastel-yellow: var(--pastel-yellow);
+  --color-pastel-mint: var(--pastel-mint);
+  --color-pastel-pink: var(--pastel-pink);
 
-  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-display: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
   --radius-chip: var(--radius-chip);
@@ -48,24 +52,27 @@
     min-height: 100dvh;
     position: relative;
   }
-  /* Paper grain — subtle atmosphere, no image request */
+  /* Graph-paper grid, fixed behind content */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
     pointer-events: none;
     z-index: 0;
-    opacity: 0.035;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-image:
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 6rem 4rem;
+    mask-image: linear-gradient(to bottom, #000 0%, #000 70%, transparent 100%);
   }
   h1,
   h2,
   h3,
   h4 {
     font-family: var(--font-display);
-    font-optical-sizing: auto;
-    letter-spacing: -0.015em;
-    line-height: 1.05;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.08;
     text-wrap: balance;
   }
   :focus-visible {
@@ -115,6 +122,25 @@ html.lenis body {
     list-style: decimal;
     padding-left: 1.25em;
   }
+  .prose-journal :where(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin-block: 1.5rem;
+    font-size: 0.95em;
+  }
+  .prose-journal :where(th, td) {
+    border: 1px solid var(--rule);
+    padding: 0.65rem 0.8rem;
+    text-align: left;
+    vertical-align: top;
+  }
+  .prose-journal :where(th) {
+    background: color-mix(in srgb, var(--paper) 88%, var(--ink));
+    font-weight: 700;
+  }
+  .prose-journal :where(tr:nth-child(even) td) {
+    background: color-mix(in srgb, var(--paper) 94%, var(--ink));
+  }
   .prose-journal :where(h2) {
     font-size: var(--text-h3);
     margin-top: 1.6em;
@@ -122,6 +148,25 @@ html.lenis body {
   .prose-journal :where(h3) {
     font-size: var(--text-lg);
     margin-top: 1.4em;
+  }
+  .btn-cta {
+    background-image: var(--cta-gradient);
+    color: #0a0a0a;
+    font-weight: 600;
+  }
+  /* Black slanted label ("Latest") */
+  .tag-skew {
+    display: inline-block;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 0.4rem 1.4rem;
+    font-weight: 700;
+    font-size: 0.875rem;
+    transform: skewX(-14deg);
+  }
+  .tag-skew > span {
+    display: inline-block;
+    transform: skewX(14deg);
   }
   .prose-journal :where(a) {
     color: var(--saffron-deep);
@@ -149,5 +194,84 @@ html.lenis body {
   *::after {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
+  }
+}
+
+/* ───────── Phase 1 UI layer ───────── */
+@layer components {
+  /* Scroll reveal: Reveal.tsx toggles data-revealed. Only transform + opacity animate. */
+  [data-reveal] {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0);
+    transition:
+      opacity var(--dur-slow) var(--ease-out-expo),
+      transform var(--dur-slow) var(--ease-out-expo);
+    transition-delay: calc(var(--i, 0) * 70ms);
+  }
+  [data-reveal][data-revealed='true'] {
+    opacity: 1;
+    transform: none;
+  }
+  .no-js [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Duotone portraits: filter defs live in DuotoneDefs.tsx */
+  .duotone {
+    filter: url(#duotone-light);
+  }
+  [data-theme='dark'] .duotone {
+    filter: url(#duotone-dark);
+  }
+
+  /* Rubber-stamp date */
+  .stamp {
+    display: inline-grid;
+    place-items: center;
+    border: 1.5px solid currentColor;
+    border-radius: 6px;
+    padding: 0.3rem 0.55rem 0.25rem;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    transform: rotate(-3deg);
+    color: var(--saffron-deep);
+  }
+
+  /* Blocks inside article/topic columns: drop their page-level gutters */
+  .blocks-flush > [data-block] > section {
+    max-width: none;
+    padding-inline: 0;
+  }
+
+  /* Underline that draws on hover */
+  .link-draw {
+    background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+    transition: background-size var(--dur-base) var(--ease-out-expo);
+  }
+  .link-draw:hover,
+  .group:hover .link-draw {
+    background-size: 100% 1px;
+  }
+
+  /* Tilt card (TiltCard.tsx sets --rx / --ry) */
+  .tilt {
+    transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+    transition: transform var(--dur-base) var(--ease-out-expo);
+    transform-style: preserve-3d;
+  }
+  .tilt-pop {
+    transform: translateZ(40px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+  .tilt {
+    transform: none;
   }
 }
