@@ -41,7 +41,7 @@ Har prompt paste-ready hai. Har agent pehle [AGENTS.md](../../AGENTS.md) padhta 
 | # | Task | Kaun · Model | Status | Prompt |
 |---|------|--------------|--------|--------|
 | ✅ NB1 | Pehle 8 topic notes (Paper 1, Unit 1-2) + unke 52 PYQs + PYQ block design | Claude | ✅ | `src/seed/notes-batch-1.ts` |
-| N1 / N1b | Poora syllabus map + 365 PYQ import + roz 4-5 notes likhne wala AI writer (review queue mein). Prep Claude ne kar diya, baaki N1b. | Codex 6.0 | 🟢 N1b ready | [N1](N1-notes-writer.md) · [N1b](N1b-finish.md) |
+| N1 / N1b | Poora syllabus map + 365 PYQ import + roz 4-5 notes likhne wala AI writer (review queue mein). | Codex 6.0 | 🟢 code/local done; production data import pending | [N1](N1-notes-writer.md) · [N1b](N1b-finish.md) |
 | 15-lite | **UI:** PYQ bank page + topic page pe PYQs | Claude | ⏳ 13-lite ke baad | — |
 
 ## Step D: Launch

@@ -212,3 +212,11 @@
 - ⚠ For N1b (Codex): payload.config.ts admin.components is Claude-owned. Don't drop graphics/views.dashboard when you edit the file. Regenerate the import map after your changes.
 - Verified in browser with a temporary local admin (created, then deleted). Note: the local admin@aum.test password in .env no longer matches the DB (the user probably changed it in admin).
 - Read-first: ✓ · Checks: tsc ✓ eslint ✓.
+
+## 2026-11-21 18:48 · Codex (GPT-6) · Task N1b
+- Did: Added ordered full syllabus, 365-question PYQ collection/import, PYQ page, daily notes workflow, draft endpoints and topic review actions. Local importer rerun updated all 365 rows; real local notes run created two pending drafts. Production deploy applied the additive migration; production content import is pending because Vercel CLI refuses access to eight sensitive production variables.
+- Files: `src/collections/{Topics,Units,Pyqs}.ts`, `src/lib/data/**`, `src/endpoints/**`, `src/hooks/payload/revalidate.ts`, `src/pipeline/notes/**`, `scripts/{notes,pyq}/**`, `src/migrations/**`, `src/seed/**`, `src/payload.config.ts`, `src/payload-types.ts`, `package.json`, `.github/workflows/notes-daily.yml`, `src/app/(frontend)/pyq/**`, `src/app/api/preview/route.ts`, `src/app/sitemap.ts`, `src/components/views/PyqBankView.tsx`, `tests/**`, `docs/tasks/MASTER-PLAN.md`, `docs/memory/STATE.md`.
+- Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-06, memory, N1/N1b)
+- Checks: tsc ✓ eslint ✓ (0 errors, 11 warnings) unit ✓ (82/82) build ✓; local syllabus 25 units/98 topics ✓; PYQ import 365 created then 365 updated ✓; local notes dry run 2 ✓; real local notes run 2 drafts ✓; production migration ✓; production `/` and `/pyq` 200 ✓.
+- Contract changes: ReviewItem now has `kind: ca|topic`; notes ingest GET/POST endpoints; Pyqs collection with unit/topic/thinker relations; PyqBankData/types; syllabus order/section fields.
+- Open issues / proposals: Production syllabus/PYQ data import is not done. Vercel CLI reports eight sensitive variables cannot be pulled/passed to local commands. No secret values were accessed; do not mark N1 complete until production import is confirmed.
