@@ -1,5 +1,4 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
-import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
 import sharp from 'sharp'
@@ -21,6 +20,7 @@ import { SiteSettings } from './globals/SiteSettings'
 import { Navigation } from './globals/Navigation'
 import { getServerSideURL } from './lib/url'
 import { endpoints } from './endpoints'
+import { richTextEditor } from './lib/lexical/richTextEditor'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -36,11 +36,18 @@ export default buildConfig({
   admin: {
     user: Users.slug,
     importMap: { baseDir: path.resolve(dirname) },
-    meta: { titleSuffix: ' · AUM Admin' },
+    meta: { titleSuffix: ' · UPSC OWL Admin' },
+    components: {
+      beforeDashboard: ['/components/admin/TodayWidget#TodayWidget'],
+      afterNavLinks: ['/components/admin/ReviewNavLink#ReviewNavLink'],
+      views: {
+        reviewQueue: { Component: '/components/admin/ReviewQueueView#ReviewQueueView', path: '/review' },
+      },
+    },
   },
   collections: [Pages, CurrentAffairs, Topics, Units, Papers, Thinkers, Media, Users, Sources, PipelineRuns, Digests, Quizzes],
   globals: [SiteSettings, Navigation],
-  editor: lexicalEditor(),
+  editor: richTextEditor(),
   secret: requireEnv('PAYLOAD_SECRET'),
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },
   db: postgresAdapter({

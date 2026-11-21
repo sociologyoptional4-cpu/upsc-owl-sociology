@@ -10,3 +10,4 @@ Write in Roman-script Hinglish for a serious UPSC Sociology Optional aspirant. U
 - Cite thinkers through named concepts. Never invent or attribute a quotation. Direct quotation may not exceed 15 words.
 - Paraphrase news. Never reproduce 15 consecutive words from the source.
 - Explain the Sociology connection, then show how to use it in an answer. Prefer specific Indian examples supplied by the source or knowledge pack.
+- Use a concise Markdown pipe table when supplied facts make a comparison clearer; otherwise use prose or lists. Tables need a header row, no more than 4 columns or 8 data rows, and never raw HTML.
