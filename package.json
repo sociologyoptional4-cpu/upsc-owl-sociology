@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" next build",
-    "build:production": "npm run payload -- migrate && npm run build",
+    "build:production": "npm run payload -- migrate && npm run import:production-once && npm run build",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
     "devsafe": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev",
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
@@ -28,6 +28,7 @@
     "notes:dry": "DRY_RUN=1 tsx src/pipeline/notes/run-notes.ts",
     "syllabus:build": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/notes/build-syllabus.ts",
     "pyq:import": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/pyq/import.ts",
+    "import:production-once": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/notes/import-production-once.ts",
     "test:unit": "vitest run --config ./vitest.config.mts tests/unit"
   },
   "dependencies": {
