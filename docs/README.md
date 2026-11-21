@@ -14,6 +14,8 @@ Ek **dynamic, AI-automated** UPSC Sociology Optional website. Roz subah AI curre
 | 4 | [04-cms-admin-api.md](04-cms-admin-api.md) | Admin panel, block page-builder, roles, API endpoints |
 | 5 | [05-automation-pipeline.md](05-automation-pipeline.md) | Daily AI pipeline: news → notes → page → Telegram |
 | 6 | [06-roadmap.md](06-roadmap.md) | Phases, deliverables, acceptance checks, risks, open decisions |
+| 7 | [07-blog-platform.md](07-blog-platform.md) | Blog add-on: editor, rich blocks, AI organizer/beautifier, SEO basics |
+| 8 | [08-seo-growth.md](08-seo-growth.md) | SEO growth: Search Console, redirects, site health, content intelligence, calendar |
 
 ## Ek line mein architecture
 

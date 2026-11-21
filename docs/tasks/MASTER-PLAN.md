@@ -55,6 +55,15 @@ Har prompt paste-ready hai. Har agent pehle [AGENTS.md](../../AGENTS.md) padhta 
 
 ---
 
+## Step E: Blog + SEO growth
+
+| # | Task | Kaun · Model | Status | Prompt |
+|---|------|--------------|--------|--------|
+| 07 | Blog platform (editor, AI organizer/beautifier, SEO basics) | Antigravity + Codex review | ✅ code; prod smoke pending | [07](../07-blog-platform.md) |
+| SEO-CC | `/admin/seo` SEO Control Center v1 | Claude | ✅ `bea1997` | — |
+| U3 | **Tumhara kaam:** GSC verify + service account ([docs/08 §10](../08-seo-growth.md#10-owners-one-time-gsc-setup-hinglish)) | Tum | 🟢 | — |
+| S1 | SEO growth: audit, redirects, Search Console, site health, content intelligence, calendar | Codex 6.0 / Antigravity Opus 5.5 | 🟢 | [S1](S1-seo-growth.md) |
+
 ## Cut / baad mein (D14): inke prompts mat chalana
 - R1 review (RF final review sab cover karega)
 - R2. Task 08 was cut by D14, then reactivated by the user's explicit C2 completion request on 2026-11-21.
