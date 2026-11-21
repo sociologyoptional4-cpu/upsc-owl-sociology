@@ -4,6 +4,11 @@ import { mapPyqToTopic } from '../../scripts/pyq/mapping'
 import { SYLLABUS } from '../../scripts/notes/syllabus'
 import { sharesLongRun } from '@/pipeline/notes/copy-guard'
 import { noteOutputSchema, tablesWithinLimits } from '@/pipeline/notes/schema'
+import { compareOrder } from '@/lib/data/syllabus-order'
+import { parsePyqParams } from '@/lib/data/pyq-params'
+import { parsePyqJsonl } from '../../scripts/pyq/read-data'
+import fs from 'node:fs'
+import path from 'node:path'
 
 describe('mapPyqToTopic', () => {
   it('maps Unit 4 by thinker name, ignoring the bad "G H Mead" subtopic', () => {
@@ -32,6 +37,22 @@ describe('syllabus data', () => {
     const units = SYLLABUS.flatMap((p) => p.units.map((u) => u.slug))
     expect(new Set(topics).size).toBe(topics.length)
     expect(new Set(units).size).toBe(units.length)
+  })
+  it('sorts units and topics by explicit exam order rather than title or number', () => {
+    expect([{ order: 3, title: 'A' }, { order: 1, title: 'Z' }, { order: 2, title: 'B' }].sort(compareOrder).map((item) => item.order)).toEqual([1, 2, 3])
+  })
+})
+
+describe('PYQ import and filters', () => {
+  it('parses the complete 365-question JSONL source', () => {
+    const file = path.resolve(process.cwd(), 'data/pyq/paper1-2013-2025.jsonl')
+    const rows = parsePyqJsonl(fs.readFileSync(file, 'utf8'))
+    expect(rows).toHaveLength(365)
+    expect(new Set(rows.map(({ year, qno }) => `${year}:${qno}`)).size).toBe(365)
+  })
+  it('validates supported bank filters and rejects invalid values', () => {
+    expect(parsePyqParams({ paper: 'P1', year: '2025', page: '2' }).success).toBe(true)
+    expect(parsePyqParams({ paper: 'P3', limit: '500' }).success).toBe(false)
   })
 })
 

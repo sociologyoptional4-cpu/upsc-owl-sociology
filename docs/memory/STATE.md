@@ -8,7 +8,7 @@ Phase 0 ✅ committed → Phase 1 ✅ → **Phase 2 automation** (implementation
 ## Active (claim files before you start)
 | Task | Agent (model) | Claimed files/dirs | Started |
 |------|---------------|--------------------|---------|
-_(none)_
+| Task N1b | Codex (GPT-6) | src/collections/{Topics,Units,Pyqs}.ts, src/lib/data/**, src/lib/ingest/schema.ts, src/endpoints/**, src/hooks/payload/revalidate.ts, src/pipeline/notes/**, scripts/notes/**, scripts/pyq/**, data/**, src/seed/**, src/migrations/**, src/payload.config.ts, src/payload-types.ts, package.json, .github/workflows/notes-daily.yml, src/app/(frontend)/pyq/**, src/app/api/preview/route.ts, src/app/sitemap.ts, src/components/views/PyqBankView.tsx (stub only), tests/**, docs/tasks/MASTER-PLAN.md, docs/memory/{STATE,LOG}.md | 2026-11-21 |
 
 ## Next up
 1. User creates the first admin from the production `/admin` welcome screen.

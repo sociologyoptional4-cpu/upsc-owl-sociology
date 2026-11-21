@@ -39,7 +39,7 @@ async function seedSyllabus(payload: Payload): Promise<Map<string, number>> {
     { code: 'P1' as const, title: 'Paper 1: Fundamentals of Sociology', slug: 'paper-1' },
     { code: 'P2' as const, title: 'Paper 2: Indian Society — Structure and Change', slug: 'paper-2' },
   ]) {
-    const id = (await findIdBySlug(payload, 'papers', paper.slug)) ?? (await payload.create({ collection: 'papers', data: paper })).id
+    const id = (await findIdBySlug(payload, 'papers', paper.slug)) ?? (await payload.create({ collection: 'papers', data: paper, draft: false })).id
     paperIds.set(paper.code, id)
   }
 
@@ -49,7 +49,8 @@ async function seedSyllabus(payload: Payload): Promise<Map<string, number>> {
       (await findIdBySlug(payload, 'units', unit.slug)) ??
       (await payload.create({
         collection: 'units',
-        data: { title: unit.title, slug: unit.slug, number: unit.number, paper: paperIds.get(unit.paper)! },
+        data: { title: unit.title, slug: unit.slug, number: unit.number, order: unit.number, paper: paperIds.get(unit.paper)! },
+        draft: false,
       })).id
     unitIds.set(unit.slug, id)
   }
@@ -61,7 +62,8 @@ async function seedSyllabus(payload: Payload): Promise<Map<string, number>> {
       (await payload.create({
         collection: 'topics',
         context: CTX,
-        data: { title: topic.title, slug: topic.slug, summary: topic.summary, unit: unitIds.get(topic.unit)!, _status: 'published' },
+        data: { title: topic.title, slug: topic.slug, summary: topic.summary, unit: unitIds.get(topic.unit)!, order: TOPICS.filter((item) => item.unit === topic.unit).findIndex((item) => item.slug === topic.slug) + 1, _status: 'published' },
+        draft: false,
       })).id
     topicIds.set(topic.slug, id)
   }

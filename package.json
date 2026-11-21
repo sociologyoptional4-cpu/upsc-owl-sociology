@@ -24,6 +24,10 @@
     "pipeline:eval": "tsx src/pipeline/eval-run.ts",
     "pipeline:quiz": "tsx src/pipeline/quiz-daily.ts",
     "pipeline:digest": "tsx src/pipeline/digest.ts",
+    "notes:daily": "tsx src/pipeline/notes/run-notes.ts",
+    "notes:dry": "DRY_RUN=1 tsx src/pipeline/notes/run-notes.ts",
+    "syllabus:build": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/notes/build-syllabus.ts",
+    "pyq:import": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/pyq/import.ts",
     "test:unit": "vitest run --config ./vitest.config.mts tests/unit"
   },
   "dependencies": {

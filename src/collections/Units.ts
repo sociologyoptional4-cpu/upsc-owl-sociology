@@ -13,6 +13,8 @@ export const Units: CollectionConfig = {
     { name: 'paper', type: 'relationship', relationTo: 'papers', required: true },
     { name: 'number', type: 'number', required: true, min: 1 },
     { name: 'title', type: 'text', required: true },
+    { name: 'order', type: 'number', required: true, defaultValue: 99, index: true },
+    { name: 'section', type: 'text' },
     slugField({ isUnique: false }),
   ],
 }

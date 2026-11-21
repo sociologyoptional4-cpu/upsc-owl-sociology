@@ -48,7 +48,7 @@ function assignPyqs(pyqs: Pyq[]): Map<string, Pyq[]> {
 async function ensureUnit(payload: Payload, unit: NoteSeed['unit'], paperId: number): Promise<number> {
   const found = await payload.find({ collection: 'units', where: { slug: { equals: unit.slug } }, limit: 1, depth: 0 })
   if (found.docs[0]) return found.docs[0].id
-  const created = await payload.create({ collection: 'units', data: { ...unit, paper: paperId } })
+  const created = await payload.create({ collection: 'units', data: { ...unit, paper: paperId, order: unit.number }, draft: false })
   return created.id
 }
 
@@ -84,7 +84,7 @@ async function upsertNote(payload: Payload, note: NoteSeed, unitId: number, pyqs
     await payload.update({ collection: 'topics', id: existing.docs[0].id, data, context: CTX })
     return `updated  ${note.slug} (${pyqs.length} PYQs)`
   }
-  await payload.create({ collection: 'topics', data, context: CTX })
+    await payload.create({ collection: 'topics', data: { ...data, order: NOTES.filter((item) => item.unit.slug === note.unit.slug).findIndex((item) => item.slug === note.slug) + 1 }, context: CTX, draft: false })
   return `created  ${note.slug} (${pyqs.length} PYQs)`
 }
 

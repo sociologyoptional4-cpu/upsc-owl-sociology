@@ -1,0 +1,56 @@
+name: Daily sociology topic notes
+on:
+  schedule:
+    - cron: '30 1 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Generate notes without saving drafts
+        type: boolean
+        required: true
+        default: true
+concurrency:
+  group: aum-ai-pipeline
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Check production bot credential
+        id: bot-credential
+        env:
+          AI_BOT_API_KEY: ${{ secrets.AI_BOT_API_KEY }}
+        run: |
+          if [ -z "$AI_BOT_API_KEY" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Production ai-bot API key is not configured; skipping the notes pipeline."
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Write topic notes
+        if: steps.bot-credential.outputs.ready == 'true'
+        run: npm run notes:daily
+        env:
+          DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
+          NOTES_PER_DAY: '5'
+          SITE_URL: ${{ secrets.SITE_URL }}
+          AI_BOT_API_KEY: ${{ secrets.AI_BOT_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          DEEPSEEK_BASE_URL: ${{ secrets.DEEPSEEK_BASE_URL }}
+          WRITER_MODEL: ${{ secrets.WRITER_MODEL }}
+          SCORER_MODEL: ${{ secrets.SCORER_MODEL }}
+          EMBEDDING_MODEL: ${{ secrets.EMBEDDING_MODEL }}
+          PRICE_OPENAI_INPUT: ${{ secrets.PRICE_OPENAI_INPUT }}
+          PRICE_OPENAI_OUTPUT: ${{ secrets.PRICE_OPENAI_OUTPUT }}
+          PRICE_OPENAI_EMBEDDING: ${{ secrets.PRICE_OPENAI_EMBEDDING }}
+          PRICE_DEEPSEEK_INPUT: ${{ secrets.PRICE_DEEPSEEK_INPUT }}
+          PRICE_DEEPSEEK_OUTPUT: ${{ secrets.PRICE_DEEPSEEK_OUTPUT }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}

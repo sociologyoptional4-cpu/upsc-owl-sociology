@@ -12,5 +12,5 @@ export const ingestItemSchema = z.object({
   embedding: z.array(z.number().finite()).max(4096).optional(),
 }).strict()
 export const ingestBatchSchema = z.object({ runId: z.union([z.number().int().positive(), z.string().min(1).max(120)]), items: z.array(ingestItemSchema).max(20) }).strict()
-export const reviewActionSchema = z.object({ action: z.enum(['approve', 'reject']), reason: z.string().trim().max(2000).optional() }).strict().refine((value) => value.action !== 'reject' || Boolean(value.reason), 'A reason is required to reject')
+export const reviewActionSchema = z.object({ action: z.enum(['approve', 'reject']), kind: z.enum(['ca', 'topic']).default('ca'), reason: z.string().trim().max(2000).optional() }).strict().refine((value) => value.action !== 'reject' || Boolean(value.reason), 'A reason is required to reject')
 export type IngestItem = z.infer<typeof ingestItemSchema>

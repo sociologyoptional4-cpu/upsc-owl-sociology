@@ -72,6 +72,7 @@ export interface Config {
     topics: Topic;
     units: Unit;
     papers: Paper;
+    pyqs: Pyq;
     thinkers: Thinker;
     media: Media;
     users: User;
@@ -91,6 +92,7 @@ export interface Config {
     topics: TopicsSelect<false> | TopicsSelect<true>;
     units: UnitsSelect<false> | UnitsSelect<true>;
     papers: PapersSelect<false> | PapersSelect<true>;
+    pyqs: PyqsSelect<false> | PyqsSelect<true>;
     thinkers: ThinkersSelect<false> | ThinkersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
@@ -361,6 +363,14 @@ export interface Topic {
    */
   slug?: string | null;
   unit: number | Unit;
+  order: number;
+  reviewStatus?: ('pending' | 'approved' | 'rejected') | null;
+  rejectReason?: string | null;
+  aiMeta?: {
+    model?: string | null;
+    promptVersion?: string | null;
+    costUsd?: number | null;
+  };
   /**
    * 2-3 line overview (cards aur SEO mein)
    */
@@ -381,6 +391,8 @@ export interface Unit {
   paper: number | Paper;
   number: number;
   title: string;
+  order: number;
+  section?: string | null;
   /**
    * Khali chhodo to "title" se apne aap banega.
    */
@@ -479,6 +491,26 @@ export interface Media {
       filename?: string | null;
     };
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pyqs".
+ */
+export interface Pyq {
+  id: number;
+  year: number;
+  paper: 'P1' | 'P2';
+  section?: string | null;
+  qno: string;
+  marks: number;
+  wordLimit?: number | null;
+  question: string;
+  unit: number | Unit;
+  topics?: (number | Topic)[] | null;
+  thinkers?: (number | Thinker)[] | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -660,6 +692,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'papers';
         value: number | Paper;
+      } | null)
+    | ({
+        relationTo: 'pyqs';
+        value: number | Pyq;
       } | null)
     | ({
         relationTo: 'thinkers';
@@ -918,6 +954,16 @@ export interface TopicsSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
   unit?: T;
+  order?: T;
+  reviewStatus?: T;
+  rejectReason?: T;
+  aiMeta?:
+    | T
+    | {
+        model?: T;
+        promptVersion?: T;
+        costUsd?: T;
+      };
   summary?: T;
   layout?:
     | T
@@ -944,6 +990,8 @@ export interface UnitsSelect<T extends boolean = true> {
   paper?: T;
   number?: T;
   title?: T;
+  order?: T;
+  section?: T;
   slug?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -959,6 +1007,25 @@ export interface PapersSelect<T extends boolean = true> {
   description?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pyqs_select".
+ */
+export interface PyqsSelect<T extends boolean = true> {
+  year?: T;
+  paper?: T;
+  section?: T;
+  qno?: T;
+  marks?: T;
+  wordLimit?: T;
+  question?: T;
+  unit?: T;
+  topics?: T;
+  thinkers?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

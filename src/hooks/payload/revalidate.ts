@@ -25,6 +25,7 @@ async function revalidatePaths(paths: string[], req: PayloadRequest): Promise<vo
  */
 export function revalidateAfterChange(pathsFor: PathsFor): CollectionAfterChangeHook {
   return async ({ doc, previousDoc, req }) => {
+    if (req.context?.disableRevalidate) return doc
     const current = doc as Doc
     const previous = (previousDoc ?? {}) as Doc
     const paths = [
