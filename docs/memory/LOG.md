@@ -75,3 +75,89 @@
 - Checks: tsc ✓ eslint ✓ (0 errors, 3 pre-existing E2E warnings) unit ✓ (38/38) build ✓
 - Contract changes: none
 - Open issues / proposals: none
+
+## 2026-11-21 17:20 · Claude Code (Opus 5.5) · Lean plan (D14)
+- Did: rewrote docs/tasks/MASTER-PLAN.md as the lean plan (Steps A-D); new docs/tasks/lean-tasks.md (04-lite, 13-lite, 16-lite, RF); cut banners on R1, Task 08, R2, Phase 3, Task 13/R3, 16/17/R4; Telegram alert removed from Task 06; D14 recorded (D6 superseded).
+- UI: Telegram links kept (user decision). Home CTA copy no longer promises auto-posting; the "how it works" step 4 now says "Site pe live".
+- Note for task agents: `npx tsc` currently fails in src/endpoints/index.ts, src/lib/data/current-affairs.ts and src/pipeline/llm/openai.ts (in-progress Task 05/06 work, not UI files).
+- Read-first: ✓
+
+## 2026-11-21 17:35 · Claude Code (Opus 5.5) · Telegram channel link
+- Did: all Telegram links now point to https://t.me/sociologyoptional4 (constant in src/components/ui/links.ts; header, footer, home CTA open in a new tab with rel="noopener noreferrer"); seed + existing About CTA rows + site-settings.telegramUrl updated.
+- ⚠ For task agents: src/collections/CurrentAffairs.ts imports '@/lib/telegram/postCurrentAffair' (auto-posting). That conflicts with D14 (no Telegram bot integration). Remove the hook/import unless the user reverses D14.
+- Read-first: ✓ · Checks: eslint ✓, no TS errors in UI files.
+
+## 2026-11-21 17:45 · Claude Code (Opus 5.5) · Telegram auto-post kept
+- User decision: keep the Telegram auto-post hook (src/lib/telegram/postCurrentAffair.ts). D14 updated: links + auto-post allowed; quiz/digests still cut. The earlier ⚠ note about removing the hook is withdrawn.
+- U1 again lists the Telegram bot steps (TELEGRAM_BOT_TOKEN, TELEGRAM_CHANNEL_ID=@sociologyoptional4).
+- Auto-post must stay fail-safe: if the token is missing or Telegram is down, publishing must still succeed (log, never throw), and it must post once per story.
+
+## 2026-11-21 18:30 · Claude Code (Opus 5.5) · Task 09 (Review Queue UI) + quiz/digest views
+- Did: Payload admin custom view /admin/review (ReviewQueueView with DefaultTemplate + ReviewQueueClient). Cards show date, relevance bar, model, summary, topic/thinker chips, sources, preview + edit links. Approve publishes; reject needs a reason (≥ 5 chars). The card slides out on success, and errors show inline. Dashboard TodayWidget (beforeDashboard): last run, pending, published today, kept/fetched, 7-day AI cost, CTA to the queue. Sidebar link (afterNavLinks). Admin styles in a CSS module on Payload theme vars.
+- Public: QuizView (interactive QuizRunner: lock on first pick, green/red, explanation + related story link, sticky score bar, final score) and DigestView (topic-grouped cards, PDF button, prev/next). Wired /practice (with date validation) and /digest/[type]/[key] page.tsx to them (removed the nested <main>).
+- Files: src/components/admin/**, src/components/quiz/QuizRunner.tsx, src/components/views/{QuizView,DigestView}.tsx, src/payload.config.ts (admin.components only), src/app/(payload)/admin/importMap.js, src/app/(frontend)/practice/page.tsx, src/app/(frontend)/digest/[type]/[key]/page.tsx
+- Read-first: ✓ · Checks: tsc ✓ eslint ✓. Browser: dashboard widget, review queue, reject flow (opened + cancelled; nothing rejected/approved to avoid a Telegram post), quiz with a temporary test quiz (created, answered, then deleted).
+- Not tested: Approve end-to-end from the UI (it would publish a sample + auto-post to Telegram); digest view with real data (no digest exists yet).
+
+## 2026-11-21 16:25 · Codex (GPT-6) · Task 05
+- Did: completed ingest/review endpoints and bot publish safeguards; review queue dates now use Asia/Kolkata `YYYY-MM-DD`. Verified feeds: PIB English (valid RSS, 0 items at check), The Hindu National + Editorial (valid RSS), Indian Express Explained (valid RSS), Down To Earth (valid feed, 1 item); PRS remains inactive/manual. Embeddings use JSON arrays + in-app cosine, not pgvector.
+- Files: `src/collections/{Sources,PipelineRuns,CurrentAffairs}.ts`, `src/endpoints/**`, `src/lib/ingest/**`, `src/lib/telegram/**`, `src/hooks/payload/forceBotDrafts.ts`, `src/globals/SiteSettings.ts`, `src/lib/data/types.ts`, `tests/unit/**`, `docs/memory/**`, task status/docs
+- Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-06, memory, Task 05/C2)
+- Checks: tsc ✓ eslint ✓ (0 errors, 3 existing warnings) unit ✓ (56/56) build ✓
+- Contract changes: ReviewItem, TodayStats, CoverageRow; review queue `date` normalized to IST calendar date.
+- Open issues / proposals: migration and seed/live review flow not run; integration approve flow remains unverified.
+
+## 2026-11-21 16:25 · Codex (GPT-6) · Task 07
+- Did: added OpenAI writing prompts, DeepSeek scoring prompt, Hinglish guide, gold examples, and 40-row relevance set; offline local-rule baseline precision 0.9091 / recall 1.0 (no model calls).
+- Files: `src/pipeline/llm/prompts/**`, `src/pipeline/eval/**`, `docs/tasks/MASTER-PLAN.md`, `docs/memory/STATE.md`
+- Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-06, memory, Task 07/C2)
+- Checks: offline eval ✓; shared full checks tsc ✓ eslint ✓ unit ✓ (56/56) build ✓
+- Contract changes: none.
+- Open issues / proposals: model-scored paid eval not run.
+
+## 2026-11-21 16:25 · Codex (GPT-6) · Task 06
+- Did: implemented feed fetch/clean/dedupe, DeepSeek scoring, OpenAI writing/embeddings, cost ledger/cap, dry-run mode, Payload batch post, and daily GitHub Actions workflow.
+- Files: `src/pipeline/**` (excluding cut quiz/digest utilities), `.github/workflows/daily-ca.yml`, `package.json`, `package-lock.json`, `.env.example`
+- Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-06, memory, Task 06/C2)
+- Checks: tsc ✓ eslint ✓ (0 errors, 3 existing warnings) unit ✓ (56/56) build ✓
+- Contract changes: none.
+- Open issues / proposals: local prices and PREVIEW_SECRET are unconfigured; no paid pipeline call or 5–7 day unattended soak was run.
+
+## 2026-11-21 16:25 · Codex (GPT-6) · Task 08 scope reconciliation
+- Did: excluded daily quiz and digest work per D14; retained the separately approved Telegram auto-post hook. Existing uncommitted quiz/digest artifacts from earlier work remain outside the lean Phase 2 deliverable pending Claude's UI cleanup.
+- Files: `docs/tasks/MASTER-PLAN.md`, `docs/tasks/README.md`, `docs/memory/STATE.md`, `docs/memory/LOG.md`
+- Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-06, memory, Task 08/C2, D14)
+- Checks: N/A (cut by D14).
+- Contract changes: none.
+- Open issues / proposals: do not mark Task 08 complete or include quiz/digest implementation in Phase 2 commits. No commits were created because the C2 commit bundle overlaps D14-cut files and uncommitted Claude UI/config changes; isolate Tasks 05–07 before committing.
+
+## 2026-11-21 16:25 · Codex (GPT-6) · Task C2 user steering
+- Did: user explicitly reactivated Task 08 for C2 closure; audited review-queue IST date handling and the quiz/digest landmark structure. The endpoint date fix/test are present; quiz and digest views render no `<main>`, so the frontend layout has exactly one main landmark.
+- Files: `docs/memory/{STATE,DECISIONS,LOG}.md`, `docs/tasks/{MASTER-PLAN,README}.md`
+- Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-06, memory, phase-2 specs, C2)
+- Checks: source audit ✓; no nested `<main>` in quiz/digest routes or views.
+- Contract changes: none.
+- Open issues / proposals: GitHub repo currently exposes no daily pipeline workflow or Actions secrets; local git remote is absent. Workflow dispatch is therefore not possible from this checkout yet.
+
+## 2026-11-21 16:39 · Codex (GPT-6) · Task 08 / C2 completion
+- Did: committed Task 08's Telegram publish hook, Quiz/Digest collections, data readers, routes, generators, workflows, and unit coverage. Confirmed quiz/digest routes and views contain no `<main>`; only the frontend root layout owns the main landmark. Review-queue date normalization is committed with its IST regression test.
+- Files: `.github/workflows/{daily-quiz,weekly-digest,monthly-digest}.yml`, `src/collections/{Quizzes,Digests}.ts`, `src/lib/{data/learning.ts,telegram/postCurrentAffair.ts}`, `src/pipeline/{quiz-daily,quiz-schema,digest,digest-utils}.ts`, `src/app/(frontend)/{practice,digest/**}`, migration and generated types, unit tests, shared memory/task status.
+- Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-06, memory, Tasks 05-08, C2)
+- Checks: tsc ✓ eslint ✓ (0 errors, 3 existing warnings) unit ✓ (56/56) build ✓
+- Contract changes: QuizView and DigestView data types plus generated Payload types for sources, runs, quizzes, and digests.
+- Open issues / proposals: GitHub Actions is not configured in the target repo yet; no live pipeline run or 5–7 day soak. GitHub repo has no daily workflow or Actions secrets and local git has no remote.
+
+## 2026-11-21 16:39 · Codex (GPT-6) · Task C2 commit record
+- Did: created four scoped commits: `feat: ingest api, review workflow and pipeline bookkeeping`; `docs: pipeline prompts, style guide and eval set v1`; `feat: daily ai pipeline and scheduled workflow`; `feat: telegram auto-post, daily quiz and digests`. No `src/components/**` or `src/styles/**` files were staged.
+- Files: four Task 05–08 commit scopes plus `docs/memory/{STATE,DECISIONS,LOG}.md`, `docs/tasks/{MASTER-PLAN,README}.md`, `AGENTS.md`, and mirrored project rule.
+- Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-06, memory, Tasks 05-08, C2)
+- Checks: tsc ✓ eslint ✓ unit ✓ (56/56) build ✓; workflow dispatch check ✗ (no workflow/secrets in GitHub repo; no local remote).
+- Contract changes: none beyond Task 05/08 entries above.
+- Open issues / proposals: local commits are not pushed. Add GitHub Actions secrets and publish the workflow to the intended repo before expecting a 06:00 IST run.
+
+## 2026-11-21 19:20 · Claude Code (Opus 5.5) · Notes batch 1 + PYQ block
+- Did: 8 original Hinglish topic notes (Paper 1 Unit 1: modernity, scope, common sense; Unit 2: science, strands, positivism, fact-value, non-positivist) in src/seed/notes/unit1-2.ts. Import script src/seed/notes-batch-1.ts (idempotent; creates unit 2 "Sociology as Science"; attaches PYQs by keyword: 52 of 52 Unit 1-2 PYQs placed). Layout: summary → richText body → keyTerms → pyqList → answer tip.
+- New block `pyqList` (config + Zod schema + designed component: red year stamps, year-frequency strip); added to LAYOUT_BLOCKS and aiBlockSchema; types regenerated.
+- Data: data/pyq/paper1-2013-2025.jsonl copied in (public UPSC questions). The handouts were NOT copied (D15).
+- Found: Lexical doesn't render markdown tables (pipeline prompts must avoid tables); topics sort alphabetically, not in syllabus order (→ N1 adds `order`); the PYQ file labels all Unit 4 questions "G H Mead" (→ N1 fixes the mapping).
+- Read-first: ✓ · Checks: tsc ✓ eslint ✓; browser: topic pages, PYQ block, paper page.

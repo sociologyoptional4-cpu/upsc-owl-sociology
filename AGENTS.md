@@ -3,8 +3,9 @@
 You are one of several AI agents (Claude Code, Codex, Antigravity/Gemini, …) building **one** project together. Act as if one person did all the work: same conventions, same memory, no duplicate effort.
 
 ## Project
-**AUM Sociology**: a dynamic, AI-automated website for UPSC Sociology Optional. Pages are built from CMS blocks, so new pages go live from the admin panel or the API without a deploy. A daily AI pipeline turns news into syllabus-linked notes (Phase 2).
+**UPSC OWL Sociology**: a dynamic, AI-automated website for UPSC Sociology Optional. Pages are built from CMS blocks, so new pages go live from the admin panel or the API without a deploy. A daily AI pipeline turns news into syllabus-linked notes (Phase 2).
 Stack: Next.js 16 (App Router) · Payload CMS 3 (`/admin`, `/api`) · Postgres · Tailwind v4 · Lenis/GSAP/Motion · TypeScript strict.
+Content AI providers: **OpenAI API writes** and **DeepSeek API scores/filters**. Do not use Anthropic API for content generation.
 Full plan: `docs/README.md` → `docs/01…06`.
 
 ## Roles
@@ -21,12 +22,20 @@ Full plan: `docs/README.md` → `docs/01…06`.
 | `docs/memory/LOG.md` | Append-only work log, newest at the bottom | Every agent, at the end of every task |
 | `docs/tasks/README.md` | Task board (order, owner, model, status) | Claude creates tasks; the doing agent flips the status |
 
-**At start:** read this file, `docs/memory/STATE.md`, `docs/memory/DECISIONS.md`, the last ~40 lines of `LOG.md`, and your task file. Add your task under "Active" in STATE.md with the files/dirs you will touch. If another active task already claims them, stop and report.
+**At start (mandatory, before ANY work):** read in this order:
+1. this file
+2. `docs/tasks/MASTER-PLAN.md`: all phases, who does what, where your task fits
+3. `docs/README.md` and `docs/01-architecture.md` … `docs/06-roadmap.md`: the full plan. Skim them all; read closely the ones your task touches.
+4. `docs/memory/STATE.md`, `docs/memory/DECISIONS.md`, and the last ~40 lines of `docs/memory/LOG.md`
+5. your task's prompt and spec
+
+Do not write code until you have read all of these. Your LOG entry must include `Read-first: ✓`. Add your task under "Active" in STATE.md with the files/dirs you will touch. If another active task already claims them, stop and report.
 **At end:** remove yourself from "Active", update "Done/Next", and append to LOG.md:
 ```
 ## YYYY-MM-DD HH:MM · <agent> (<model>) · Task NN
 - Did: …
 - Files: …
+- Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-06, memory)
 - Checks: tsc ✓ eslint ✓ unit ✓ build ✓   (say ✗ honestly if something failed)
 - Contract changes: none | <exact list>
 - Open issues / proposals: …

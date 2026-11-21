@@ -75,6 +75,10 @@ export interface Config {
     thinkers: Thinker;
     media: Media;
     users: User;
+    sources: Source;
+    'pipeline-runs': PipelineRun;
+    digests: Digest;
+    quizzes: Quiz;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -90,6 +94,10 @@ export interface Config {
     thinkers: ThinkersSelect<false> | ThinkersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    sources: SourcesSelect<false> | SourcesSelect<true>;
+    'pipeline-runs': PipelineRunsSelect<false> | PipelineRunsSelect<true>;
+    digests: DigestsSelect<false> | DigestsSelect<true>;
+    quizzes: QuizzesSelect<false> | QuizzesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -298,6 +306,19 @@ export interface CurrentAffair {
    * Card aur SEO description
    */
   summary?: string | null;
+  reviewStatus?: ('pending' | 'approved' | 'rejected') | null;
+  rejectReason?: string | null;
+  sourceHash?: string | null;
+  embedding?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  telegramMessageId?: string | null;
   layout?: (HeroBlock | RichTextBlock | SummaryBlock | CalloutBlock | KeyTermsBlock | CtaBlock)[] | null;
   isAiGenerated?: boolean | null;
   aiMeta?: {
@@ -478,6 +499,108 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sources".
+ */
+export interface Source {
+  id: number;
+  name: string;
+  feedUrl: string;
+  kind: 'rss' | 'official' | 'manual';
+  trust: number;
+  active?: boolean | null;
+  lastFetchedAt?: string | null;
+  lastError?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pipeline-runs".
+ */
+export interface PipelineRun {
+  id: number;
+  startedAt: string;
+  finishedAt?: string | null;
+  status: 'running' | 'ok' | 'partial' | 'failed';
+  counts?: {
+    fetched?: number | null;
+    deduped?: number | null;
+    scored?: number | null;
+    kept?: number | null;
+    written?: number | null;
+    failedValidation?: number | null;
+    published?: number | null;
+  };
+  costUsd?: number | null;
+  tokens?: {
+    input?: number | null;
+    output?: number | null;
+    cached?: number | null;
+  };
+  errors?:
+    | {
+        stage: string;
+        message: string;
+        id?: string | null;
+      }[]
+    | null;
+  promptVersion?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "digests".
+ */
+export interface Digest {
+  id: number;
+  type: 'weekly' | 'monthly';
+  key: string;
+  range: {
+    from: string;
+    to: string;
+  };
+  intro?: string | null;
+  groups?:
+    | {
+        topic: number | Topic;
+        items: (number | CurrentAffair)[];
+        id?: string | null;
+      }[]
+    | null;
+  pdf?: (number | null) | Media;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quizzes".
+ */
+export interface Quiz {
+  id: number;
+  date: string;
+  items?:
+    | {
+        question: string;
+        options?:
+          | {
+              text: string;
+              id?: string | null;
+            }[]
+          | null;
+        answerIndex: number;
+        explanation: string;
+        caId: number | CurrentAffair;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -531,6 +654,22 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'users';
         value: number | User;
+      } | null)
+    | ({
+        relationTo: 'sources';
+        value: number | Source;
+      } | null)
+    | ({
+        relationTo: 'pipeline-runs';
+        value: number | PipelineRun;
+      } | null)
+    | ({
+        relationTo: 'digests';
+        value: number | Digest;
+      } | null)
+    | ({
+        relationTo: 'quizzes';
+        value: number | Quiz;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -706,6 +845,11 @@ export interface CurrentAffairsSelect<T extends boolean = true> {
         id?: T;
       };
   summary?: T;
+  reviewStatus?: T;
+  rejectReason?: T;
+  sourceHash?: T;
+  embedding?: T;
+  telegramMessageId?: T;
   layout?:
     | T
     | {
@@ -883,6 +1027,110 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sources_select".
+ */
+export interface SourcesSelect<T extends boolean = true> {
+  name?: T;
+  feedUrl?: T;
+  kind?: T;
+  trust?: T;
+  active?: T;
+  lastFetchedAt?: T;
+  lastError?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pipeline-runs_select".
+ */
+export interface PipelineRunsSelect<T extends boolean = true> {
+  startedAt?: T;
+  finishedAt?: T;
+  status?: T;
+  counts?:
+    | T
+    | {
+        fetched?: T;
+        deduped?: T;
+        scored?: T;
+        kept?: T;
+        written?: T;
+        failedValidation?: T;
+        published?: T;
+      };
+  costUsd?: T;
+  tokens?:
+    | T
+    | {
+        input?: T;
+        output?: T;
+        cached?: T;
+      };
+  errors?:
+    | T
+    | {
+        stage?: T;
+        message?: T;
+        id?: T;
+      };
+  promptVersion?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "digests_select".
+ */
+export interface DigestsSelect<T extends boolean = true> {
+  type?: T;
+  key?: T;
+  range?:
+    | T
+    | {
+        from?: T;
+        to?: T;
+      };
+  intro?: T;
+  groups?:
+    | T
+    | {
+        topic?: T;
+        items?: T;
+        id?: T;
+      };
+  pdf?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quizzes_select".
+ */
+export interface QuizzesSelect<T extends boolean = true> {
+  date?: T;
+  items?:
+    | T
+    | {
+        question?: T;
+        options?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        answerIndex?: T;
+        explanation?: T;
+        caId?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -939,6 +1187,7 @@ export interface SiteSetting {
    */
   autoPublish?: boolean | null;
   maxDailyUsd?: number | null;
+  autoPublishMinRelevance?: number | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -976,6 +1225,7 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   pipelineEnabled?: T;
   autoPublish?: T;
   maxDailyUsd?: T;
+  autoPublishMinRelevance?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
