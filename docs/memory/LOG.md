@@ -244,3 +244,11 @@
 - Checks: `npx tsc --noEmit` ✓; `npx eslint src tests` ✓ (0 errors, 15 existing warnings); unit ✓ (87/87); `npm run build` ✓; production `/`, `/syllabus`, `/pyq` previously smoke-tested ✓.
 - Contract changes: four `posts` internal fields now require staff read access; `/api/blog/suggestions/apply-all` added; runtime sharp patched to 0.35.5.
 - Open issues / proposals: production deploy and blog jobs workflow verification pending; three high transitive npm advisories remain under Payload's Lexical dependency; first admin and 5–7 day Phase 2 soak remain pending.
+
+## 2026-11-21 20:27 · Codex (GPT-6) · Task 07 production follow-through
+- Did: Checked production deployment `pm4jqxe2z`; Vercel applied `20261121_143405_blog_platform`, compiled and type-checked, then remained in static-page generation. `/blog`, `/blog/rss.xml`, and `/llms.txt` returned 404 while build status was Building. No `blog-jobs` or `daily-ca` workflow run is recorded. Production first-admin setup remains the user prerequisite for creating the production bot key and dispatching daily-ca.
+- Files: `docs/memory/STATE.md`, `docs/memory/LOG.md`.
+- Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-06, memory, Task 07 log/spec)
+- Checks: deployment migration/compile/typecheck ✓; production blog smoke ✗ (deployment still Building); blog workflow ✗ (not dispatched); daily-ca pending first admin.
+- Contract changes: none.
+- Open issues / proposals: finish Vercel deployment and smoke routes; user create first admin at https://upsc-owl-sociology.vercel.app/admin; then create production ai-bot key and dispatch daily-ca dry run. Three high transitive npm audit advisories remain under Payload Lexical dependency.
