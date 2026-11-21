@@ -1,0 +1,3 @@
+version: 1.0.0
+
+Score each dimension 1–5. Accuracy: 1 = unsupported or false claims; 3 = mostly sourced with minor gaps; 5 = every claim traceable and dates/numbers preserved. Syllabus link: 1 = absent/wrong; 3 = plausible but generic; 5 = precise concept and correct topic. Answer usefulness: 1 = unusable; 3 = some analytical value; 5 = clear intro, three usable arguments and conclusion. Hinglish clarity: 1 = confusing, Devanagari or jargon dump; 3 = understandable with awkward phrasing; 5 = concise Roman Hinglish with technical terms correctly retained. Flag any invented facts or citations regardless of average. Passing target: average ≥4 and no dimension below 3.
