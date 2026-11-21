@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { CurrentAffair } from '@/payload-types'
-import { issueNumber } from '@/lib/data/issue'
+import { formatDateIST, issueNumber } from '@/lib/data/issue'
 import { mapCACard } from '@/lib/data/mappers'
 import { dateParamSchema, paperRouteSchema, slugParamSchema } from '@/lib/data/route-schemas'
 import { urls } from '@/lib/data/urls'
@@ -17,6 +17,12 @@ describe('issue number', () => {
   it('counts whole days from launch with day one as issue one', () => {
     expect(issueNumber('2026-11-21')).toBe(1)
     expect(issueNumber('2026-11-23')).toBe(3)
+  })
+})
+
+describe('formatDateIST', () => {
+  it('formats UTC timestamps as the calendar date in Asia/Kolkata', () => {
+    expect(formatDateIST('2026-11-20T19:00:00.000Z')).toBe('2026-11-21')
   })
 })
 

@@ -17,6 +17,11 @@ export type HomeData = { issue: IssueSummary | null; latestCA: CACard[]; feature
 export type Navigation = { header: { label: string; href: string }[]; footer: { label: string; href: string }[] }
 export type PaperPageData = SyllabusPaper
 export type UnitPageData = { paper: { code: PaperCode; title: string; slug: string; href: string }; unit: SyllabusUnit }
+export type ReviewItem = { id: number; headline: string; date: string; relevance: number | null; summary: string | null; sources: { name: string; url: string }[]; topics: TopicChip[]; thinkers: ThinkerChip[]; model: string | null; promptVersion: string | null; createdAt: string; previewHref: string }
+export type TodayStats = { lastRun: { startedAt: string; finishedAt: string | null; status: string; counts: Record<string, number>; costUsd: number; errors: { stage: string; message: string }[] } | null; pendingReview: number; publishedToday: number; costLast7Days: { date: string; usd: number }[] }
+export type CoverageRow = { paper: 'P1' | 'P2'; unitTitle: string; topicTitle: string; topicHref: string; caCount: number; hasNotes: boolean; lastCaDate: string | null }
+export type DigestView = { type: 'weekly' | 'monthly'; key: string; title: string; range: { from: string; to: string }; intro: string; groups: { topic: TopicChip; items: CACard[] }[]; pdfUrl: string | null; prev: string | null; next: string | null }
+export type QuizView = { date: string; items: { question: string; options: string[]; answerIndex: number; explanation: string; caHref: string }[] }
 
 export function relationDocs<T extends { id: number }>(items: (number | T)[] | null | undefined): T[] {
   return (items ?? []).filter((item): item is T => typeof item === 'object' && item !== null)

@@ -120,6 +120,21 @@ async function seedContent(payload: Payload, topicIds: Map<string, number>, thin
   await payload.updateGlobal({ slug: 'navigation', context: CTX, data: { header: navItems, footer: navItems } })
 }
 
+async function seedSources(payload: Payload): Promise<void> {
+  const sources = [
+    { name: 'PIB Press Releases (English)', feedUrl: 'https://pib.gov.in/RssMain.aspx?ModId=6&Lang=1&Regid=1', kind: 'official' as const, trust: 3, active: true },
+    { name: 'The Hindu National', feedUrl: 'https://www.thehindu.com/news/national/feeder/default.rss', kind: 'rss' as const, trust: 2, active: true },
+    { name: 'The Hindu Editorial', feedUrl: 'https://www.thehindu.com/opinion/editorial/feeder/default.rss', kind: 'rss' as const, trust: 2, active: true },
+    { name: 'Indian Express Explained', feedUrl: 'https://indianexpress.com/section/explained/feed/', kind: 'rss' as const, trust: 2, active: true },
+    { name: 'Down To Earth', feedUrl: 'https://www.downtoearth.org.in/feed/', kind: 'rss' as const, trust: 2, active: true },
+    { name: 'PRS Legislative Research (manual)', feedUrl: 'https://prsindia.org/', kind: 'manual' as const, trust: 3, active: false },
+  ]
+  for (const source of sources) {
+    const existing = await payload.find({ collection: 'sources', where: { feedUrl: { equals: source.feedUrl } }, limit: 1, overrideAccess: true })
+    if (!existing.docs.length) await payload.create({ collection: 'sources', context: CTX, data: source, overrideAccess: true })
+  }
+}
+
 // Top-level await: `payload run` exits as soon as the module finishes evaluating.
 try {
   const payload = await getPayload({ config })
@@ -127,6 +142,7 @@ try {
   const topicIds = await seedSyllabus(payload)
   const thinkerIds = await seedThinkers(payload)
   await seedContent(payload, topicIds, thinkerIds)
+  await seedSources(payload)
   payload.logger.info('seed complete')
   process.exit(0)
 } catch (error: unknown) {

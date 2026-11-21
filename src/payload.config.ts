@@ -6,6 +6,10 @@ import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
 import { CurrentAffairs } from './collections/CurrentAffairs'
+import { Sources } from './collections/Sources'
+import { PipelineRuns } from './collections/PipelineRuns'
+import { Digests } from './collections/Digests'
+import { Quizzes } from './collections/Quizzes'
 import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
 import { Papers } from './collections/Papers'
@@ -16,6 +20,7 @@ import { Users } from './collections/Users'
 import { SiteSettings } from './globals/SiteSettings'
 import { Navigation } from './globals/Navigation'
 import { getServerSideURL } from './lib/url'
+import { endpoints } from './endpoints'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -33,7 +38,7 @@ export default buildConfig({
     importMap: { baseDir: path.resolve(dirname) },
     meta: { titleSuffix: ' · AUM Admin' },
   },
-  collections: [Pages, CurrentAffairs, Topics, Units, Papers, Thinkers, Media, Users],
+  collections: [Pages, CurrentAffairs, Topics, Units, Papers, Thinkers, Media, Users, Sources, PipelineRuns, Digests, Quizzes],
   globals: [SiteSettings, Navigation],
   editor: lexicalEditor(),
   secret: requireEnv('PAYLOAD_SECRET'),
@@ -43,4 +48,5 @@ export default buildConfig({
   }),
   sharp,
   plugins: [],
+  endpoints,
 })

@@ -4,6 +4,7 @@ import { canCreateContent, canUpdateContent, isAdmin, publishedOrLoggedIn } from
 import { LAYOUT_BLOCKS } from '@/blocks'
 import { slugField } from '@/fields/slug'
 import { forceBotDrafts } from '@/hooks/payload/forceBotDrafts'
+import { postCurrentAffair } from '@/lib/telegram/postCurrentAffair'
 import { revalidateAfterChange, revalidateAfterDelete } from '@/hooks/payload/revalidate'
 import { validateHref } from '@/lib/href'
 
@@ -39,7 +40,7 @@ export const CurrentAffairs: CollectionConfig = {
   versions: { drafts: true, maxPerDoc: 15 },
   hooks: {
     beforeChange: [forceBotDrafts],
-    afterChange: [revalidateAfterChange(caPaths)],
+    afterChange: [revalidateAfterChange(caPaths), postCurrentAffair],
     afterDelete: [revalidateAfterDelete(caPaths)],
   },
   fields: [
@@ -67,6 +68,11 @@ export const CurrentAffairs: CollectionConfig = {
       ],
     },
     { name: 'summary', type: 'textarea', admin: { description: 'Card aur SEO description' } },
+    { name: 'reviewStatus', type: 'select', defaultValue: 'pending', index: true, options: ['pending', 'approved', 'rejected'] },
+    { name: 'rejectReason', type: 'textarea' },
+    { name: 'sourceHash', type: 'text', unique: true, index: true, admin: { position: 'sidebar' } },
+    { name: 'embedding', type: 'json', admin: { hidden: true } },
+    { name: 'telegramMessageId', type: 'text', admin: { hidden: true } },
     { name: 'layout', type: 'blocks', blocks: LAYOUT_BLOCKS },
     {
       name: 'isAiGenerated',

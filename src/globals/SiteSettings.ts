@@ -28,6 +28,7 @@ export const SiteSettings: GlobalConfig = {
           admin: { description: 'Off = AI ke saare notes review queue mein (recommended pehle 2-4 hafte).' },
         },
         { name: 'maxDailyUsd', type: 'number', defaultValue: 1, min: 0 },
+        { name: 'autoPublishMinRelevance', type: 'number', defaultValue: 0.8, min: 0, max: 1 },
       ],
     },
   ],

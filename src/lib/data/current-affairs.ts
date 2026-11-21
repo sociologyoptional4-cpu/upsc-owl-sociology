@@ -39,9 +39,11 @@ export const getRecentIssues = cache(async (limit = 30): Promise<IssueSummary[]>
   return [...counts].slice(0, limit).map(([date, count]) => issueSummary(date, count))
 })
 
-export const getCAArticle = cache(async (date: string, slug: string): Promise<CAArticle | null> => {
+export const getCAArticle = cache(async (date: string, slug: string, preview = false): Promise<CAArticle | null> => {
   const payload = await getPayloadClient()
-  const found = await payload.find({ collection: 'current-affairs', where: { and: [{ date: { equals: date } }, { slug: { equals: slug } }, { _status: { equals: 'published' } }] }, limit: 1, depth: 3, draft: false, overrideAccess: false })
+  const conditions: Where[] = [{ date: { equals: date } }, { slug: { equals: slug } }]
+  if (!preview) conditions.push({ _status: { equals: 'published' } })
+  const found = await payload.find({ collection: 'current-affairs', where: { and: conditions }, limit: 1, depth: 3, draft: preview, overrideAccess: preview })
   const doc = found.docs[0]
   if (!doc) return null
   const [older, newer] = await Promise.all([
