@@ -9,7 +9,7 @@ Neeche wala poora block copy karke Codex mein paste karo.
 ## PROMPT
 
 ````text
-FIRST: read AGENTS.md (memory protocol + ownership), docs/memory/STATE.md, docs/memory/DECISIONS.md and the tail of docs/memory/LOG.md. Claim your files under "Active" in STATE.md before editing anything.
+READ FIRST (mandatory, before any work, in this order): AGENTS.md → docs/tasks/MASTER-PLAN.md → docs/README.md and docs/01-architecture.md … docs/06-roadmap.md (skim all, read closely what your task touches) → docs/memory/STATE.md, docs/memory/DECISIONS.md, the tail of docs/memory/LOG.md → this prompt. Claim your files under "Active" in STATE.md before editing anything.
 LAST: release your claim in STATE.md, mark the task status in docs/tasks/README.md, and append your entry to docs/memory/LOG.md (format in AGENTS.md). Include these memory files in your final commit.
 
 You are working in the repo at "/Users/ujjawalchaudhary/sociology website" (note the space in the path; quote it).

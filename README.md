@@ -1,4 +1,4 @@
-# AUM Sociology
+# UPSC OWL Sociology
 
 UPSC Sociology Optional ki dynamic website. Isme ek admin panel hai aur ek API. Naye pages bina deploy ke ban jaate hain, aur AI pipeline (Phase 2) roz current affairs likhegi.
 

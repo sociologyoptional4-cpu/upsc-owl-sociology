@@ -26,7 +26,7 @@ GitHub Actions (`.github/workflows/*.yml`), `workflow_dispatch` se manual run bh
                keep: score ≥ 0.6, max 8/day (top score)
 ⑤ MAP          Candidate topics ko real `topics` IDs se match (slug list prompt mein di jaati hai;
                unknown topic = reject, kabhi naya syllabus topic invent nahi)
-⑥ WRITE        Claude: structured output (JSON schema = block schemas) →
+⑥ WRITE        OpenAI: structured output (JSON schema = block schemas) →
                summary, sociology angle, thinker link, answer framework, keywords, 1 mains Q, 2 MCQ
                Hinglish style guide + 2 gold examples prompt mein (prompt caching on)
 ⑦ VALIDATE     Zod parse → fail = 1 retry with error message → phir bhi fail = skip + log
@@ -48,7 +48,7 @@ src/pipeline/
 ├── dedupe.ts              hash + embeddings
 ├── llm/
 │   ├── deepseek.ts        score() — batch 20 items per call
-│   ├── claude.ts          write() — structured output, retries, backoff
+│   ├── openai.ts          write() — structured output, retries, backoff
 │   ├── prompts/           ca-writer.v3.md, scorer.v2.md (versioned)
 │   └── style-guide.md     Hinglish tone, structure, banned phrases
 ├── validate.ts            Zod schemas (blocks se import) + copy-guard
@@ -58,14 +58,14 @@ src/pipeline/
 
 ## 4. AI quality controls
 - **Prompt versioning:** har doc mein `aiMeta.promptVersion`. Reject reasons collect → next prompt version.
-- **Grounding:** Claude ko sirf feed summary + hamare topic/thinker notes milte hain; "source mein nahi hai to mat likho" rule. Facts (numbers, dates) source se hi.
+- **Grounding:** OpenAI writer ko sirf feed summary + hamare topic/thinker notes milte hain; "source mein nahi hai to mat likho" rule. Facts (numbers, dates) source se hi.
 - **Human review window:** pehle 2-4 hafte 100% review. Approve rate > 90% ho to auto-publish on.
 - **Transparency:** har AI page pe badge + source links + "report error" button (→ admin mein issue).
 - **Kill switch:** `site-settings.pipelineEnabled` false → cron kuch publish nahi karega.
 
 ## 5. Cost control
-- Bulk filtering DeepSeek pe; Claude sirf ~8 final items/day.
-- Claude prompt caching (style guide + examples + topic list = cached prefix).
+- Bulk filtering DeepSeek pe; OpenAI sirf ~8 final items/day.
+- OpenAI prompt caching for the static style guide, examples, and topic-list prefix when supported by the selected model.
 - `pipeline-runs` mein daily cost; `site-settings.maxDailyUsd` cross → pipeline ruk jaaye, alert aaye.
 - Exact model IDs aur pricing env/config mein — implement karte waqt current docs se confirm karenge.
 

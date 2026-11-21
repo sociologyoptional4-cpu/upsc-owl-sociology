@@ -1,5 +1,7 @@
 # Task R1 — Independent review of Task 01
 
+> ⛔ **CUT (D14):** ye review skip. Launch se pehle [RF](lean-tasks.md#task-rf) sab cover karega.
+
 **Kisko:** Antigravity · **Claude Sonnet 5.5**. Jisne code likha usse alag model review kare, isse zyada bugs pakde jaate hain. · **Kab:** Task 01 commit hone ke baad · **Ye code nahi likhega**, sirf report dega.
 
 ---
@@ -7,7 +9,7 @@
 ## PROMPT
 
 ````text
-FIRST: read AGENTS.md, docs/memory/STATE.md, docs/memory/DECISIONS.md, the tail of docs/memory/LOG.md, and docs/tasks/01-codex-phase1-data-layer.md (the spec).
+READ FIRST (mandatory, before any work, in this order): AGENTS.md → docs/tasks/MASTER-PLAN.md → docs/README.md and docs/01-architecture.md … docs/06-roadmap.md (skim all, read closely what your task touches) → docs/memory/STATE.md, docs/memory/DECISIONS.md, the tail of docs/memory/LOG.md → this prompt. Also read docs/tasks/01-codex-phase1-data-layer.md (the spec you review).
 You are a READ-ONLY reviewer. Do not edit source files. Your only writes: docs/reviews/R1-task01.md and your LOG.md entry.
 
 Review the commit(s) from Task 01 (`git log --oneline -5`, then `git show` / `git diff <phase0-commit>..HEAD`).

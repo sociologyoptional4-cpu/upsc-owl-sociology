@@ -169,3 +169,31 @@
 - Data: data/pyq/paper1-2013-2025.jsonl copied in (public UPSC questions). The handouts were NOT copied (D15).
 - Found: Lexical doesn't render markdown tables (pipeline prompts must avoid tables); topics sort alphabetically, not in syllabus order (→ N1 adds `order`); the PYQ file labels all Unit 4 questions "G H Mead" (→ N1 fixes the mapping).
 - Read-first: ✓ · Checks: tsc ✓ eslint ✓; browser: topic pages, PYQ block, paper page.
+
+## 2026-11-21 19:50 · Claude Code (Opus 5.5) · First local pipeline dry run (fixes)
+- Local setup: created ai-bot user pipeline-bot@aum.test (API key in .env only), added SITE_URL, AI_BOT_API_KEY, model and PRICE_* (copied from .env.example; verify against the pricing pages) to .env; turned site-settings.pipelineEnabled ON; ran `npm run seed` so the `sources` collection is filled (5 active feeds + PRS manual).
+- Bug fixed (src/pipeline/publish.ts): the site auth header was `Bearer <key>`; Payload needs `users API-Key <key>` → every site call returned 403.
+- Bug fixed (src/pipeline/run-daily.ts): dry runs swallowed errors silently (exit 0, no output); errors now print in DRY_RUN.
+- Result: feeds OK (80 fetched, 1 dup). Blocked at scoring: DeepSeek returns 401 (the key in .env is rejected by api.deepseek.com/models; the OpenAI key is valid). Waiting on the user for a valid DeepSeek key or a decision to score with OpenAI.
+- Checks: tsc ✓, unit 56 ✓.
+
+## 2026-11-21 16:52 · Codex (GPT-6) · Rich-text tables + HTML import
+- Did: Enabled Payload Lexical tables for editor and Markdown ingestion; added table styling, writer guidance, and Python HTML-to-Markdown CLI (`markdownify==1.2.4`).
+- Files: `src/payload.config.ts`, `src/lib/lexical/richTextEditor.ts`, `src/lib/ingest/markdownToLexical.ts`, `src/styles/global.css`, `src/pipeline/llm/prompts/*`, `docs/tasks/N1-notes-writer.md`, `scripts/html_to_markdown.py`, `requirements-html-import.txt`, `.gitignore`, `docs/memory/*`.
+- Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-06, memory)
+- Checks: tsc ✓ eslint ✓ unit not run build ✓; Python HTML-table conversion ✓; Markdown-to-Lexical table-node smoke ✓.
+- Contract changes: none.
+- Open issues / proposals: Payload marks its table feature experimental; monitor upgrades before changing Payload versions.
+
+## 2026-11-21 20:40 · Claude Code (Opus 5.5) · First successful real pipeline run
+- Result: run status ok. fetched 80, deduped 1, scored 79, kept 5, written 5, failedValidation 0, cost ≈ $0.04. 5 AI drafts in /admin/review (autoPublish off).
+- Provider setup: DeepSeek is served by JarvisLabs (OpenAI-compatible). .env has DEEPSEEK_BASE_URL=https://models.jarvislabs.net/v1 and SCORER_MODEL=deepseek-v4.1-flash-1017 (a reasoning model).
+- Pipeline bugs fixed (Codex code, uncommitted):
+  1. publish.ts: site auth header `Bearer` → `users API-Key`.
+  2. run-daily.ts: dry runs printed nothing on error → errors now printed.
+  3. llm/deepseek.ts: max_tokens 16384 (reasoning ate the budget → empty content); the strict "{items:[...]} one per input" output instruction; robust extractScoreList (the old parser grabbed an inner empty array).
+  4. run-daily.ts: only the first 20 of ~80 items were scored → scoreInBatches over all candidates (ids re-based, budget checked per batch).
+  5. llm/openai.ts: OpenAI strict json_schema rejected our Zod schema (uri format, oneOf, optional keys) → switched to json_object mode with the schema as text guidance, the Zod check as the gate, plus stripNulls; the word "json" is in the input (API requirement).
+  6. run-daily.ts: REST create returns {doc}; run.id was undefined → unwrapped.
+- Tests: +tests/unit/pipeline/extract-score-list.test.ts (61 unit tests pass). tsc ✓ eslint ✓.
+- Note for N1 (notes writer): reuse JSON mode, not strict json_schema.

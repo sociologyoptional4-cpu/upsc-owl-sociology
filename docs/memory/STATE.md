@@ -29,5 +29,6 @@ Phase 0 ✅ committed → Phase 1 ✅ → **Phase 2 automation** (implementation
 - UPSC OWL Sociology content-generation providers: OpenAI API for writing and DeepSeek API for scoring/filtering; do not use Anthropic API. This is distinct from historical Claude Code UI/design role references.
 
 ## Completed
+- Rich-text tables enabled in Payload and Markdown ingestion; Python HTML-to-Markdown helper added with pinned `markdownify` dependency.
 - Phase 2 code: Tasks 05–08; Task 08 reactivated for C2 by D15. Quiz/digest UI source has no nested `<main>`; the shared frontend layout provides the single main landmark.
 - Task C2 commits created locally in sequence: Tasks 05, 07, 06, 08, plus the draft-preview/async-guard follow-through. No GitHub Actions run was dispatched because the GitHub repo has no `daily-ca.yml` workflow or Actions secrets and the local checkout has no remote.

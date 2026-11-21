@@ -17,7 +17,7 @@
 | Interactive illustrations | **Rive** (optional) | Halke animated thinker/mascot |
 | Search | **Pagefind** (static) → baad mein Postgres full-text / Algolia | Free start |
 | Validation | **Zod** | AI output aur API input dono validate |
-| AI | **DeepSeek** (bulk filter) + **Claude API** (final writing) | Cost split |
+| AI content pipeline | **DeepSeek API** (bulk scoring/filtering) + **OpenAI API** (final writing) | OpenAI and DeepSeek are the selected runtime providers; no Anthropic API |
 | Jobs | **GitHub Actions cron** (daily) | Free, logs, retry |
 | Distribution | **Telegram Bot API** | 800-member channel pe auto-post |
 | Analytics | **Plausible / Umami** (self-host) ya GA4 | Privacy-friendly |
@@ -30,7 +30,7 @@ Sanity (jo Socio Currents use karta hai) bhi accha hai, lekin: alag hosted studi
 
 ```
                  ┌──────────────────────── GitHub Actions (cron 06:00 IST) ────────────────────────┐
-                 │  fetch feeds → dedupe → DeepSeek score → Claude write → Zod validate → POST API │
+                 │  fetch feeds → dedupe → DeepSeek score → OpenAI write → Zod validate → POST API │
                  └───────────────────────────────────────┬─────────────────────────────────────────┘
                                                          │ HTTPS + API key (role: ai-bot)
 ┌────────────┐   login    ┌──────────────────────────────▼──────────────────────────────┐

@@ -1,4 +1,4 @@
-# AUM Sociology — Master Plan
+# UPSC OWL Sociology — Master Plan
 
 Ek **dynamic, AI-automated** UPSC Sociology Optional website. Roz subah AI current affairs uthata hai, unhe syllabus topics se jodta hai, aur naye pages **khud ba khud** ban jaate hain — admin panel se bhi, API se bhi.
 
@@ -18,7 +18,7 @@ Ek **dynamic, AI-automated** UPSC Sociology Optional website. Roz subah AI curre
 ## Ek line mein architecture
 
 ```
-RSS / PIB / PRS ──► AI pipeline (DeepSeek filter + Claude writer)
+RSS / PIB / PRS ──► AI pipeline (DeepSeek filter + OpenAI writer)
                           │  JSON blocks (Zod validated)
                           ▼
                  Payload CMS API  ◄── Admin panel (/admin) — tum ya editor

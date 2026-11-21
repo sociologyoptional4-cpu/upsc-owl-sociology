@@ -31,7 +31,7 @@ Har page ka: **URL · data source · kaise auto-update hota hai · wireframe**. 
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│ AUM Sociology   Current Affairs  Syllabus  Thinkers  PYQ  Practice  ◐ │  header (sticky, blur)
+│ UPSC OWL Sociology   Current Affairs  Syllabus  Thinkers  PYQ  Practice  ◐ │  header (sticky, blur)
 ├──────────────────────────────────────────────────────────────────────┤
 │ DAILY ISSUE #214 · Sat 21 Nov 2026 · 6 stories mapped to syllabus     │  masthead strip
 │                                                                      │

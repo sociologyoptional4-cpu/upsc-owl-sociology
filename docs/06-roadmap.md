@@ -54,5 +54,5 @@
 1. **CMS:** Payload (recommended, free, apna DB) ya Sanity (hosted)?
 2. **Publish mode:** shuru mein review-first (recommended) ya day-1 auto-publish?
 3. **Language:** sirf Hinglish, ya Hinglish + proper Hindi toggle?
-4. **Domain + brand naam:** "AUM Sociology" final? Domain liya hai?
+4. **Domain:** brand naam final hai (UPSC OWL Sociology, D13). Domain liya hai?
 5. **Hosting:** Vercel free + Supabase free se start (recommended) — theek?
