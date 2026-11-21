@@ -1,4 +1,5 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { s3Storage } from '@payloadcms/storage-s3'
 import path from 'path'
 import { buildConfig } from 'payload'
 import sharp from 'sharp'
@@ -21,15 +22,10 @@ import { Navigation } from './globals/Navigation'
 import { getServerSideURL } from './lib/url'
 import { endpoints } from './endpoints'
 import { richTextEditor } from './lib/lexical/richTextEditor'
+import { env } from './lib/env'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
-
-function requireEnv(name: string): string {
-  const value = process.env[name]
-  if (!value) throw new Error(`Missing required env var ${name} (see .env.example)`)
-  return value
-}
 
 export default buildConfig({
   serverURL: getServerSideURL(),
@@ -48,12 +44,22 @@ export default buildConfig({
   collections: [Pages, CurrentAffairs, Topics, Units, Papers, Thinkers, Media, Users, Sources, PipelineRuns, Digests, Quizzes],
   globals: [SiteSettings, Navigation],
   editor: richTextEditor(),
-  secret: requireEnv('PAYLOAD_SECRET'),
+  secret: env.PAYLOAD_SECRET,
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },
   db: postgresAdapter({
-    pool: { connectionString: requireEnv('DATABASE_URL') },
+    push: env.NODE_ENV !== 'production',
+    pool: { connectionString: env.DATABASE_URL, max: 5, idleTimeoutMillis: 10_000, connectionTimeoutMillis: 10_000 },
   }),
   sharp,
-  plugins: [],
+  plugins: env.S3_ENDPOINT ? [s3Storage({
+    collections: { media: true },
+    bucket: env.S3_BUCKET!,
+    config: {
+      endpoint: env.S3_ENDPOINT,
+      region: env.S3_REGION,
+      forcePathStyle: true,
+      credentials: { accessKeyId: env.S3_ACCESS_KEY_ID!, secretAccessKey: env.S3_SECRET_ACCESS_KEY! },
+    },
+  })] : [],
   endpoints,
 })

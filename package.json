@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" next build",
+    "build:production": "npm run payload -- migrate && npm run build",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
     "devsafe": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev",
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
@@ -17,6 +18,7 @@
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" playwright test --config=playwright.config.ts",
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
     "seed": "cross-env NODE_OPTIONS=--no-deprecation payload run src/seed/index.ts",
+    "migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
     "pipeline:daily": "tsx src/pipeline/run-daily.ts",
     "pipeline:dry": "DRY_RUN=1 tsx src/pipeline/run-daily.ts",
     "pipeline:eval": "tsx src/pipeline/eval-run.ts",
@@ -28,6 +30,7 @@
     "@payloadcms/db-postgres": "3.94.1",
     "@payloadcms/next": "3.94.1",
     "@payloadcms/richtext-lexical": "3.94.1",
+    "@payloadcms/storage-s3": "^3.94.1",
     "@payloadcms/ui": "3.94.1",
     "cross-env": "^7.0.3",
     "dotenv": "16.4.7",

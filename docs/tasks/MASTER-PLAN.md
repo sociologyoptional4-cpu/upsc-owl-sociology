@@ -49,7 +49,7 @@ Har prompt paste-ready hai. Har agent pehle [AGENTS.md](../../AGENTS.md) padhta 
 | # | Task | Kaun · Model | Status | Prompt |
 |---|------|--------------|--------|--------|
 | U2 | **Tumhara kaam:** GitHub, Supabase, Vercel accounts | Tum | ⏳ | [phase-5](phase-5-launch.md#u2--tumhara-kaam-accounts) |
-| 16-lite | Deploy: env check, migrations, media storage, basic security headers | Codex 6.0 | ⏳ U2 ke baad | [lean-tasks](lean-tasks.md#task-16-lite) |
+| 16-lite | Deploy: env check, migrations, media storage, basic security headers | Codex 6.0 | 🔵 infrastructure configured; deploy and production bot setup pending | [lean-tasks](lean-tasks.md#task-16-lite) |
 | RF | Launch se pehle ek final review (security + bugs) | Antigravity · Claude Sonnet 5.5 | ⏳ 16-lite ke baad | [lean-tasks](lean-tasks.md#task-rf) |
 | 18 | **UI:** final polish + mobile check | Claude | ⏳ RF ke baad | — |
 

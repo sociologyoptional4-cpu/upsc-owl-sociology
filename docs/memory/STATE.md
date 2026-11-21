@@ -8,18 +8,18 @@ Phase 0 ✅ committed → Phase 1 ✅ → **Phase 2 automation** (implementation
 ## Active (claim files before you start)
 | Task | Agent (model) | Claimed files/dirs | Started |
 |------|---------------|--------------------|---------|
-| _None_ | — | — | — |
+| Task 16-lite production deploy | Codex (GPT-6) | `next.config.ts`, `src/payload.config.ts`, `src/lib/env.ts`, `src/migrations/**`, `src/seed/**`, `package.json`, `package-lock.json`, `.env.example`, `.github/workflows/daily-ca.yml`, `docs/ops/**`, `.vercel/**`, `docs/memory/**`, `docs/tasks/MASTER-PLAN.md` | 2026-11-21 |
 
 ## Next up
-1. Add the daily pipeline workflow and required secrets to the GitHub repo, then dispatch one real pipeline run.
-2. Apply the pending Payload migration, seed sources, and smoke the review flow.
+1. Deploy the Task 16-lite commit and verify migrations plus public pages on Vercel.
+2. User creates the first admin in production, then a draft-only `ai-bot` account and its new API key; Codex can then finish GitHub Actions secrets and run `daily-ca` with `dry_run=true`.
 3. Start the 5–7 day unattended soak; run Task 04-lite and then proceed to PYQ task 14.
 
 ## Blockers / waiting on user
-- Payload migration has not been applied; local seed/review-flow smoke remains pending.
-- Local `.env` has OpenAI/DeepSeek and Telegram key names, but AI price variables and `PREVIEW_SECRET` are not configured; no paid API calls were made.
+- Task 16-lite infrastructure is configured: Supabase project `fhcnbuhlfzcuyhpkjddg` is active, pooler connectivity was checked, the public `media` bucket exists, and production Vercel variables are stored. The deployment must apply migrations and be smoke-checked.
+- Production admin and the new `ai-bot` API key must be created in `/admin` after deploy. GitHub Actions secret `AI_BOT_API_KEY` and the dry-run dispatch wait on that user-created key; do not substitute the local bot key.
 - Phase 2 production acceptance requires 5–7 days of unattended drafts and an approve-to-public verification.
-- The GitHub repo has no `daily-ca.yml` workflow or Actions secrets, and this local checkout has no Git remote configured; a GitHub run cannot be dispatched yet.
+- Git remote is `origin` → `sociologyoptional4-cpu/upsc-owl-sociology`; `daily-ca.yml` exists and supports `dry_run`. Actions secrets and the workflow dispatch are pending production `ai-bot` credentials.
 
 ## Facts worth knowing
 - Next.js 16.4 + Payload 3.94; local Postgres 14 (Homebrew), DB `aum_sociology`.

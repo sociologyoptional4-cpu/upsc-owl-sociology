@@ -19,6 +19,24 @@ export const Media: CollectionConfig = {
       { name: 'feature', width: 1280 },
     ],
   },
+  hooks: {
+    afterRead: [({ doc }) => {
+      const publicBase = process.env.S3_PUBLIC_URL?.replace(/\/$/, '')
+      if (!publicBase) return doc
+      const publicPath = (filename?: string | null) => filename ? `${publicBase}/${filename}` : null
+      const sizes = Object.fromEntries(Object.entries(doc.sizes ?? {}).map(([name, size]) => {
+        if (!size || typeof size !== 'object') return [name, size]
+        const sizeRecord = size as Record<string, unknown>
+        const filename = typeof sizeRecord.filename === 'string' ? sizeRecord.filename : null
+        return [name, { ...sizeRecord, url: publicPath(filename) }]
+      }))
+      return {
+        ...doc,
+        url: publicPath(doc.filename),
+        sizes: doc.sizes ? sizes : doc.sizes,
+      }
+    }],
+  },
   fields: [
     { name: 'alt', type: 'text', required: true },
     {

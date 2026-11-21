@@ -9,6 +9,10 @@ import config from '@payload-config'
 
 import { ABOUT_PAGE, SAMPLE_CA, THINKERS, TOPICS, UNITS } from './data'
 
+if (process.env.NODE_ENV === 'production' && process.env.ALLOW_SEED !== 'true') {
+  throw new Error('Seed is disabled in production. Set ALLOW_SEED=true only for an intentional one-time seed.')
+}
+
 const CTX = { disableRevalidate: true }
 
 async function ensureAdmin(payload: Payload): Promise<void> {
