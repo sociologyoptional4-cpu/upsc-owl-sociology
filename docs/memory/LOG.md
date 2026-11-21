@@ -197,3 +197,11 @@
   6. run-daily.ts: REST create returns {doc}; run.id was undefined → unwrapped.
 - Tests: +tests/unit/pipeline/extract-score-list.test.ts (61 unit tests pass). tsc ✓ eslint ✓.
 - Note for N1 (notes writer): reuse JSON mode, not strict json_schema.
+
+## 2026-11-21 17:53 · Codex (GPT-6) · Task 16-lite production deploy
+- Did: Added startup env validation, production migrations, Supabase S3 media, basic security headers, seed guard, deploy/runbook, `dry_run` workflow input, and a safe skip until the production bot key exists. Production is live at https://upsc-owl-sociology.vercel.app; migrations applied; `/`, `/current-affairs`, and `/admin` returned 200. Added all available pipeline Actions secrets except `AI_BOT_API_KEY`.
+- Files: `src/lib/env.ts`, `src/payload.config.ts`, `src/migrations/**`, `src/collections/Media.ts`, `src/seed/index.ts`, `next.config.ts`, `package.json`, `.env.example`, `.github/workflows/daily-ca.yml`, `vercel.json`, `docs/ops/runbook.md`, `docs/tasks/MASTER-PLAN.md`, `docs/memory/STATE.md`.
+- Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-06, memory, Task 16-lite / U2)
+- Checks: tsc ✓ eslint ✓ (0 errors, 7 warnings) unit ✓ (71/71) build ✓; production migrations ✓; HTTP smoke ✓.
+- Contract changes: env requires database URL and Payload secret; Vercel requires Supabase root CA and complete S3 env; pipeline dispatch now accepts `dry_run`.
+- Open issues / proposals: user must create the first production admin at `/admin`; after that Codex can create a production draft-only `ai-bot` account/key and dispatch `daily-ca` with `dry_run=true`. The first Vercel build failed on pooler CA verification; fixed with verified TLS using Supabase `prod-ca-2021.crt`. No secret values logged.

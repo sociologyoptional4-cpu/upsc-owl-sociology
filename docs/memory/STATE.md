@@ -8,18 +8,18 @@ Phase 0 ✅ committed → Phase 1 ✅ → **Phase 2 automation** (implementation
 ## Active (claim files before you start)
 | Task | Agent (model) | Claimed files/dirs | Started |
 |------|---------------|--------------------|---------|
-| Task 16-lite production deploy | Codex (GPT-6) | `next.config.ts`, `src/payload.config.ts`, `src/lib/env.ts`, `src/migrations/**`, `src/seed/**`, `package.json`, `package-lock.json`, `.env.example`, `.github/workflows/daily-ca.yml`, `docs/ops/**`, `.vercel/**`, `docs/memory/**`, `docs/tasks/MASTER-PLAN.md` | 2026-11-21 |
+_(none)_
 
 ## Next up
-1. Deploy the Task 16-lite commit and verify migrations plus public pages on Vercel.
-2. User creates the first admin in production, then a draft-only `ai-bot` account and its new API key; Codex can then finish GitHub Actions secrets and run `daily-ca` with `dry_run=true`.
+1. User creates the first admin from the production `/admin` welcome screen.
+2. After admin setup, Codex creates the production draft-only `ai-bot` account/key, adds the key as the final GitHub Actions secret, then dispatches `daily-ca` with `dry_run=true`.
 3. Start the 5–7 day unattended soak; run Task 04-lite and then proceed to PYQ task 14.
 
 ## Blockers / waiting on user
-- Task 16-lite infrastructure is configured: Supabase project `fhcnbuhlfzcuyhpkjddg` is active, pooler connectivity was checked, the public `media` bucket exists, and production Vercel variables are stored. The deployment must apply migrations and be smoke-checked.
-- Production admin and the new `ai-bot` API key must be created in `/admin` after deploy. GitHub Actions secret `AI_BOT_API_KEY` and the dry-run dispatch wait on that user-created key; do not substitute the local bot key.
+- Task 16-lite is live at `https://upsc-owl-sociology.vercel.app`; production migrations applied and `/`, `/current-affairs`, and `/admin` returned 200. Security headers are present. Supabase project `fhcnbuhlfzcuyhpkjddg` has the public `media` bucket and verified TLS pooler configuration.
+- Production first admin still needs to be created by the user from `/admin`. After that, Codex will create the production draft-only `ai-bot` account and add its new API key as GitHub Actions secret `AI_BOT_API_KEY`; don't substitute the local bot key. The daily-ca dry run is waiting on this.
 - Phase 2 production acceptance requires 5–7 days of unattended drafts and an approve-to-public verification.
-- Git remote is `origin` → `sociologyoptional4-cpu/upsc-owl-sociology`; `daily-ca.yml` exists and supports `dry_run`. Actions secrets and the workflow dispatch are pending production `ai-bot` credentials.
+- Git remote is `origin` → `sociologyoptional4-cpu/upsc-owl-sociology`; `daily-ca.yml` supports `dry_run`. The other required Actions secrets are configured; only `AI_BOT_API_KEY` and the workflow dispatch wait on production bot setup.
 
 ## Facts worth knowing
 - Next.js 16.4 + Payload 3.94; local Postgres 14 (Homebrew), DB `aum_sociology`.
@@ -31,4 +31,5 @@ Phase 0 ✅ committed → Phase 1 ✅ → **Phase 2 automation** (implementation
 ## Completed
 - Rich-text tables enabled in Payload and Markdown ingestion; Python HTML-to-Markdown helper added with pinned `markdownify` dependency.
 - Phase 2 code: Tasks 05–08; Task 08 reactivated for C2 by D15. Quiz/digest UI source has no nested `<main>`; the shared frontend layout provides the single main landmark.
-- Task C2 commits created locally in sequence: Tasks 05, 07, 06, 08, plus the draft-preview/async-guard follow-through. No GitHub Actions run was dispatched because the GitHub repo has no `daily-ca.yml` workflow or Actions secrets and the local checkout has no remote.
+- Task C2 commits created locally in sequence: Tasks 05, 07, 06, 08, plus the draft-preview/async-guard follow-through. At that stage the workflow, remote, and Actions secrets were not yet installed; Task 16-lite has since configured them.
+- Task 16-lite deployed in commits `23453dd` and `4536f0b`; the first deployment exposed Supabase's root CA requirement, fixed by verifying TLS with `prod-ca-2021.crt`. Migrations `20261121_103619` and `20261121_120755_initial` applied successfully. See LOG for checks and remaining user setup.
