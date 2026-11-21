@@ -220,3 +220,11 @@
 - Checks: tsc ✓ eslint ✓ (0 errors, 11 warnings) unit ✓ (82/82) build ✓; local syllabus 25 units/98 topics ✓; PYQ import 365 created then 365 updated ✓; local notes dry run 2 ✓; real local notes run 2 drafts ✓; production migration ✓; production `/` and `/pyq` 200 ✓.
 - Contract changes: ReviewItem now has `kind: ca|topic`; notes ingest GET/POST endpoints; Pyqs collection with unit/topic/thinker relations; PyqBankData/types; syllabus order/section fields.
 - Open issues / proposals: Production syllabus/PYQ data import is not done. Vercel CLI reports eight sensitive variables cannot be pulled/passed to local commands. No secret values were accessed; do not mark N1 complete until production import is confirmed.
+
+## 2026-11-21 20:00 · Codex (GPT-6) · Task N1-prod-import
+- Did: Imported production syllabus and PYQs from the Vercel build environment without reading or exposing DB secrets. Verified Vercel deployment Ready, public counts (2 papers, 25 units, 98 topics, 365 PYQs), and `/`, `/syllabus`, `/pyq` HTTP 200. Removed the temporary exact-commit-gated build dispatcher and its two production config vars after successful import.
+- Files: `scripts/notes/{build-syllabus,import-syllabus}.ts`, `scripts/pyq/{import,import-pyqs}.ts`, temporary `scripts/notes/{import-production-once,production-import-gate}.ts` and gate test, `package.json`, `docs/tasks/MASTER-PLAN.md`, `docs/memory/{STATE,LOG}.md`.
+- Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-06, memory, N1/N1b)
+- Checks: `npx tsc --noEmit` ✓; `npx eslint src tests scripts/notes scripts/pyq` ✓ (0 errors, 11 existing warnings); unit ✓ (91/91); local build ✓; Vercel production build ✓; production data counts ✓; HTTP smoke ✓.
+- Contract changes: none.
+- Open issues / proposals: User-created production admin remains pending; Phase 2 unattended acceptance soak remains in progress.
