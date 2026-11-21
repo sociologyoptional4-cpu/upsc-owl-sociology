@@ -1,18 +1,59 @@
-import React from 'react'
-import './styles.css'
+import type { Metadata } from 'next'
+import { Fraunces, Inter } from 'next/font/google'
+import type { ReactNode } from 'react'
 
-export const metadata = {
-  description: 'A blank template using Payload in a Next.js app.',
-  title: 'Payload Blank Template',
+import { Footer } from '@/components/layout/Footer'
+import { Header } from '@/components/layout/Header'
+import { SmoothScroll } from '@/components/layout/SmoothScroll'
+import { themeInitScript } from '@/components/layout/ThemeToggle'
+import { getServerSideURL } from '@/lib/url'
+import '@/styles/global.css'
+
+const fraunces = Fraunces({
+  subsets: ['latin'],
+  variable: '--font-fraunces',
+  display: 'swap',
+  axes: ['opsz', 'SOFT'],
+})
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+})
+
+export const metadata: Metadata = {
+  metadataBase: new URL(getServerSideURL()),
+  title: {
+    default: 'AUM Sociology — UPSC Sociology Optional, roz update',
+    template: '%s · AUM Sociology',
+  },
+  description:
+    'UPSC Sociology Optional ke notes, thinkers aur roz ke current affairs, syllabus topics se jude hue.',
 }
 
-export default async function RootLayout(props: { children: React.ReactNode }) {
-  const { children } = props
+type Props = { children: ReactNode }
 
+export default function RootLayout({ children }: Props) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${fraunces.variable} ${inter.variable}`} suppressHydrationWarning>
+      <head>
+        {/* Static, first-party script (no user input): sets theme before paint to avoid a flash. */}
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body>
-        <main>{children}</main>
+        <a
+          href="#main"
+          className="sr-only z-50 rounded-card bg-ink px-4 py-2 text-paper focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+        >
+          Content pe jao
+        </a>
+        <SmoothScroll />
+        <Header />
+        <main id="main" className="relative z-10">
+          {children}
+        </main>
+        <Footer />
       </body>
     </html>
   )

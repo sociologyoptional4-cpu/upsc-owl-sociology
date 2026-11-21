@@ -1,0 +1,68 @@
+/* AUM Sociology — design tokens ("The Living Journal"). See docs/02-design-system.md */
+
+:root {
+  /* Surfaces */
+  --paper: #f6f1e7;
+  --paper-raised: #fffdf8;
+  --paper-sunk: #ece4d3;
+
+  /* Ink */
+  --ink: #14213d;
+  --ink-soft: #3d4a66;
+  --ink-mute: #6b7389;
+  --rule: #d9cfbc;
+
+  /* Accent */
+  --saffron: #e8833a;
+  --saffron-deep: #a84d14; /* text-safe on paper: ~5:1 contrast */
+
+  /* Semantic */
+  --paper-1: #3b5ba9;
+  --paper-2: #2f7d6d;
+  --thinker: #8e4b8c;
+  --pyq: #b23a48;
+  --ai-draft: #c9a227;
+
+  /* Type scale */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --text-lg: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+  --text-h3: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+  --text-h2: clamp(2rem, 1.4rem + 2.4vw, 3.25rem);
+  --text-hero: clamp(3rem, 1rem + 7vw, 7.5rem);
+  --leading-body: 1.65;
+  --measure: 68ch;
+
+  /* Spacing rhythm */
+  --space-section: clamp(4rem, 3rem + 5vw, 10rem);
+
+  /* Radius — deliberately not uniform */
+  --radius-chip: 999px;
+  --radius-card: 14px;
+  --radius-sheet: 28px;
+
+  /* Depth */
+  --shadow-paper: 0 1px 0 var(--rule), 0 8px 24px -12px rgb(20 33 61 / 0.18);
+  --shadow-float: 0 24px 60px -20px rgb(20 33 61 / 0.35);
+
+  /* Motion */
+  --dur-fast: 150ms;
+  --dur-base: 300ms;
+  --dur-slow: 600ms;
+  --dur-float: 6s;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+[data-theme='dark'] {
+  --paper: #0f1626;
+  --paper-raised: #172036;
+  --paper-sunk: #0b111e;
+  --ink: #efe8da;
+  --ink-soft: #c4bcae;
+  --ink-mute: #9a978f;
+  --rule: #2a3550;
+  --shadow-paper: 0 1px 0 var(--rule), 0 8px 24px -12px rgb(0 0 0 / 0.5);
+  --shadow-float: 0 24px 60px -20px rgb(0 0 0 / 0.6);
+}

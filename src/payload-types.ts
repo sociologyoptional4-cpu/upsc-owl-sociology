@@ -67,8 +67,14 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    users: User;
+    pages: Page;
+    'current-affairs': CurrentAffair;
+    topics: Topic;
+    units: Unit;
+    papers: Paper;
+    thinkers: Thinker;
     media: Media;
+    users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -76,19 +82,29 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
-    users: UsersSelect<false> | UsersSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
+    'current-affairs': CurrentAffairsSelect<false> | CurrentAffairsSelect<true>;
+    topics: TopicsSelect<false> | TopicsSelect<true>;
+    units: UnitsSelect<false> | UnitsSelect<true>;
+    papers: PapersSelect<false> | PapersSelect<true>;
+    thinkers: ThinkersSelect<false> | ThinkersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
   };
   db: {
-    defaultIDType: string;
+    defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'site-settings': SiteSetting;
+  };
+  globalsSelect: {
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -118,13 +134,328 @@ export interface UserAuthOperations {
   };
 }
 /**
+ * Koi bhi page — About, Mentorship, landing pages. Slug "home" = homepage.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: number;
+  title: string;
+  /**
+   * Khali chhodo to "title" se apne aap banega.
+   */
+  slug?: string | null;
+  /**
+   * Nested URL ke liye, e.g. guides/answer-writing
+   */
+  parent?: (number | null) | Page;
+  /**
+   * Apne aap banta hai
+   */
+  path?: string | null;
+  layout: (HeroBlock | RichTextBlock | SummaryBlock | CalloutBlock | KeyTermsBlock | CtaBlock)[];
+  seo?: {
+    title?: string | null;
+    description?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeroBlock".
+ */
+export interface HeroBlock {
+  /**
+   * Chhoti line heading ke upar, e.g. "Paper 2 · Unit 4"
+   */
+  kicker?: string | null;
+  heading: string;
+  subheading?: string | null;
+  variant?: ('plain' | 'masthead') | null;
+  actions?:
+    | {
+        label: string;
+        href: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'hero';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RichTextBlock".
+ */
+export interface RichTextBlock {
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'richText';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SummaryBlock".
+ */
+export interface SummaryBlock {
+  heading?: string | null;
+  points: {
+    text: string;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'summary';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CalloutBlock".
+ */
+export interface CalloutBlock {
+  tone: 'tip' | 'warning' | 'pyq' | 'ai';
+  title?: string | null;
+  body: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'callout';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "KeyTermsBlock".
+ */
+export interface KeyTermsBlock {
+  caption?: string | null;
+  rows: {
+    term: string;
+    meaning: string;
+    /**
+     * Optional: kis thinker ka concept
+     */
+    thinker?: string | null;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'keyTerms';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CtaBlock".
+ */
+export interface CtaBlock {
+  heading: string;
+  body?: string | null;
+  label: string;
+  href: string;
+  style?: ('ink' | 'telegram') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'cta';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "current-affairs".
+ */
+export interface CurrentAffair {
+  id: number;
+  headline: string;
+  /**
+   * Khali chhodo to "headline" se apne aap banega.
+   */
+  slug?: string | null;
+  date: string;
+  paper?: ('P1' | 'P2' | 'Both') | null;
+  topics?: (number | Topic)[] | null;
+  thinkers?: (number | Thinker)[] | null;
+  /**
+   * Original khabar ka link zaroori hai.
+   */
+  sources: {
+    name: string;
+    url: string;
+    id?: string | null;
+  }[];
+  /**
+   * Card aur SEO description
+   */
+  summary?: string | null;
+  layout?: (HeroBlock | RichTextBlock | SummaryBlock | CalloutBlock | KeyTermsBlock | CtaBlock)[] | null;
+  isAiGenerated?: boolean | null;
+  aiMeta?: {
+    model?: string | null;
+    promptVersion?: string | null;
+    relevance?: number | null;
+    costUsd?: number | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "topics".
+ */
+export interface Topic {
+  id: number;
+  title: string;
+  /**
+   * Khali chhodo to "title" se apne aap banega.
+   */
+  slug?: string | null;
+  unit: number | Unit;
+  /**
+   * 2-3 line overview (cards aur SEO mein)
+   */
+  summary?: string | null;
+  layout?: (HeroBlock | RichTextBlock | SummaryBlock | CalloutBlock | KeyTermsBlock | CtaBlock)[] | null;
+  thinkers?: (number | Thinker)[] | null;
+  relatedTopics?: (number | Topic)[] | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "units".
+ */
+export interface Unit {
+  id: number;
+  paper: number | Paper;
+  number: number;
+  title: string;
+  /**
+   * Khali chhodo to "title" se apne aap banega.
+   */
+  slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "papers".
+ */
+export interface Paper {
+  id: number;
+  code: 'P1' | 'P2';
+  title: string;
+  /**
+   * Khali chhodo to "title" se apne aap banega.
+   */
+  slug?: string | null;
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "thinkers".
+ */
+export interface Thinker {
+  id: number;
+  name: string;
+  /**
+   * Khali chhodo to "name" se apne aap banega.
+   */
+  slug?: string | null;
+  /**
+   * e.g. 1818–1883
+   */
+  era?: string | null;
+  /**
+   * Transparent WebP/AVIF cut-out (floating card ke liye)
+   */
+  portrait?: (number | null) | Media;
+  keyIdeas?:
+    | {
+        idea: string;
+        id?: string | null;
+      }[]
+    | null;
+  layout?: (HeroBlock | RichTextBlock | SummaryBlock | CalloutBlock | KeyTermsBlock | CtaBlock)[] | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  alt: string;
+  /**
+   * Har asset ka license zaroori hai (ASSETS.md policy).
+   */
+  license: 'own' | 'public-domain' | 'cc0' | 'cc-by' | 'other';
+  /**
+   * Author / attribution text
+   */
+  credit?: string | null;
+  sourceUrl?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    feature?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
-  id: string;
+  id: number;
+  name?: string | null;
+  /**
+   * ai-bot: sirf API key se drafts bana sakta hai, publish nahi.
+   */
+  role: 'admin' | 'editor' | 'ai-bot';
   updatedAt: string;
   createdAt: string;
+  enableAPIKey?: boolean | null;
+  apiKey?: string | null;
+  apiKeyIndex?: string | null;
+  hasAPIKey?: boolean | null;
   email: string;
   resetPasswordToken?: string | null;
   resetPasswordExpiration?: string | null;
@@ -145,29 +476,10 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: string;
-  alt: string;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
-  id: string;
+  id: number;
   key: string;
   data:
     | {
@@ -184,20 +496,44 @@ export interface PayloadKv {
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-  id: string;
+  id: number;
   document?:
     | ({
-        relationTo: 'users';
-        value: string | User;
+        relationTo: 'pages';
+        value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'current-affairs';
+        value: number | CurrentAffair;
+      } | null)
+    | ({
+        relationTo: 'topics';
+        value: number | Topic;
+      } | null)
+    | ({
+        relationTo: 'units';
+        value: number | Unit;
+      } | null)
+    | ({
+        relationTo: 'papers';
+        value: number | Paper;
+      } | null)
+    | ({
+        relationTo: 'thinkers';
+        value: number | Thinker;
       } | null)
     | ({
         relationTo: 'media';
-        value: string | Media;
+        value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'users';
+        value: number | User;
       } | null);
   globalSlug?: string | null;
   user: {
     relationTo: 'users';
-    value: string | User;
+    value: number | User;
   };
   updatedAt: string;
   createdAt: string;
@@ -207,10 +543,10 @@ export interface PayloadLockedDocument {
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: string;
+  id: number;
   user: {
     relationTo: 'users';
-    value: string | User;
+    value: number | User;
   };
   key?: string | null;
   value?:
@@ -230,7 +566,7 @@ export interface PayloadPreference {
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: string;
+  id: number;
   name?: string | null;
   batch?: number | null;
   updatedAt: string;
@@ -238,11 +574,295 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  parent?: T;
+  path?: T;
+  layout?:
+    | T
+    | {
+        hero?: T | HeroBlockSelect<T>;
+        richText?: T | RichTextBlockSelect<T>;
+        summary?: T | SummaryBlockSelect<T>;
+        callout?: T | CalloutBlockSelect<T>;
+        keyTerms?: T | KeyTermsBlockSelect<T>;
+        cta?: T | CtaBlockSelect<T>;
+      };
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeroBlock_select".
+ */
+export interface HeroBlockSelect<T extends boolean = true> {
+  kicker?: T;
+  heading?: T;
+  subheading?: T;
+  variant?: T;
+  actions?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RichTextBlock_select".
+ */
+export interface RichTextBlockSelect<T extends boolean = true> {
+  content?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SummaryBlock_select".
+ */
+export interface SummaryBlockSelect<T extends boolean = true> {
+  heading?: T;
+  points?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CalloutBlock_select".
+ */
+export interface CalloutBlockSelect<T extends boolean = true> {
+  tone?: T;
+  title?: T;
+  body?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "KeyTermsBlock_select".
+ */
+export interface KeyTermsBlockSelect<T extends boolean = true> {
+  caption?: T;
+  rows?:
+    | T
+    | {
+        term?: T;
+        meaning?: T;
+        thinker?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CtaBlock_select".
+ */
+export interface CtaBlockSelect<T extends boolean = true> {
+  heading?: T;
+  body?: T;
+  label?: T;
+  href?: T;
+  style?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "current-affairs_select".
+ */
+export interface CurrentAffairsSelect<T extends boolean = true> {
+  headline?: T;
+  slug?: T;
+  date?: T;
+  paper?: T;
+  topics?: T;
+  thinkers?: T;
+  sources?:
+    | T
+    | {
+        name?: T;
+        url?: T;
+        id?: T;
+      };
+  summary?: T;
+  layout?:
+    | T
+    | {
+        hero?: T | HeroBlockSelect<T>;
+        richText?: T | RichTextBlockSelect<T>;
+        summary?: T | SummaryBlockSelect<T>;
+        callout?: T | CalloutBlockSelect<T>;
+        keyTerms?: T | KeyTermsBlockSelect<T>;
+        cta?: T | CtaBlockSelect<T>;
+      };
+  isAiGenerated?: T;
+  aiMeta?:
+    | T
+    | {
+        model?: T;
+        promptVersion?: T;
+        relevance?: T;
+        costUsd?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "topics_select".
+ */
+export interface TopicsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  unit?: T;
+  summary?: T;
+  layout?:
+    | T
+    | {
+        hero?: T | HeroBlockSelect<T>;
+        richText?: T | RichTextBlockSelect<T>;
+        summary?: T | SummaryBlockSelect<T>;
+        callout?: T | CalloutBlockSelect<T>;
+        keyTerms?: T | KeyTermsBlockSelect<T>;
+        cta?: T | CtaBlockSelect<T>;
+      };
+  thinkers?: T;
+  relatedTopics?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "units_select".
+ */
+export interface UnitsSelect<T extends boolean = true> {
+  paper?: T;
+  number?: T;
+  title?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "papers_select".
+ */
+export interface PapersSelect<T extends boolean = true> {
+  code?: T;
+  title?: T;
+  slug?: T;
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "thinkers_select".
+ */
+export interface ThinkersSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  era?: T;
+  portrait?: T;
+  keyIdeas?:
+    | T
+    | {
+        idea?: T;
+        id?: T;
+      };
+  layout?:
+    | T
+    | {
+        hero?: T | HeroBlockSelect<T>;
+        richText?: T | RichTextBlockSelect<T>;
+        summary?: T | SummaryBlockSelect<T>;
+        callout?: T | CalloutBlockSelect<T>;
+        keyTerms?: T | KeyTermsBlockSelect<T>;
+        cta?: T | CtaBlockSelect<T>;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media_select".
+ */
+export interface MediaSelect<T extends boolean = true> {
+  alt?: T;
+  license?: T;
+  credit?: T;
+  sourceUrl?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        feature?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  name?: T;
+  role?: T;
   updatedAt?: T;
   createdAt?: T;
+  enableAPIKey?: T;
+  apiKey?: T;
+  apiKeyIndex?: T;
+  hasAPIKey?: T;
   email?: T;
   resetPasswordToken?: T;
   resetPasswordExpiration?: T;
@@ -258,24 +878,6 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media_select".
- */
-export interface MediaSelect<T extends boolean = true> {
-  alt?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -316,6 +918,40 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: number;
+  siteName?: string | null;
+  telegramUrl?: string | null;
+  /**
+   * Kill switch. Off = daily job kuch nahi likhega.
+   */
+  pipelineEnabled?: boolean | null;
+  /**
+   * Off = AI ke saare notes review queue mein (recommended pehle 2-4 hafte).
+   */
+  autoPublish?: boolean | null;
+  maxDailyUsd?: number | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  siteName?: T;
+  telegramUrl?: T;
+  pipelineEnabled?: T;
+  autoPublish?: T;
+  maxDailyUsd?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
