@@ -22,7 +22,7 @@
 
 ## Database and media
 
-- Supabase project: Mumbai (`ap-south-1`); production uses its transaction pooler on port 6543.
+- Supabase project: Mumbai (`ap-south-1`); production uses its transaction pooler on port 6543 and verifies TLS with Supabase's `prod-ca-2021.crt` root certificate in `DATABASE_SSL_CA`.
 - Supabase daily backups are enabled by the project plan. Check backup availability before risky migrations.
 - The public `media` bucket serves public site media. Keep S3 credentials server-side and rotate them if exposed.
 

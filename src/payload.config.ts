@@ -48,7 +48,13 @@ export default buildConfig({
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },
   db: postgresAdapter({
     push: env.NODE_ENV !== 'production',
-    pool: { connectionString: env.DATABASE_URL, max: 5, idleTimeoutMillis: 10_000, connectionTimeoutMillis: 10_000 },
+    pool: {
+      connectionString: env.DATABASE_URL,
+      max: 1,
+      idleTimeoutMillis: 10_000,
+      connectionTimeoutMillis: 10_000,
+      ssl: env.DATABASE_SSL_CA ? { ca: env.DATABASE_SSL_CA } : undefined,
+    },
   }),
   sharp,
   plugins: env.S3_ENDPOINT ? [s3Storage({
