@@ -14,6 +14,7 @@ import { Topics } from './collections/Topics'
 import { Units } from './collections/Units'
 import { Users } from './collections/Users'
 import { SiteSettings } from './globals/SiteSettings'
+import { Navigation } from './globals/Navigation'
 import { getServerSideURL } from './lib/url'
 
 const filename = fileURLToPath(import.meta.url)
@@ -33,7 +34,7 @@ export default buildConfig({
     meta: { titleSuffix: ' · AUM Admin' },
   },
   collections: [Pages, CurrentAffairs, Topics, Units, Papers, Thinkers, Media, Users],
-  globals: [SiteSettings],
+  globals: [SiteSettings, Navigation],
   editor: lexicalEditor(),
   secret: requireEnv('PAYLOAD_SECRET'),
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },

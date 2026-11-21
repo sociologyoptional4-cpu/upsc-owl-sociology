@@ -1,20 +1,19 @@
 # Project state
 
-_Last updated: 2026-11-21 by Claude Code_
+_Last updated: 2026-11-21 by Codex (GPT-6)_
 
 ## Phase
-Phase 0 ✅ done (not yet committed: Task 01 Part A commits it) → **Phase 1** (public site v1) in progress.
+Phase 0 ✅ committed → **Phase 1** (public site v1) in progress.
 
 ## Active (claim files before you start)
 | Task | Agent (model) | Claimed files/dirs | Started |
 |------|---------------|--------------------|---------|
-| Task 01 | Codex (GPT-6) | .gitignore; src/lib/data/**; src/globals/**; src/hooks/payload/revalidate.ts; src/app/(frontend)/**; src/app/sitemap.ts; src/app/robots.ts; src/lib/seo/**; src/components/views/**; src/components/layout/Header.tsx; src/seed/**; tests/**; docs/tasks/README.md; docs/memory/STATE.md; docs/memory/LOG.md | 2026-11-21 |
+| Task 02 | Antigravity (Gemini 3.8 Flash) | .gitignore; public/assets/thinkers/**; src/data/thinker-assets.json; scripts/assets/**; assets-src/**; ASSETS.md; docs/tasks/README.md; docs/memory/STATE.md; docs/memory/LOG.md | 2026-11-21 |
 
 ## Next up
-1. Task 01: data layer + routes (Codex 6.0)
-2. Task 02: thinker portraits (Antigravity · Gemini 3.8 Flash), parallel with 01
-3. Task R1: review of Task 01 output (Antigravity · Claude Sonnet 5.5)
-4. Task 03: Phase 1 UI views (Claude Code). Starts after 01 is merged.
+1. Task 02: thinker portraits (Antigravity · Gemini 3.8 Flash)
+2. Task R1: review of Task 01 output (Antigravity · Claude Sonnet 5.5)
+3. Task 03: Phase 1 UI views (Claude Code). Starts after R1.
 
 ## Blockers / waiting on user
 - Supabase + Vercel accounts (needed for deploy only, not for Phase 1 work).

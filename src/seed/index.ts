@@ -99,6 +99,25 @@ async function seedContent(payload: Payload, topicIds: Map<string, number>, thin
       },
     })
   }
+  const samples = [
+    { headline: '[Sample] Census data and social stratification', slug: 'sample-census-social-stratification', date: '2026-11-21T00:00:00.000Z', topic: 'theories-of-stratification', thinker: 'karl-marx' },
+    { headline: '[Sample] Caste mobility in contemporary India', slug: 'sample-caste-mobility', date: '2026-11-22T00:00:00.000Z', topic: 'perspectives-on-caste', thinker: 'mn-srinivas' },
+    { headline: '[Sample] Urban communities and social change', slug: 'sample-urban-social-change', date: '2026-11-23T00:00:00.000Z', topic: 'sanskritisation-westernisation', thinker: 'max-weber' },
+  ]
+  for (const sample of samples) {
+    if (await findIdBySlug(payload, 'current-affairs', sample.slug)) continue
+    await payload.create({ collection: 'current-affairs', context: CTX, data: {
+      headline: sample.headline, slug: sample.slug, date: sample.date, paper: 'P2', summary: 'Sample note for previewing the published current-affairs views.',
+      sources: [{ name: 'Press Information Bureau', url: 'https://pib.gov.in' }],
+      topics: [topicIds.get(sample.topic)].filter((id): id is number => typeof id === 'number'),
+      thinkers: [thinkerIds.get(sample.thinker)].filter((id): id is number => typeof id === 'number'), isAiGenerated: false, _status: 'published',
+      layout: [{ blockType: 'summary', heading: 'Khabar kya hai', points: [{ text: 'Yeh sample item published view aur syllabus linking dikhane ke liye hai.' }] }, { blockType: 'callout', tone: 'tip', title: 'Sociology angle', body: 'Is development ko stratification, mobility aur social change ke concepts se joda ja sakta hai.' }],
+    } })
+  }
+  const existingThinker = thinkerIds.get('karl-marx')
+  await payload.updateGlobal({ slug: 'site-settings', context: CTX, data: { featuredThinker: existingThinker ?? undefined } })
+  const navItems = [{ label: 'Current Affairs', href: '/current-affairs' }, { label: 'Syllabus', href: '/syllabus' }, { label: 'Thinkers', href: '/thinkers' }, { label: 'About', href: '/about' }]
+  await payload.updateGlobal({ slug: 'navigation', context: CTX, data: { header: navItems, footer: navItems } })
 }
 
 // Top-level await: `payload run` exits as soon as the module finishes evaluating.

@@ -1,7 +1,7 @@
 import type { CollectionAfterChangeHook, CollectionAfterDeleteHook, PayloadRequest } from 'payload'
 
 type Doc = Record<string, unknown> & { _status?: 'draft' | 'published' }
-type PathsFor = (doc: Doc) => string[]
+type PathsFor = (doc: Doc, req: PayloadRequest) => string[] | Promise<string[]>
 
 /**
  * Next's cache API only exists inside a Next server. Seed scripts and the
@@ -28,17 +28,28 @@ export function revalidateAfterChange(pathsFor: PathsFor): CollectionAfterChange
     const current = doc as Doc
     const previous = (previousDoc ?? {}) as Doc
     const paths = [
-      ...(current._status === 'published' ? pathsFor(current) : []),
-      ...(previous._status === 'published' ? pathsFor(previous) : []),
+      ...(current._status === 'published' ? await pathsFor(current, req) : []),
+      ...(previous._status === 'published' ? await pathsFor(previous, req) : []),
     ]
     await revalidatePaths(paths, req)
     return doc
   }
 }
 
+export async function topicPaths(doc: Doc, req: PayloadRequest): Promise<string[]> {
+  const topicSlug = typeof doc.slug === 'string' ? doc.slug : ''
+  const unitId = typeof doc.unit === 'number' ? doc.unit : typeof doc.unit === 'object' && doc.unit ? (doc.unit as { id?: number }).id : undefined
+  if (!topicSlug || !unitId) return ['/syllabus', '/']
+  const unit = await req.payload.findByID({ collection: 'units', id: unitId, depth: 1, overrideAccess: true })
+  const paper = typeof unit.paper === 'object' && unit.paper ? unit.paper : await req.payload.findByID({ collection: 'papers', id: typeof unit.paper === 'number' ? unit.paper : 0, depth: 0, overrideAccess: true }).catch(() => null)
+  const paperSlug = paper?.slug ?? ''
+  const unitSlug = unit.slug ?? ''
+  return [`/syllabus/${paperSlug}/${unitSlug}/${topicSlug}`, `/syllabus/${paperSlug}/${unitSlug}`, `/syllabus/${paperSlug}`, '/syllabus', '/']
+}
+
 export function revalidateAfterDelete(pathsFor: PathsFor): CollectionAfterDeleteHook {
   return async ({ doc, req }) => {
-    await revalidatePaths(pathsFor(doc as Doc), req)
+    await revalidatePaths(await pathsFor(doc as Doc, req), req)
     return doc
   }
 }

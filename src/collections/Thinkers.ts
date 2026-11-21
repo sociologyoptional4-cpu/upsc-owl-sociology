@@ -4,6 +4,7 @@ import { canCreateContent, canUpdateContent, isAdmin, publishedOrLoggedIn } from
 import { LAYOUT_BLOCKS } from '@/blocks'
 import { slugField } from '@/fields/slug'
 import { forceBotDrafts } from '@/hooks/payload/forceBotDrafts'
+import { revalidateAfterChange, revalidateAfterDelete } from '@/hooks/payload/revalidate'
 
 export const Thinkers: CollectionConfig = {
   slug: 'thinkers',
@@ -15,7 +16,7 @@ export const Thinkers: CollectionConfig = {
     delete: isAdmin,
   },
   versions: { drafts: true, maxPerDoc: 25 },
-  hooks: { beforeChange: [forceBotDrafts] },
+  hooks: { beforeChange: [forceBotDrafts], afterChange: [revalidateAfterChange((doc) => ['/thinkers', '/', ...(typeof doc.slug === 'string' ? [`/thinkers/${doc.slug}`] : [])])], afterDelete: [revalidateAfterDelete((doc) => ['/thinkers', '/', ...(typeof doc.slug === 'string' ? [`/thinkers/${doc.slug}`] : [])]) ] },
   fields: [
     { name: 'name', type: 'text', required: true },
     slugField({ source: 'name' }),

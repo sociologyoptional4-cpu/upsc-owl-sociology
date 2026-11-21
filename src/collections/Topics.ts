@@ -4,6 +4,7 @@ import { canCreateContent, canUpdateContent, isAdmin, publishedOrLoggedIn } from
 import { LAYOUT_BLOCKS } from '@/blocks'
 import { slugField } from '@/fields/slug'
 import { forceBotDrafts } from '@/hooks/payload/forceBotDrafts'
+import { revalidateAfterChange, revalidateAfterDelete, topicPaths } from '@/hooks/payload/revalidate'
 
 // Topic routes ship in Phase 1; revalidation hooks are added with them.
 export const Topics: CollectionConfig = {
@@ -16,7 +17,7 @@ export const Topics: CollectionConfig = {
     delete: isAdmin,
   },
   versions: { drafts: true, maxPerDoc: 25 },
-  hooks: { beforeChange: [forceBotDrafts] },
+  hooks: { beforeChange: [forceBotDrafts], afterChange: [revalidateAfterChange(topicPaths)], afterDelete: [revalidateAfterDelete(topicPaths)] },
   fields: [
     { name: 'title', type: 'text', required: true },
     slugField(),

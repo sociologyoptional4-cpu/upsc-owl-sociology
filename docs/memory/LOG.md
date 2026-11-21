@@ -11,3 +11,13 @@
 ## 2026-11-21 14:40 · Claude Code (Opus 5.5) · Coordination
 - Did: set up the multi-agent memory (AGENTS.md, docs/memory/*), wrote Task 01, Task 02 and Task R1 prompts, assigned models.
 - Files: AGENTS.md, CLAUDE.md, .agent/rules/, docs/memory/*, docs/tasks/*
+
+
+## 2026-11-21 14:38 · Codex (GPT-6) · Task 01
+- Did: committed Phase 0, added Payload view-model readers, route stubs, revalidation, navigation/featured thinker globals, seed data, sitemap/robots, JSON-LD and tests.
+- Files: src/lib/data/**, src/app/(frontend)/**, src/app/sitemap.ts, src/app/robots.ts, src/components/views/**, src/components/layout/Header.tsx, src/globals/**, src/collections/**, src/hooks/payload/revalidate.ts, src/seed/**, src/payload-types.ts, src/lib/seo/**, tests/**, docs/tasks/README.md, docs/memory/{STATE,LOG}.md
+- Read-first: ✓ (AGENTS, project docs, memory, task prompt)
+- Checks: tsc ✓ eslint ✓ (3 pre-existing E2E warnings) unit ✓ integration ✓ build ✓
+- Verified: seed completed; sample routes returned 200 and mismatched date/slug returned 404 on the production server.
+- Contract changes: none
+- Open issues / proposals: none

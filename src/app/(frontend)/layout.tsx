@@ -7,6 +7,7 @@ import { Header } from '@/components/layout/Header'
 import { SmoothScroll } from '@/components/layout/SmoothScroll'
 import { themeInitScript } from '@/components/layout/ThemeToggle'
 import { getServerSideURL } from '@/lib/url'
+import { getNavigation } from '@/lib/data/navigation'
 import '@/styles/global.css'
 
 const fraunces = Fraunces({
@@ -34,7 +35,8 @@ export const metadata: Metadata = {
 
 type Props = { children: ReactNode }
 
-export default function RootLayout({ children }: Props) {
+export default async function RootLayout({ children }: Props) {
+  const navigation = await getNavigation()
   return (
     <html lang="en" className={`${fraunces.variable} ${inter.variable}`} suppressHydrationWarning>
       <head>
@@ -49,7 +51,7 @@ export default function RootLayout({ children }: Props) {
           Content pe jao
         </a>
         <SmoothScroll />
-        <Header />
+        <Header nav={navigation.header} />
         <main id="main" className="relative z-10">
           {children}
         </main>

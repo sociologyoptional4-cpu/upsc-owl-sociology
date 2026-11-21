@@ -10,6 +10,7 @@ export const SiteSettings: GlobalConfig = {
   fields: [
     { name: 'siteName', type: 'text', defaultValue: 'AUM Sociology' },
     { name: 'telegramUrl', type: 'text', validate: validateHref },
+    { name: 'featuredThinker', type: 'relationship', relationTo: 'thinkers' },
     {
       type: 'collapsible',
       label: 'AI pipeline',

@@ -7,11 +7,18 @@ import { forceBotDrafts } from '@/hooks/payload/forceBotDrafts'
 import { revalidateAfterChange, revalidateAfterDelete } from '@/hooks/payload/revalidate'
 import { validateHref } from '@/lib/href'
 
-const caPaths = (doc: Record<string, unknown>) => {
+const caPaths = async (doc: Record<string, unknown>, req: import('payload').PayloadRequest) => {
   const date = typeof doc.date === 'string' ? doc.date.slice(0, 10) : ''
   const slug = typeof doc.slug === 'string' ? doc.slug : ''
   const article = date && slug ? [`/current-affairs/${date}/${slug}`] : []
-  return ['/', '/current-affairs', ...article]
+  const topicIds = Array.isArray(doc.topics) ? doc.topics.map((item) => typeof item === 'number' ? item : typeof item === 'object' && item ? (item as { id: number }).id : null).filter((id): id is number => typeof id === 'number') : []
+  const topics = topicIds.length ? await req.payload.find({ collection: 'topics', where: { id: { in: topicIds } }, limit: topicIds.length, depth: 2, overrideAccess: true }) : { docs: [] }
+  const topicPaths = topics.docs.flatMap((topic) => {
+    const unit = typeof topic.unit === 'object' && topic.unit ? topic.unit : null
+    const paper = unit && typeof unit.paper === 'object' ? unit.paper : null
+    return unit && paper && topic.slug && unit.slug && paper.slug ? [`/syllabus/${paper.slug}/${unit.slug}/${topic.slug}`] : []
+  })
+  return ['/', '/current-affairs', ...(date ? [`/current-affairs/${date}`] : []), ...article, ...topicPaths]
 }
 
 export const CurrentAffairs: CollectionConfig = {
