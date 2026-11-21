@@ -27,7 +27,9 @@ export const CurrentAffairs: CollectionConfig = {
   labels: { singular: 'Current affair', plural: 'Current affairs' },
   admin: {
     useAsTitle: 'headline',
-    defaultColumns: ['headline', 'date', 'paper', 'isAiGenerated', '_status'],
+    defaultColumns: ['headline', 'date', 'paper', 'reviewStatus', '_status'],
+    listSearchableFields: ['headline', 'summary'],
+    description: 'Roz ki khabrein. AI drafts pehle Review Queue mein aate hain (/admin/review).',
     group: 'Content',
   },
   defaultSort: '-date',

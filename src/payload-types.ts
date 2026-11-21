@@ -296,6 +296,8 @@ export interface PyqListBlock {
   blockType: 'pyqList';
 }
 /**
+ * Roz ki khabrein. AI drafts pehle Review Queue mein aate hain (/admin/review).
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "current-affairs".
  */

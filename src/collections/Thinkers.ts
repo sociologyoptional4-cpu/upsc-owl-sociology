@@ -8,7 +8,7 @@ import { revalidateAfterChange, revalidateAfterDelete } from '@/hooks/payload/re
 
 export const Thinkers: CollectionConfig = {
   slug: 'thinkers',
-  admin: { useAsTitle: 'name', defaultColumns: ['name', 'era', '_status'], group: 'Content' },
+  admin: { useAsTitle: 'name', defaultColumns: ['name', 'era', '_status', 'updatedAt'], listSearchableFields: ['name'], group: 'Content' },
   access: {
     read: publishedOrLoggedIn,
     create: canCreateContent,

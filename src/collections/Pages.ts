@@ -24,6 +24,7 @@ export const Pages: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'path', '_status', 'updatedAt'],
+    listSearchableFields: ['title', 'path'],
     group: 'Content',
     description: 'Koi bhi page — About, Mentorship, landing pages. Slug "home" = homepage.',
   },

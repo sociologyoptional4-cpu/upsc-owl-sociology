@@ -33,10 +33,15 @@ export default buildConfig({
     user: Users.slug,
     importMap: { baseDir: path.resolve(dirname) },
     meta: { titleSuffix: ' · UPSC OWL Admin' },
+    // Admin UI (owned by Claude, see STATE): branded graphics, custom dashboard, review queue.
     components: {
-      beforeDashboard: ['/components/admin/TodayWidget#TodayWidget'],
+      graphics: {
+        Logo: '/components/admin/AdminBrand#AdminLogo',
+        Icon: '/components/admin/AdminBrand#AdminIcon',
+      },
       afterNavLinks: ['/components/admin/ReviewNavLink#ReviewNavLink'],
       views: {
+        dashboard: { Component: '/components/admin/OwlDashboard#OwlDashboard' },
         reviewQueue: { Component: '/components/admin/ReviewQueueView#ReviewQueueView', path: '/review' },
       },
     },
