@@ -21,3 +21,11 @@
 - Verified: seed completed; sample routes returned 200 and mismatched date/slug returned 404 on the production server.
 - Contract changes: none
 - Open issues / proposals: none
+
+## 2026-11-21 14:45 · Antigravity (Gemini 3.8 Flash) · Task 02
+- Did: verified licenses on Wikimedia Commons for all 17 thinkers; downloaded originals and performed local background removal with rembg (u2net_human_seg); cropped to 4:5 head-and-shoulders with ~5.4% head padding; exported large (1000x1250, q82, <180KB) and small (400x500, q78, <45KB) transparent WebP portraits; rendered contact sheet on #F6F1E7 and #0F1626; created manifest src/data/thinker-assets.json and updated ASSETS.md; added cc-by-sa option to Media.ts; created idempotent portrait attachment script scripts/assets/attach-portraits.ts and executed it twice with 0 duplicates.
+- Files: .gitignore, ASSETS.md, src/collections/Media.ts, src/payload-types.ts, src/data/thinker-assets.json, scripts/assets/attach-portraits.ts, public/assets/thinkers/**, docs/tasks/README.md, docs/memory/STATE.md, docs/memory/LOG.md
+- Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-06, memory)
+- Checks: tsc ✓ eslint ✓ (3 pre-existing E2E warnings) unit ✓ (38/38) build ✓
+- Contract changes: none
+- Open issues / proposals: none (10 thinkers marked "none" due to absence of verifiable PD/CC license or usable standalone photo on Commons; ready for designer's typographic cards).

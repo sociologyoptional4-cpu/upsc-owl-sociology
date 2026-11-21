@@ -9,7 +9,7 @@
 | # | Task | Tool · Model | Depends on | Status |
 |---|------|--------------|-----------|--------|
 | 01 | [Phase 0 commit + Phase 1 data layer, routes, SEO](01-codex-phase1-data-layer.md) | Codex · 6.0 | — | ✅ Done |
-| 02 | [Thinker portraits (licensed cut-outs)](02-codex-assets-thinkers.md) | Antigravity · Gemini 3.8 Flash | 01 Part A | 🔵 In progress |
+| 02 | [Thinker portraits (licensed cut-outs)](02-codex-assets-thinkers.md) | Antigravity · Gemini 3.8 Flash | 01 Part A | ✅ Done |
 | R1 | [Review Task 01](R1-review-task01.md) | Antigravity · Claude Sonnet 5.5 | 01 | ⏳ |
 | 03 | Phase 1 UI: Home, CA, Syllabus, Topic, Thinker views + motion | Claude Code (main) | 01, R1 | ⏳ |
 

@@ -405,7 +405,7 @@ export interface Media {
   /**
    * Har asset ka license zaroori hai (ASSETS.md policy).
    */
-  license: 'own' | 'public-domain' | 'cc0' | 'cc-by' | 'other';
+  license: 'own' | 'public-domain' | 'cc0' | 'cc-by' | 'cc-by-sa' | 'other';
   /**
    * Author / attribution text
    */

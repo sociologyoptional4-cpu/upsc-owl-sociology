@@ -13,3 +13,10 @@ Har image, illustration, animation, 3D model aur font jo site pe ship hota hai, 
 | Fraunces font | next/font | https://fonts.google.com/specimen/Fraunces | SIL OFL 1.1 | Undercase Type | No |
 | Inter font | next/font | https://fonts.google.com/specimen/Inter | SIL OFL 1.1 | Rasmus Andersson | No |
 | Paper grain texture | inline SVG (global.css) | — | Own | AUM | — |
+| B. R. Ambedkar portrait | /assets/thinkers/br-ambedkar.webp | https://commons.wikimedia.org/wiki/File:Dr._Bhimrao_Ambedkar_(lighting).jpg | Public domain (PD-India) | Unknown author | Background removed, cropped |
+| Émile Durkheim portrait | /assets/thinkers/emile-durkheim.webp | https://commons.wikimedia.org/wiki/File:%C3%89mile_Durkheim.jpg | Public domain (PD-old-70-1923) | Unknown author | Background removed, cropped |
+| Karl Marx portrait | /assets/thinkers/karl-marx.webp | https://commons.wikimedia.org/wiki/File:Karl_Marx_by_John_Jabez_Edwin_Mayall_1875_-_Restored.png | Public domain (PD/1923) | John Jabez Edwin Mayall | Background removed, cropped |
+| Max Weber portrait | /assets/thinkers/max-weber.webp | https://commons.wikimedia.org/wiki/File:Max_Weber,_1918.jpg | Public domain (PD-old-auto-1923) | Ernst Gottmann | Background removed, cropped |
+| Robert K. Merton portrait | /assets/thinkers/robert-k-merton.webp | https://commons.wikimedia.org/wiki/File:Robert_Merton_(1965).jpg | CC0 1.0 Universal | Eric Koch / Anefo | Background removed, cropped |
+| Vilfredo Pareto portrait | /assets/thinkers/vilfredo-pareto.webp | https://commons.wikimedia.org/wiki/File:Vilfredo_Pareto_1870s2.jpg | Public domain (PD-old-70) | Unknown author | Background removed, cropped |
+| Yogendra Singh portrait | /assets/thinkers/yogendra-singh.webp | https://commons.wikimedia.org/wiki/File:Prof_Yogendra_Singh.jpg | CC BY-SA 4.0 | ThePerfectYellow | Background removed, cropped |

@@ -31,6 +31,7 @@ export const Media: CollectionConfig = {
         { label: 'Public domain', value: 'public-domain' },
         { label: 'CC0', value: 'cc0' },
         { label: 'CC BY', value: 'cc-by' },
+        { label: 'CC BY-SA', value: 'cc-by-sa' },
         { label: 'Other (explain in credit)', value: 'other' },
       ],
       admin: { description: 'Har asset ka license zaroori hai (ASSETS.md policy).' },

@@ -50,3 +50,7 @@ node_modules/
 /playwright/.cache/
 
 /sociology_hinglish.mp4
+
+# Thinker source assets (kept local, not committed)
+assets-src/
+
