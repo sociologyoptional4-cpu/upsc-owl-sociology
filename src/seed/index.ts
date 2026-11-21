@@ -7,7 +7,7 @@ import { getPayload } from 'payload'
 
 import config from '@payload-config'
 
-import { ABOUT_PAGE, SAMPLE_CA, THINKERS, TOPICS, UNITS } from './data'
+import { ABOUT_PAGE, BLOG_CATEGORIES, SAMPLE_CA, THINKERS, TOPICS, UNITS } from './data'
 
 if (process.env.NODE_ENV === 'production' && process.env.ALLOW_SEED !== 'true') {
   throw new Error('Seed is disabled in production. Set ALLOW_SEED=true only for an intentional one-time seed.')
@@ -122,7 +122,11 @@ async function seedContent(payload: Payload, topicIds: Map<string, number>, thin
   }
   const existingThinker = thinkerIds.get('karl-marx')
   await payload.updateGlobal({ slug: 'site-settings', context: CTX, data: { featuredThinker: existingThinker ?? undefined } })
-  const navItems = [{ label: 'Current Affairs', href: '/current-affairs' }, { label: 'Syllabus', href: '/syllabus' }, { label: 'Thinkers', href: '/thinkers' }, { label: 'About', href: '/about' }]
+  for (const cat of BLOG_CATEGORIES) {
+    const existing = await payload.find({ collection: 'blog-categories', where: { slug: { equals: cat.slug } }, limit: 1, depth: 0, overrideAccess: true })
+    if (!existing.docs.length) await payload.create({ collection: 'blog-categories', context: CTX, data: cat, overrideAccess: true })
+  }
+  const navItems = [{ label: 'Current Affairs', href: '/current-affairs' }, { label: 'Blog', href: '/blog' }, { label: 'Syllabus', href: '/syllabus' }, { label: 'Thinkers', href: '/thinkers' }, { label: 'About', href: '/about' }]
   await payload.updateGlobal({ slug: 'navigation', context: CTX, data: { header: navItems, footer: navItems } })
 }
 

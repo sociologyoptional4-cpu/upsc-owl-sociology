@@ -29,6 +29,10 @@ const schema = z.object({
   TELEGRAM_BOT_TOKEN: z.string().optional(),
   TELEGRAM_CHANNEL_ID: z.string().optional(),
   PREVIEW_SECRET: z.string().optional(),
+  CRON_SECRET: z.string().optional(),
+  INDEXNOW_KEY: z.string().regex(/^[a-f0-9]{16,64}$/, 'INDEXNOW_KEY must be 16-64 hex chars').optional(),
+  GOOGLE_SITE_VERIFICATION: z.string().optional(),
+  BING_SITE_VERIFICATION: z.string().optional(),
 }).superRefine((env, ctx) => {
   const storage = [env.S3_BUCKET, env.S3_ENDPOINT, env.S3_REGION, env.S3_ACCESS_KEY_ID, env.S3_SECRET_ACCESS_KEY, env.S3_PUBLIC_URL]
   if (storage.some(Boolean) && storage.some((value) => !value)) {

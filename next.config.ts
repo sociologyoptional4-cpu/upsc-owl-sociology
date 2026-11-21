@@ -26,7 +26,16 @@ const nextConfig: NextConfig = {
       { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
       { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
       { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+      { key: 'Content-Security-Policy', value: "frame-src 'self' https://www.youtube-nocookie.com;" },
     ] }]
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/:key([a-f0-9]{16,64})\\.txt',
+        destination: '/api/indexnow-key?key=:key',
+      },
+    ]
   },
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {

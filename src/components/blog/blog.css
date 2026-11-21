@@ -1,0 +1,41 @@
+/* Blog rich-text colours & marker highlights — bound to tokens.css variables (D12). */
+
+.blog-richtext [data-color='red'] {
+  color: var(--saffron-deep);
+  font-weight: 600;
+}
+.blog-richtext [data-color='blue'] {
+  color: var(--paper-1);
+  font-weight: 600;
+}
+.blog-richtext [data-color='green'] {
+  color: var(--paper-2);
+  font-weight: 600;
+}
+.blog-richtext [data-color='plum'] {
+  color: var(--thinker);
+  font-weight: 600;
+}
+
+.blog-richtext [data-hl] {
+  padding: 0.08em 0.32em;
+  border-radius: 4px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.blog-richtext [data-hl='yellow'] {
+  background-color: var(--pastel-yellow);
+  color: var(--ink);
+}
+.blog-richtext [data-hl='pink'] {
+  background-color: var(--pastel-pink);
+  color: var(--ink);
+}
+.blog-richtext [data-hl='mint'] {
+  background-color: var(--pastel-mint);
+  color: var(--ink);
+}
+.blog-richtext [data-hl='sky'] {
+  background-color: var(--pastel-lavender);
+  color: var(--ink);
+}

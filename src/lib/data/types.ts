@@ -1,4 +1,7 @@
 import type { CurrentAffair, Topic, Thinker } from '@/payload-types'
+import type { BlogCard } from './blog-types'
+
+export * from './blog-types'
 
 export type PaperCode = 'P1' | 'P2'
 export type TopicChip = { title: string; slug: string; href: string; paper: PaperCode }
@@ -10,7 +13,7 @@ export type IssueSummary = { date: string; number: number; count: number; href: 
 export type SyllabusTopic = { title: string; slug: string; href: string; caCount: number }
 export type SyllabusUnit = { number: number; title: string; slug: string; href: string; topics: SyllabusTopic[] }
 export type SyllabusPaper = { code: PaperCode; title: string; slug: string; href: string; units: SyllabusUnit[] }
-export type TopicDetail = { title: string; slug: string; href: string; summary: string | null; paper: PaperCode; breadcrumbs: { label: string; href: string }[]; layout: NonNullable<Topic['layout']>; thinkers: ThinkerChip[]; relatedTopics: TopicChip[]; latestCA: CACard[]; caCount: number }
+export type TopicDetail = { title: string; slug: string; href: string; summary: string | null; paper: PaperCode; breadcrumbs: { label: string; href: string }[]; layout: NonNullable<Topic['layout']>; thinkers: ThinkerChip[]; relatedTopics: TopicChip[]; latestCA: CACard[]; caCount: number; posts?: BlogCard[] }
 export type ThinkerCard = { name: string; slug: string; href: string; era: string | null; portrait: { url: string; alt: string; width: number; height: number } | null; keyIdeas: string[] }
 export type ThinkerDetail = ThinkerCard & { layout: NonNullable<Thinker['layout']>; latestCA: CACard[]; topics: TopicChip[] }
 export type HomeData = { issue: IssueSummary | null; latestCA: CACard[]; featuredThinker: ThinkerCard | null; syllabus: SyllabusPaper[] }

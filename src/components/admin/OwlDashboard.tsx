@@ -4,6 +4,7 @@ import type { AdminViewServerProps, CollectionSlug, Payload } from 'payload'
 
 import styles from './admin.module.css'
 import { TodayWidget } from './TodayWidget'
+import { getBlogGaps } from '@/lib/data/blog'
 
 type Action = { title: string; body: string; href: string; badge?: number; isHot?: boolean }
 type RecentItem = { kind: string; title: string; href: string; status: 'published' | 'draft'; updatedAt: string }
@@ -29,6 +30,7 @@ async function pendingReviewCount(payload: Payload): Promise<number> {
 
 const RECENT_SOURCES = [
   { slug: 'current-affairs', kind: 'Current affair', titleField: 'headline' },
+  { slug: 'posts', kind: 'Blog post', titleField: 'title' },
   { slug: 'topics', kind: 'Topic note', titleField: 'title' },
   { slug: 'pages', kind: 'Page', titleField: 'title' },
   { slug: 'thinkers', kind: 'Thinker', titleField: 'name' },
@@ -66,20 +68,24 @@ export async function OwlDashboard({ initPageResult }: AdminViewServerProps) {
   const payload = req.payload
   const name = (req.user as { name?: string; email?: string } | null)?.name || req.user?.email?.split('@')[0] || 'Admin'
 
-  const [pending, caPub, caDraft, topics, topicsDraft, pages, thinkers, pyqs, recent] = await Promise.all([
+  const [pending, caPub, caDraft, postsPub, postsDraft, topics, topicsDraft, pages, thinkers, pyqs, recent, blogGaps] = await Promise.all([
     pendingReviewCount(payload),
     countBy(payload, 'current-affairs', 'published'),
     countBy(payload, 'current-affairs', 'draft'),
+    countBy(payload, 'posts', 'published'),
+    countBy(payload, 'posts', 'draft'),
     countBy(payload, 'topics', 'published'),
     countBy(payload, 'topics', 'draft'),
     countBy(payload, 'pages'),
     countBy(payload, 'thinkers'),
     countBy(payload, 'pyqs'),
     recentEdits(payload),
+    getBlogGaps(5).catch(() => []),
   ])
 
   const actions: Action[] = [
     { title: 'Review Queue', body: 'AI drafts padho, approve ya reject karo', href: '/admin/review', badge: pending, isHot: pending > 0 },
+    { title: '+ Naya blog post', body: 'Blog likho ya ChatGPT se paste karo', href: '/admin/collections/posts/create' },
     { title: '+ Naya current affair', body: 'Khud se ek khabar ka note likho', href: '/admin/collections/current-affairs/create' },
     { title: 'Topic notes', body: 'Syllabus topics ke notes edit karo', href: '/admin/collections/topics' },
     { title: '+ Naya page', body: 'About, guides, landing page: blocks se', href: '/admin/collections/pages/create' },
@@ -91,6 +97,7 @@ export async function OwlDashboard({ initPageResult }: AdminViewServerProps) {
 
   const counts: CountTile[] = [
     { label: 'Current affairs', href: '/admin/collections/current-affairs', total: caPub + caDraft, meta: `${caPub} live · ${caDraft} draft` },
+    { label: 'Blog posts', href: '/admin/collections/posts', total: postsPub + postsDraft, meta: `${postsPub} live · ${postsDraft} draft` },
     { label: 'Topic notes', href: '/admin/collections/topics', total: topics + topicsDraft, meta: `${topics} live · ${topicsDraft} draft` },
     { label: 'Pages', href: '/admin/collections/pages', total: pages, meta: 'CMS pages' },
     { label: 'Thinkers', href: '/admin/collections/thinkers', total: thinkers, meta: 'profiles' },
@@ -160,6 +167,21 @@ export async function OwlDashboard({ initPageResult }: AdminViewServerProps) {
               <li>Badlo → upar <strong>Save</strong> (draft) ya <strong>Publish changes</strong> (live).</li>
             </ol>
           </div>
+          {blogGaps.length > 0 && (
+            <div className={styles.help} style={{ marginTop: '1rem' }}>
+              <strong>Is hafte ye likho (High-PYQ topics without a blog)</strong>
+              <ul style={{ marginTop: '0.5rem', paddingLeft: '1.1rem' }}>
+                {blogGaps.map((g) => (
+                  <li key={g.topicId} style={{ marginBottom: '0.25rem' }}>
+                    <Link href={`/admin/collections/posts/create`} style={{ fontWeight: 600 }}>
+                      {g.paper} · {g.topicTitle}
+                    </Link>{' '}
+                    <span style={{ fontSize: '0.8rem', opacity: 0.75 }}>({g.pyqCount} PYQs)</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </section>
       </div>
     </Gutter>

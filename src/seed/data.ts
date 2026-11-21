@@ -57,6 +57,15 @@ export const THINKERS = [
   },
 ]
 
+export const BLOG_CATEGORIES = [
+  { title: 'Thinkers', slug: 'thinkers', color: 'lavender' as const, description: 'Classical aur Indian sociological thinkers ke concepts aur critiques.' },
+  { title: 'Paper 1 Concepts', slug: 'paper-1-concepts', color: 'yellow' as const, description: 'Fundamentals of Sociology: stratification, religion, kinship, research methods.' },
+  { title: 'Paper 2 India', slug: 'paper-2-india', color: 'mint' as const, description: 'Indian society: caste, tribe, village, social movements aur social change.' },
+  { title: 'Answer Writing', slug: 'answer-writing', color: 'pink' as const, description: 'Mains answer structure, thinker integration aur PYQ breakdowns.' },
+  { title: 'Current Affairs Link', slug: 'current-affairs-link', color: 'yellow' as const, description: 'Contemporary news ko sociological theories aur syllabus se kaise jodein.' },
+  { title: 'Strategy & Toppers', slug: 'strategy-and-toppers', color: 'lavender' as const, description: 'Booklist, revision plan aur optional scoring tips.' },
+] as const
+
 export const ABOUT_PAGE = {
   title: 'About',
   slug: 'about',

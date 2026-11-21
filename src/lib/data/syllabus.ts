@@ -8,6 +8,7 @@ import { relationDocs } from './types'
 import { mapCACard, mapTopicChip, mapThinkerChip } from './mappers'
 import { urls } from './urls'
 import { compareOrder } from './syllabus-order'
+import { getTopicPosts } from './blog'
 import { draftMode } from 'next/headers'
 
 type UnitWithPaper = Unit & { paper: number | Paper }
@@ -39,14 +40,15 @@ export const getTopicDetail = cache(async (paperSlug: string, unitSlug: string, 
   const found = await payload.find({ collection: 'topics', where: { and: [{ slug: { equals: topicSlug } }, ...(!isPreview ? [{ _status: { equals: 'published' } }] : [])] }, limit: 1, depth: 3, draft: isPreview, overrideAccess: isPreview })
   const topic = found.docs[0]
   if (!topic || !isDoc(topic.unit) || !isDoc(topic.unit.paper) || topic.unit.slug !== unitSlug || topic.unit.paper.slug !== paperSlug) return null
-  const [affairs, related] = await Promise.all([
+  const [affairs, related, posts] = await Promise.all([
     payload.find({ collection: 'current-affairs', where: { and: [{ topics: { contains: topic.id } }, { _status: { equals: 'published' } }] }, limit: 6, sort: '-date', depth: 3, draft: false, overrideAccess: false }),
     Promise.resolve(relationDocs(topic.relatedTopics)),
+    getTopicPosts(topic.id, 4),
   ])
   const paper = topic.unit.paper.code as PaperCode
   const topicChip: TopicChip = { title: topic.title, slug: topic.slug ?? '', href: urls.topic(paperSlug, unitSlug, topic.slug ?? ''), paper }
   const crumbs = [{ label: 'Syllabus', href: '/syllabus' }, { label: topic.unit.paper.title, href: urls.paper(paperSlug) }, { label: topic.unit.title, href: urls.unit(paperSlug, unitSlug) }, { label: topic.title, href: topicChip.href }]
-  return { title: topic.title, slug: topic.slug ?? '', href: topicChip.href, summary: topic.summary ?? null, paper, breadcrumbs: crumbs, layout: topic.layout ?? [], thinkers: relationDocs(topic.thinkers).map(mapThinkerChip).filter((item): item is NonNullable<typeof item> => item !== null), relatedTopics: related.map((item) => mapTopicChip(item as Topic & { unit: UnitWithPaper })).filter((item): item is TopicChip => item !== null), latestCA: affairs.docs.map(mapCACard), caCount: affairs.totalDocs }
+  return { title: topic.title, slug: topic.slug ?? '', href: topicChip.href, summary: topic.summary ?? null, paper, breadcrumbs: crumbs, layout: topic.layout ?? [], thinkers: relationDocs(topic.thinkers).map(mapThinkerChip).filter((item): item is NonNullable<typeof item> => item !== null), relatedTopics: related.map((item) => mapTopicChip(item as Topic & { unit: UnitWithPaper })).filter((item): item is TopicChip => item !== null), latestCA: affairs.docs.map(mapCACard), caCount: affairs.totalDocs, posts }
 })
 
 export const getTopicStaticParams = cache(async (): Promise<{ paper: string; path: string[] }[]> => {

@@ -35,6 +35,9 @@ export const Users: CollectionConfig = {
   hooks: { beforeChange: [firstUserIsAdmin] },
   fields: [
     { name: 'name', type: 'text' },
+    { name: 'displayName', type: 'text', admin: { description: 'Blog author box mein dikhega.' } },
+    { name: 'bio', type: 'textarea', maxLength: 280 },
+    { name: 'avatar', type: 'upload', relationTo: 'media' },
     {
       name: 'role',
       type: 'select',

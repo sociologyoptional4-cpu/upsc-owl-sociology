@@ -27,6 +27,7 @@ const RESERVED_TOP_LEVEL = new Set([
   'practice',
   'search',
   'digest',
+  'blog',
   '_next',
 ])
 

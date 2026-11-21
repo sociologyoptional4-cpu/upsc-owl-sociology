@@ -10,6 +10,8 @@ import { Sources } from './collections/Sources'
 import { PipelineRuns } from './collections/PipelineRuns'
 import { Digests } from './collections/Digests'
 import { Quizzes } from './collections/Quizzes'
+import { Posts } from './collections/Posts'
+import { BlogCategories, BlogTags } from './collections/BlogTaxonomies'
 import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
 import { Papers } from './collections/Papers'
@@ -24,6 +26,7 @@ import { getServerSideURL } from './lib/url'
 import { endpoints } from './endpoints'
 import { richTextEditor } from './lib/lexical/richTextEditor'
 import { env } from './lib/env'
+import { blogJobs } from './lib/blog/jobs'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -47,7 +50,7 @@ export default buildConfig({
       },
     },
   },
-  collections: [Pages, CurrentAffairs, Topics, Units, Papers, Pyqs, Thinkers, Media, Users, Sources, PipelineRuns, Digests, Quizzes],
+  collections: [Pages, CurrentAffairs, Topics, Units, Papers, Pyqs, Thinkers, Media, Users, Sources, PipelineRuns, Digests, Quizzes, Posts, BlogCategories, BlogTags],
   globals: [SiteSettings, Navigation],
   editor: richTextEditor(),
   secret: env.PAYLOAD_SECRET,
@@ -74,4 +77,5 @@ export default buildConfig({
     },
   })] : [],
   endpoints,
+  jobs: blogJobs,
 })

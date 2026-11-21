@@ -80,7 +80,11 @@ export interface Config {
     'pipeline-runs': PipelineRun;
     digests: Digest;
     quizzes: Quiz;
+    posts: Post;
+    'blog-categories': BlogCategory;
+    'blog-tags': BlogTag;
     'payload-kv': PayloadKv;
+    'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -100,7 +104,11 @@ export interface Config {
     'pipeline-runs': PipelineRunsSelect<false> | PipelineRunsSelect<true>;
     digests: DigestsSelect<false> | DigestsSelect<true>;
     quizzes: QuizzesSelect<false> | QuizzesSelect<true>;
+    posts: PostsSelect<false> | PostsSelect<true>;
+    'blog-categories': BlogCategoriesSelect<false> | BlogCategoriesSelect<true>;
+    'blog-tags': BlogTagsSelect<false> | BlogTagsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
+    'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -123,7 +131,14 @@ export interface Config {
   };
   user: User;
   jobs: {
-    tasks: unknown;
+    tasks: {
+      'blog-organize': TaskBlogOrganize;
+      schedulePublish: TaskSchedulePublish;
+      inline: {
+        input: unknown;
+        output: unknown;
+      };
+    };
     workflows: unknown;
   };
 }
@@ -520,6 +535,12 @@ export interface User {
   id: number;
   name?: string | null;
   /**
+   * Blog author box mein dikhega.
+   */
+  displayName?: string | null;
+  bio?: string | null;
+  avatar?: (number | null) | Media;
+  /**
    * ai-bot: sirf API key se drafts bana sakta hai, publish nahi.
    */
   role: 'admin' | 'editor' | 'ai-bot';
@@ -595,6 +616,10 @@ export interface PipelineRun {
       }[]
     | null;
   promptVersion?: string | null;
+  /**
+   * Which job wrote this ledger row (blog = organizer / beautifier).
+   */
+  kind?: ('daily-ca' | 'notes' | 'digest' | 'quiz' | 'blog') | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -650,6 +675,119 @@ export interface Quiz {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Blog likho ya ChatGPT se paste karo. Kisi coaching/book ka text copy mat karo.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts".
+ */
+export interface Post {
+  id: number;
+  title: string;
+  /**
+   * Khali chhodo to "title" se apne aap banega.
+   */
+  slug?: string | null;
+  /**
+   * Khali chhodo to AI bharega.
+   */
+  excerpt?: string | null;
+  cover?: (number | null) | Media;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Markdown paste karke Save karo: content mein badal jayega (khali ho to replace, warna neeche jodega). Yeh field store nahi hota.
+   */
+  importMarkdown?: string | null;
+  category?: (number | null) | BlogCategory;
+  tags?: (number | BlogTag)[] | null;
+  papers?: (number | Paper)[] | null;
+  units?: (number | Unit)[] | null;
+  topics?: (number | Topic)[] | null;
+  thinkers?: (number | Thinker)[] | null;
+  author?: (number | null) | User;
+  publishedAt?: string | null;
+  /**
+   * /blog ke hero mein dikhega.
+   */
+  featured?: boolean | null;
+  readingTime?: number | null;
+  faq?:
+    | {
+        question: string;
+        answer: string;
+        id?: string | null;
+      }[]
+    | null;
+  seo?: {
+    title?: string | null;
+    description?: string | null;
+    focusKeyword?: string | null;
+    ogImage?: (number | null) | Media;
+    canonical?: string | null;
+    noindex?: boolean | null;
+  };
+  aiSuggestions?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  aiStatus?: ('idle' | 'queued' | 'done' | 'failed') | null;
+  contentHash?: string | null;
+  telegramPostedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-categories".
+ */
+export interface BlogCategory {
+  id: number;
+  title: string;
+  /**
+   * Khali chhodo to "title" se apne aap banega.
+   */
+  slug?: string | null;
+  description?: string | null;
+  color?: ('lavender' | 'yellow' | 'mint' | 'pink') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-tags".
+ */
+export interface BlogTag {
+  id: number;
+  title: string;
+  /**
+   * Khali chhodo to "title" se apne aap banega.
+   */
+  slug?: string | null;
+  description?: string | null;
+  color?: ('lavender' | 'yellow' | 'mint' | 'pink') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -665,6 +803,98 @@ export interface PayloadKv {
     | number
     | boolean
     | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs".
+ */
+export interface PayloadJob {
+  id: number;
+  /**
+   * Input data provided to the job
+   */
+  input?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  taskStatus?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  completedAt?: string | null;
+  totalTried?: number | null;
+  /**
+   * If hasError is true this job will not be retried
+   */
+  hasError?: boolean | null;
+  /**
+   * If hasError is true, this is the error that caused it
+   */
+  error?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Task execution log
+   */
+  log?:
+    | {
+        executedAt: string;
+        completedAt: string;
+        taskSlug: 'inline' | 'blog-organize' | 'schedulePublish';
+        taskID: string;
+        input?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        output?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        state: 'failed' | 'succeeded';
+        error?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  taskSlug?: ('inline' | 'blog-organize' | 'schedulePublish') | null;
+  queue?: string | null;
+  waitUntil?: string | null;
+  processing?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -724,6 +954,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'quizzes';
         value: number | Quiz;
+      } | null)
+    | ({
+        relationTo: 'posts';
+        value: number | Post;
+      } | null)
+    | ({
+        relationTo: 'blog-categories';
+        value: number | BlogCategory;
+      } | null)
+    | ({
+        relationTo: 'blog-tags';
+        value: number | BlogTag;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1108,6 +1350,9 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
+  displayName?: T;
+  bio?: T;
+  avatar?: T;
   role?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1181,6 +1426,7 @@ export interface PipelineRunsSelect<T extends boolean = true> {
         id?: T;
       };
   promptVersion?: T;
+  kind?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1237,11 +1483,112 @@ export interface QuizzesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts_select".
+ */
+export interface PostsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  excerpt?: T;
+  cover?: T;
+  content?: T;
+  importMarkdown?: T;
+  category?: T;
+  tags?: T;
+  papers?: T;
+  units?: T;
+  topics?: T;
+  thinkers?: T;
+  author?: T;
+  publishedAt?: T;
+  featured?: T;
+  readingTime?: T;
+  faq?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        focusKeyword?: T;
+        ogImage?: T;
+        canonical?: T;
+        noindex?: T;
+      };
+  aiSuggestions?: T;
+  aiStatus?: T;
+  contentHash?: T;
+  telegramPostedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-categories_select".
+ */
+export interface BlogCategoriesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  description?: T;
+  color?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-tags_select".
+ */
+export interface BlogTagsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  description?: T;
+  color?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
   key?: T;
   data?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs_select".
+ */
+export interface PayloadJobsSelect<T extends boolean = true> {
+  input?: T;
+  taskStatus?: T;
+  completedAt?: T;
+  totalTried?: T;
+  hasError?: T;
+  error?: T;
+  log?:
+    | T
+    | {
+        executedAt?: T;
+        completedAt?: T;
+        taskSlug?: T;
+        taskID?: T;
+        input?: T;
+        output?: T;
+        state?: T;
+        error?: T;
+        id?: T;
+      };
+  taskSlug?: T;
+  queue?: T;
+  waitUntil?: T;
+  processing?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1368,6 +1715,36 @@ export interface CollectionsWidget {
     [k: string]: unknown;
   };
   width: 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskBlog-organize".
+ */
+export interface TaskBlogOrganize {
+  input: {
+    postId: number;
+  };
+  output?: unknown;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskSchedulePublish".
+ */
+export interface TaskSchedulePublish {
+  input: {
+    type?: ('publish' | 'unpublish') | null;
+    locale?: string | null;
+    doc?: {
+      relationTo: 'posts';
+      value: number | Post;
+    } | null;
+    global?: string | null;
+    user?: {
+      relationTo: 'users';
+      value: number | User;
+    } | null;
+  };
+  output?: unknown;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

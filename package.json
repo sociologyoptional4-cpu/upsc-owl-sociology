@@ -36,6 +36,8 @@
     "@payloadcms/richtext-lexical": "3.94.1",
     "@payloadcms/storage-s3": "^3.94.1",
     "@payloadcms/ui": "3.94.1",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.1.0",
     "cross-env": "^7.0.3",
     "dotenv": "16.4.7",
     "graphql": "^16.8.1",
@@ -49,7 +51,7 @@
     "react-dom": "19.2.9",
     "rss-parser": "^3.13.0",
     "server-only": "^0.0.1",
-    "sharp": "0.35.4",
+    "sharp": "0.35.5",
     "zod": "^4.6.7"
   },
   "devDependencies": {

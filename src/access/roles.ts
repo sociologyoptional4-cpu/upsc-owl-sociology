@@ -14,6 +14,7 @@ const roleOf = (req: PayloadRequest): MaybeUser => req.user as MaybeUser
 export const isAdmin: Access = ({ req }) => hasRole(roleOf(req), 'admin')
 export const isAdminField: FieldAccess = ({ req }) => hasRole(roleOf(req), 'admin')
 export const isStaff: Access = ({ req }) => hasRole(roleOf(req), 'admin', 'editor')
+export const isStaffField: FieldAccess = ({ req }) => hasRole(roleOf(req), 'admin', 'editor')
 export const isLoggedIn: Access = ({ req }) => Boolean(req.user)
 
 /** Staff and the AI bot may create content; the bot's docs are forced to draft by a hook. */

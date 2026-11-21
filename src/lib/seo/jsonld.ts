@@ -1,4 +1,5 @@
-import type { CAArticle } from '@/lib/data/types'
+import type { BlogAuthor, BlogPostDetail, CAArticle } from '@/lib/data/types'
+import { getServerSideURL } from '@/lib/url'
 
 export function articleJsonLd(article: CAArticle) {
   return {
@@ -10,4 +11,47 @@ export function articleJsonLd(article: CAArticle) {
 
 export function breadcrumbJsonLd(items: { label: string; href: string }[]) {
   return { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: items.map((item, index) => ({ '@type': 'ListItem', position: index + 1, name: item.label, item: item.href })) }
+}
+
+export function personJsonLd(author: BlogAuthor) {
+  const base = getServerSideURL()
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: author.name,
+    url: `${base}${author.href}`,
+    ...(author.bio ? { description: author.bio } : {}),
+    ...(author.avatar ? { image: author.avatar.url } : {}),
+  }
+}
+
+export function blogPostingJsonLd(post: BlogPostDetail) {
+  const base = getServerSideURL()
+  const url = `${base}${post.href}`
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.seo.title ?? post.title,
+    description: post.seo.description ?? post.excerpt ?? post.title,
+    datePublished: post.publishedAt,
+    dateModified: post.updatedAt,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+    image: post.seo.ogImageUrl ? [new URL(post.seo.ogImageUrl, base).toString()] : [`${url}/opengraph-image`],
+    author: post.author ? personJsonLd(post.author) : { '@type': 'Organization', name: 'UPSC OWL Sociology', url: base },
+    publisher: { '@type': 'Organization', name: 'UPSC OWL Sociology', url: base },
+    keywords: [post.seo.focusKeyword, ...post.tags.map((t) => t.title), ...post.topics.map((t) => t.title)].filter(Boolean).join(', '),
+    ...(post.category ? { articleSection: post.category.title } : {}),
+  }
+}
+
+export function faqPageJsonLd(items: { question: string; answer: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: { '@type': 'Answer', text: item.answer },
+    })),
+  }
 }

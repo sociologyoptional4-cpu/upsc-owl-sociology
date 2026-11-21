@@ -6,6 +6,7 @@ import { ingestBatchSchema, reviewActionSchema, type IngestItem } from '@/lib/in
 import { sourceHash } from '@/lib/ingest/hash'
 import { markdownToLexical } from '@/lib/ingest/markdownToLexical'
 import { formatDateIST } from '@/lib/data/issue'
+import { blogEndpoints } from './blog'
 import { noteOutputSchema, tablesWithinLimits } from '@/pipeline/notes/schema'
 
 const windows = new Map<string, { start: number; count: number }>()
@@ -251,6 +252,7 @@ async function pipelineSpend(req: PayloadRequest): Promise<Response> {
 
 const endpoint = (path: string, method: Endpoint['method'], handler: Endpoint['handler']): Endpoint => ({ path, method, handler })
 export const endpoints: Endpoint[] = [
+  ...blogEndpoints,
   endpoint('/ingest/batch', 'post', ingest), endpoint('/ingest/notes/next', 'get', nextNoteTopics), endpoint('/ingest/notes', 'post', ingestNote), endpoint('/admin/review-queue', 'get', reviewQueue),
   endpoint('/admin/review/:id', 'post', review), endpoint('/admin/today', 'get', today), endpoint('/admin/coverage', 'get', coverage),
   endpoint('/pipeline/sources', 'get', pipelineSources), endpoint('/pipeline/sources/:id', 'patch', pipelineSources), endpoint('/pipeline/spend', 'get', pipelineSpend),

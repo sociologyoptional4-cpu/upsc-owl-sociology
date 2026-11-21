@@ -2,6 +2,7 @@ import type { TopicDetail } from '@/lib/data/types'
 
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 
+import { BlogCard } from '../cards/BlogCard'
 import { CaCard } from '../cards/CaCard'
 import { Reveal } from '../motion/Reveal'
 import { EmptyState } from '../ui/Badges'
@@ -12,6 +13,7 @@ import { paperTone } from '../ui/paper'
 const SECTIONS = [
   { id: 'notes', label: 'Notes' },
   { id: 'current-affairs', label: 'Current Affairs' },
+  { id: 'blogs', label: 'Blogs' },
 ] as const
 
 export function TopicView({ data }: { data: TopicDetail }) {
@@ -64,6 +66,19 @@ export function TopicView({ data }: { data: TopicDetail }) {
               </ul>
             )}
           </section>
+
+          {data.posts && data.posts.length > 0 && (
+            <section id="blogs" aria-labelledby="topic-blogs-h" className="mt-[var(--space-section)] scroll-mt-32">
+              <h2 id="topic-blogs-h" className="mb-8 text-[length:var(--text-h3)] font-extrabold">Is topic pe blogs</h2>
+              <ul className="grid gap-6 md:grid-cols-2">
+                {data.posts.map((post, index) => (
+                  <Reveal as="li" key={post.id} index={index % 4}>
+                    <BlogCard post={post} />
+                  </Reveal>
+                ))}
+              </ul>
+            </section>
+          )}
         </div>
 
         <aside className="space-y-8 lg:sticky lg:top-32 lg:self-start">
