@@ -72,3 +72,8 @@ Har image, illustration, animation, 3D model aur font jo site pe ship hota hai, 
 | P2 UNIT 14 infographic: Sex Ratio, Ageing, Health & Migration | /assets/infographics/p2-u14-02-emerging-population-issues.webp | — | Own | UPSC OWL Sociology | SVG rendered to WebP |
 | P2 UNIT 15 infographic: Displacement & Sustainability | /assets/infographics/p2-u15-01-development-displacement-sustainability.webp | — | Own | UPSC OWL Sociology | SVG rendered to WebP |
 | P2 UNIT 15 infographic: Challenges of Social Transformation | /assets/infographics/p2-u15-02-social-transformation-challenges.webp | — | Own | UPSC OWL Sociology | SVG rendered to WebP |
+| Blog asset: Luwai 2590 OG image | /assets/blog/luwai-2590-1795191087442.png | — | Own | UPSC OWL Sociology | Blog cover/OG PNG |
+| Blog asset: Luwai 7198 cover image | /assets/blog/luwai-7198-1795191064.png | — | Own | UPSC OWL Sociology | Blog cover PNG |
+| Blog asset: A-Level results post cover/figure | /assets/blog/image.png | — | Own | UPSC OWL Sociology | Pasted blog PNG |
+| Blog asset: Reflexive methods mind map | /assets/blog/new-mindmap-mwra494w.png | — | Own | UPSC OWL Sociology | AI-generated (OpenAI) for UPSC OWL Sociology |
+| Blog asset: Science in sociology infographic | /assets/blog/new-infographic-mwra49sh.png | — | Own | UPSC OWL Sociology | AI-generated (OpenAI) for UPSC OWL Sociology |

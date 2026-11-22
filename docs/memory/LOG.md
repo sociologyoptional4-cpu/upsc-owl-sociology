@@ -338,3 +338,11 @@
 - Checks: `validate-units.ts` ✓ (25/25 units, 98/98 topics, 0 errors), `tsc --noEmit` ✓, `eslint` ✓, `test:unit` ✓ (28/28 files, 185/185 tests), `next build` ✓ (177/177 static pages).
 - Contract changes: none (`Media.afterRead` resolves repo static assets before S3 rewrite).
 - Open issues / proposals: none.
+
+## 2026-11-22 17:08 · Gemini (Antigravity) · Local CMS Content & Blog Assets Prod Sync
+- Did: Exported local Postgres CMS content and synced idempotently to Production Supabase via `scripts/notes/sync-local-cms-to-prod.ts`: 5 blog PNG assets (`public/assets/blog/*`), 6 RSS sources, 6 blog categories, 7 valid blog tags (skipped garbage tag `id:1`), 3 published pages (`about`, `guides`, `guides/answer-writing`), `site-settings` & `navigation` globals, 5 pending AI `current-affairs` drafts (skipped `[Sample]` rows), and 2 published blog posts (`hello`, `new`) + 1 autosave draft with cover/OG/embedded Lexical IDs remapped cleanly. Extended `resolveStaticMediaUrl` in `src/lib/notes/static-media.ts` for `/assets/blog/*` and logged rows in `ASSETS.md`.
+- Files: `public/assets/blog/*`, `src/lib/notes/static-media.ts`, `scripts/notes/sync-local-cms-to-prod.ts`, `ASSETS.md`, `docs/memory/{STATE,LOG}.md`.
+- Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-06, memory)
+- Checks: `tsc --noEmit` ✓, `eslint` ✓, `test:unit` ✓ (28/28 files, 185/185 tests), `next build` ✓ (177/177 pages), Prod Supabase + live Vercel API checks ✓.
+- Contract changes: `resolveStaticMediaUrl` also maps the 5 synced blog filenames to `/assets/blog/*`.
+- Open issues / proposals: none.

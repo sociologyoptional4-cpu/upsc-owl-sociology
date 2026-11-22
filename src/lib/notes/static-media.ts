@@ -62,10 +62,19 @@ const INFOGRAPHIC_FILES = new Set<string>([
   'p2-u15-02-social-transformation-challenges.webp',
 ])
 
-/** Maps repo-shipped infographic & thinker portrait filenames to their Vercel CDN static `/assets/...` paths. */
+const BLOG_ASSET_FILES = new Set<string>([
+  'luwai-2590-1795191087442.png',
+  'luwai-7198-1795191064.png',
+  'image.png',
+  'new-mindmap-mwra494w.png',
+  'new-infographic-mwra49sh.png',
+])
+
+/** Maps repo-shipped infographics, thinker portraits, and synced blog assets to static Vercel CDN `/assets/...` paths. */
 export function resolveStaticMediaUrl(filename?: string | null): string | null {
   if (!filename) return null
   if (INFOGRAPHIC_FILES.has(filename)) return `/assets/infographics/${filename}`
   if (THINKER_PORTRAIT_FILES.has(filename)) return `/assets/thinkers/${filename}`
+  if (BLOG_ASSET_FILES.has(filename)) return `/assets/blog/${filename}`
   return null
 }
