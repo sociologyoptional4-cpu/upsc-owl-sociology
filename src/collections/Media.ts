@@ -49,6 +49,8 @@ export const Media: CollectionConfig = {
     }],
   },
   fields: [
+    // Match the cloud-storage field even when the S3 plugin is disabled locally.
+    { name: '_objectKey', type: 'text', admin: { hidden: true, readOnly: true } },
     { name: 'alt', type: 'text', required: true, admin: { description: 'Khaali chhodo to file ke naam se bharega. SEO ke liye behtar likho.' } },
     {
       name: 'license',
