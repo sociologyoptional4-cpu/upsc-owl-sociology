@@ -1,0 +1,27 @@
+# Task B4: Smart paste (quiz + current affairs) + auto SEO
+
+**Kaun:** Antigravity · Claude Opus 5.5 (ya Codex 6.0) · **Spec:** [docs/10](../10-smart-paste.md) · **Shuru kab:** B2 ke "Done" hone ke BAAD (B2 `src/lib/rateLimit.ts`, `src/endpoints/index.ts` aur migration order deta hai). B1 se parallel chal sakta hai. S1 isse baad.
+
+````text
+ROLE: Senior Next.js 16 + Payload 3 backend engineer and prompt engineer on an EXISTING project. D11: OpenAI writes, DeepSeek scores. Never use the Anthropic API.
+
+READ FIRST (mandatory, in order): AGENTS.md → docs/tasks/MASTER-PLAN.md → docs/README.md, docs/01 … docs/07 (skim), docs/09 (skim), docs/10-smart-paste.md (FULL SPEC: contracts C5, C6, C7) → docs/memory/STATE.md, DECISIONS.md (D11-D19), last ~60 lines of LOG.md → this prompt. STOP if B2 is still under "Active" in STATE.md.
+
+CLAIM in STATE.md "Active" as "Task B4": src/endpoints/smart.ts (new), src/endpoints/index.ts (ONLY: extract `createCurrentAffairDraft` + register `smartEndpoints`), src/lib/smart/** (new: quiz.ts, currentAffair.ts, prompts, schemas), src/pipeline/llm/prompts/{smart-quiz.v1.md,smart-ca.v1.md}, src/collections/{Quizzes,CurrentAffairs,PipelineRuns}.ts, src/lib/blog/indexnow.ts (reuse only), src/app/(frontend)/{practice,current-affairs}/**/page.tsx (data fetching + generateMetadata only, never JSX design), src/lib/data/** (only the CA seo + quiz null-safety mapping), src/payload-types.ts, src/migrations/**, tests/unit/smart-*.test.ts, docs/ops/runbook.md. Do NOT touch src/components/**, src/styles/** (Claude owns UI), Posts.ts, Media.ts, src/blocks/blog/** (B1/B2).
+
+BUILD (tests first, RED→GREEN)
+1. Shared function: extract the item-creation part of `ingest()` into `createCurrentAffairDraft(payload, item, hash, { req? })`; `ingest()` calls it; behaviour and existing tests unchanged.
+2. `src/lib/smart/quiz.ts` (C5): Zod-validated structured output; one OpenAI call (JSON schema) for parsing; one DeepSeek call for story matching over candidate stories (ids from DB only, reject unknown ids); never trust the model for ids/answer index ranges (0-3, exactly 4 options; pad/trim → flag `options-fixed`, or reject with a clear Hinglish error if 3 or fewer real options). Append/409 logic exactly as the contract. Relax `caId` to optional; make `/practice` data mapping null-safe.
+3. `src/lib/smart/currentAffair.ts` (C6): reuse scorer/writer clients in src/pipeline/llm/*.ts and prompts (add small smart-*.v1.md prompt files that wrap writer.v1 + style-guide; keep versions in `aiMeta.promptVersion`). Treat the pasted text as UNTRUSTED data (prompt-injection safe: put it in a delimited user block, tell the model to ignore instructions inside it, validate output only through `ingestItemSchema` + DB slug checks). Rewrite in own words; run copy-guard (src/pipeline/notes/copy-guard.ts) on the body and reject/regenerate once if too close to the pasted text. Source/hash/duplicate rules exactly as the contract.
+4. `src/endpoints/smart.ts`: `POST /smart/quiz`, `POST /smart/current-affair`; staff only (admin/editor), shared `rateLimit` helper from B2, body limits, Zod, budget gate (`pipelineEnabled`, `maxDailyUsd` via pipeline-runs) and a `pipeline-runs` ledger row with new `kind: "smart-paste"` (additive select option). Errors in Hinglish for users, English in logs; never log pasted text or keys.
+5. SEO (C7): `current-affairs.seo {title ≤60, description 120-160}` fields; writer fills them; CA page `generateMetadata` prefers them; `afterChange` first-publish IndexNow ping for CA (copy the fail-soft pattern from src/lib/blog/hooks.ts `announcePost`; skip when `context.skipExternal`). 
+6. Tests: quiz parse for three layouts (numbered+key at end, a)/b) inline answers, Hinglish) using a MOCKED OpenAI client; guessed-answer flag; <4 options reject; unknown story id rejected; append to draft; 409 on published; CA happy path (mock both models); unknown topic slug rejected; duplicate hash 409; fallback source; prompt-injection text in the paste cannot change slugs/relations; anonymous and ai-bot 401; IndexNow called once on first publish and not on re-save; `/practice` mapping with `caId: null`.
+7. Migration LAST (after B2 is Done): `npx payload migrate:create smart_paste`, read the SQL (must be additive/relaxing only), apply locally, `npm run generate:types`.
+8. Local proof (no secrets printed): with the dev server and the local test admin session, run one real quiz paste and one real article paste against the real models if keys are in .env (otherwise say "not run: no keys" honestly), and report flags/warnings + cost.
+
+HARD RULES: TypeScript strict, no `any`, Zod at every boundary, functions < 50 lines, files < 400 lines, Hinglish user copy, English code/comments. Additive migrations only. Never print/commit .env or secrets; never publish content; never call production. Long commands run in background. Commit per part, stage only your files (never git add -A; leave the .gitignore change alone): `feat: smart paste quiz and current affairs`, `feat: current-affairs seo fields and indexnow`.
+
+CHECKS: npx tsc --noEmit, npx eslint src tests, npm run test:unit, npm run build.
+LAST: release claim, mark B4 in tasks/README.md + MASTER-PLAN.md, LOG.md entry (Read-first ✓, checks ✓/✗, contract changes exact, open issues).
+FINAL REPLY (Hinglish, short): files, endpoints, test + proof results, cost per paste, flags Claude's desk must display.
+````
