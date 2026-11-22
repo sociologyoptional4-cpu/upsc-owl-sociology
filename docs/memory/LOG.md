@@ -318,3 +318,11 @@
 - Checks: tsc ✓; eslint ✓ (one pre-existing unused-import warning in `src/endpoints/index.ts`); unit/build pending deployment.
 - Contract changes: `POST /api/admin/import-repo-content`, admin session only; temporary operational endpoint.
 - Open issues / proposals: Deploy and invoke once on Production, verify counts/pages, then remove endpoint in a follow-up deployment.
+
+## 2026-11-22 12:48 IST · Codex (GPT-5.6) · Production importer follow-up
+- Did: Regenerated the Payload admin import map so the temporary repo-content importer custom view resolves in production instead of rendering a blank screen.
+- Files: `src/app/(payload)/admin/importMap.js`, `docs/memory/{STATE,LOG}.md`.
+- Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-06, memory)
+- Checks: tsc ✓; eslint ✓ (0 errors; generated import-map ignore warning only).
+- Contract changes: none.
+- Open issues / proposals: Deploy this narrow fix, run the one-time import as an authenticated admin, verify production data, then remove the temporary endpoint/view.

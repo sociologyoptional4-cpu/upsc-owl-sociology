@@ -4,6 +4,7 @@ import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8c
 import { TableFeatureClient as TableFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BlocksFeatureClient as BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { TextStateFeatureClient as TextStateFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { PublishChecklist as PublishChecklist_4305f4cd0f0541761f366c8cf3e49515 } from '../../../components/admin/blog/PublishChecklist'
 import { AiSuggestionsPanel as AiSuggestionsPanel_ee41354edcb076f3541401e3cf75e4d2 } from '../../../components/admin/blog/AiSuggestionsPanel'
 import { AdminIcon as AdminIcon_db845eae23ef682757f9df5d4893ae70 } from '../../../components/admin/AdminBrand'
 import { AdminLogo as AdminLogo_db845eae23ef682757f9df5d4893ae70 } from '../../../components/admin/AdminBrand'
@@ -12,8 +13,8 @@ import { OwlDashboard as OwlDashboard_1f0fd930e95fbeb13a357d12c2eceea1 } from '.
 import { ReviewQueueView as ReviewQueueView_02f1ecfe363c3e174c36ec34482c6f38 } from '../../../components/admin/ReviewQueueView'
 import { WriteDesk as WriteDesk_21d693abaf8db410815970ca634e9e80 } from '../../../components/admin/WriteDesk'
 import { SeoControlCenter as SeoControlCenter_8140f234c7437d1b03dea7dccf2a6a15 } from '../../../components/admin/SeoControlCenter'
+import { RepoContentImport as RepoContentImport_7752ce7d05adfd2c820ccc46c09ef8ea } from '../../../components/admin/RepoContentImport'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
-import { PublishChecklist as PublishChecklist_4305f4cd0f0541761f366c8cf3e49515 } from '../../../components/admin/blog/PublishChecklist'
 
 /** @type import('payload').ImportMap */
 export const importMap = {
@@ -23,6 +24,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#TableFeatureClient": TableFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BlocksFeatureClient": BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#TextStateFeatureClient": TextStateFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "/components/admin/blog/PublishChecklist#PublishChecklist": PublishChecklist_4305f4cd0f0541761f366c8cf3e49515,
   "/components/admin/blog/AiSuggestionsPanel#AiSuggestionsPanel": AiSuggestionsPanel_ee41354edcb076f3541401e3cf75e4d2,
   "/components/admin/AdminBrand#AdminIcon": AdminIcon_db845eae23ef682757f9df5d4893ae70,
   "/components/admin/AdminBrand#AdminLogo": AdminLogo_db845eae23ef682757f9df5d4893ae70,
@@ -31,6 +33,6 @@ export const importMap = {
   "/components/admin/ReviewQueueView#ReviewQueueView": ReviewQueueView_02f1ecfe363c3e174c36ec34482c6f38,
   "/components/admin/WriteDesk#WriteDesk": WriteDesk_21d693abaf8db410815970ca634e9e80,
   "/components/admin/SeoControlCenter#SeoControlCenter": SeoControlCenter_8140f234c7437d1b03dea7dccf2a6a15,
-  "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1,
-  "/components/admin/blog/PublishChecklist#PublishChecklist": PublishChecklist_4305f4cd0f0541761f366c8cf3e49515,
+  "/components/admin/RepoContentImport#RepoContentImport": RepoContentImport_7752ce7d05adfd2c820ccc46c09ef8ea,
+  "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

@@ -1,6 +1,6 @@
 # Project state
 
-_Last updated: 2026-11-21 by Codex (GPT-6)_
+_Last updated: 2026-11-22 by Codex (GPT-5.6)_
 
 ## Phase
 Phase 0 ✅ committed → Phase 1 ✅ → **Phase 2 automation** (implementation complete; acceptance soak pending).
