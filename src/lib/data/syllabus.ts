@@ -1,3 +1,4 @@
+import { hasTopicNotes } from '@/lib/notes/has-topic-notes'
 import 'server-only'
 
 import { cache } from 'react'
@@ -129,7 +130,7 @@ export const getSyllabusTree = cache(async (): Promise<SyllabusPaper[]> => {
             summary: topic.summary ?? null,
             summaryHinglish: topic.summaryHinglish ?? null,
             pyqCount: pyqCounts.get(topic.id) ?? 0,
-            hasNotes: Boolean(topic.notebookContent || topic.notebookContentHinglish) || (topic.layout?.length ?? 0) > 0,
+            hasNotes: hasTopicNotes(topic),
           })),
         }
       }),

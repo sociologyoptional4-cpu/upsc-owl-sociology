@@ -45,6 +45,12 @@ describe('auditPost', () => {
     const issues = ids(auditPost({ ...goodPost, noindex: true, wordCount: 120, topicCount: 0 }))
     expect(issues).toEqual(expect.arrayContaining(['post.noindex', 'post.thin', 'post.topics']))
   })
+
+  it('presents word count and FAQ checks as guidance, not Google guarantees', () => {
+    const issues = auditPost({ ...goodPost, wordCount: 120, faqCount: 0 })
+    expect(issues.find((issue) => issue.id === 'post.thin')?.fix).toContain('fixed minimum word count nahi')
+    expect(issues.find((issue) => issue.id === 'post.faq')?.fix).toContain('guarantee nahi')
+  })
 })
 
 describe('auditSite', () => {

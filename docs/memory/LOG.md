@@ -302,3 +302,11 @@
 - Checks: see commit message / final reply (tsc, eslint, unit, build run before commit).
 - Contract changes: `posts.quiz[]`, `posts.series`, `posts.seriesOrder`, new collection `blog-series`; `BlogPostDetail.quiz`, `.series`; `BlogListData.kind` + `'series'`; import JSON source `template`; new endpoint `POST /api/blog/quiz`.
 - Open issues / proposals: AI quiz not yet proven against real models (same client as smart paste, which was proven); no browser check of the editor sidebar (no local login).
+
+## 2026-11-22 11:30 IST · Codex · Production review recovery
+- Did: Mapped the code with Graphify. PR #1 diverged from main, including review AI and unrelated overlapping commits. Reapplied the staff preview and pending-review corrections and the SEO wording edits on a clean branch. Fixed note presence checks to recognize bilingual notebook content in the syllabus, note automation, and SEO.
+- Files: `src/app/api/preview/route.ts`, `src/collections/Posts.ts`, `src/endpoints/index.ts`, `src/lib/{notes,seo,data}/**`, `tests/unit/**`, `docs/memory/LOG.md`.
+- Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-06, memory, blog import hardening)
+- Checks: tsc ✓, ESLint ✓ with existing warnings, 191 unit tests ✓. Initial Next build passed compilation and type checking and stopped during prerender because there was no local Postgres fixture.
+- Contract changes: Draft preview requires an admin or editor session. The review queue selects pending draft versions.
+- Open issues: Authenticated production smoke and the reviewed local CMS export are pending. The media schema fix is tracked separately.
