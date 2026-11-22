@@ -14,7 +14,7 @@ export const forceBotDrafts: CollectionBeforeChangeHook = async ({ data, req }) 
     : null
   let settings: Settings = {}
   try {
-    settings = await req.payload.findGlobal({ slug: 'site-settings', overrideAccess: true }) as Settings
+    settings = await req.payload.findGlobal({ slug: 'site-settings', overrideAccess: true, req }) as Settings
   } catch {
     // Fail closed when settings are unavailable.
   }

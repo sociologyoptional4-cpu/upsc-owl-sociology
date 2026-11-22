@@ -16,6 +16,7 @@
 | B2 | [Blog import + hardening](B2-blog-import-hardening.md) | Claude (took over) | — | ✅ import · hardening pending |
 | B3 | Writing desk + reader UI + integration | Claude Code (main) | B1, B2 | ✅ |
 | B4 | [Smart paste + auto SEO](B4-smart-paste.md) | Claude (took over) | B2 | ✅ |
+| B5 | [Blog AI Studio](../11-blog-ai-studio.md) | Claude (owner request) | B4 | ✅ |
 
 Status: 🟢 Ready · 🔵 In progress · ✅ Done · ⏳ Waiting · ✂️ Cut
 

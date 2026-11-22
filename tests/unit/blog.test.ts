@@ -52,7 +52,7 @@ describe('blog platform utilities', () => {
     const validRestructured =
       'Emile Durkheim published The Rules of Sociological Method in 1895 and Suicide in 1897. He analysed 4 types of suicide across European societies and showed how social integration and regulation shape human behaviour in modern industrial life.'
 
-    expect(checkPreservation(original, validRestructured)).toEqual({ ok: true, reasons: [] })
+    expect(checkPreservation(original, validRestructured)).toMatchObject({ ok: true, reasons: [] })
 
     const lostYear = original.replace('1897', '')
     expect(checkPreservation(original, lostYear).ok).toBe(false)
@@ -76,7 +76,7 @@ describe('blog platform utilities', () => {
         ],
       },
     }
-    expect(checkLexicalPreservation(lexOrig, lexBeautified)).toEqual({ ok: true, reasons: [] })
+    expect(checkLexicalPreservation(lexOrig, lexBeautified)).toMatchObject({ ok: true, reasons: [] })
   })
 
   it('sanitizes organizer output against allowed DB slugs, links, and verbatim anchor text', () => {

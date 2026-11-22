@@ -318,3 +318,8 @@
 - Checks: tsc ✓, ESLint ✓ with existing warnings, 191 unit tests ✓. Initial Next build passed compilation and type checking and stopped during prerender because there was no local Postgres fixture.
 - Contract changes: Draft preview requires an admin or editor session. The review queue selects pending draft versions.
 - Open issues: Authenticated production smoke and the reviewed local CMS export are pending. The media schema fix is tracked separately.
+
+## 2026-11-22 · Claude Code · Blog AI Studio re-integrated after repo replace
+- Local files were replaced from GitHub, wiping uncommitted studio work; re-applied everything and committed: one-click studio (organize → enrich → images), memory pack (notes/PYQs/CA), news-first prompt, 4-colour markers, Commons photos + AI infographics, image paste drop zone, organizer clamp, gate fixes, DeepSeek thinking-off, markdown→Lexical `defaultFeatures` fix, Media same-origin URLs, hooks pass `req` (publish 500), "Sab accept" pending count, OG real size. See docs/11-blog-ai-studio.md.
+- Checks: tsc ✓ eslint ✓ (0 err) unit ✓ (205). Live proof: temp A-Level news post → organize ✓ enrich ✓ (numbers kept, no literal markers) images ✓ (Commons cover + 2 infographics); temp data deleted.
+- Not in repo (was untracked/other agent): src/data/notes/index.ts registry + unit-07/10/11 notes.

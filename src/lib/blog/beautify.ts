@@ -34,7 +34,7 @@ async function generate(markdown: string, thinkerSlugs: string[], hint: string):
   return { output, usage: { input: result.usage?.input_tokens ?? 0, output: result.usage?.output_tokens ?? 0 } }
 }
 
-async function toLexical(payload: Payload, output: BeautifyOutput, thinkerIds: Map<string, number>): Promise<{ root: LexNode }> {
+export async function toLexical(payload: Payload, output: BeautifyOutput, thinkerIds: Map<string, number>): Promise<{ root: LexNode }> {
   const children: LexNode[] = []
   for (const section of output.sections) {
     if ('markdown' in section) {

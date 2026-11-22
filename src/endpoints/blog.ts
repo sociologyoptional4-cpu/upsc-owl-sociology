@@ -3,7 +3,9 @@ import { z } from 'zod'
 
 import { hasRole, type Role } from '@/access/roles'
 import { beautifyPost } from '@/lib/blog/beautify'
-import { insertLink } from '@/lib/blog/markdown'
+import { enrichPost } from '@/lib/blog/enrich'
+import { attachImages } from '@/lib/blog/images'
+import { insertLink, makeBlockNode } from '@/lib/blog/markdown'
 import { organizePost } from '@/lib/blog/organize'
 import type { LexNode } from '@/lib/blog/text'
 import { slugify } from '@/lib/slug'
@@ -145,11 +147,30 @@ async function apply(req: PayloadRequest, input: z.infer<typeof applySchema>): P
   return respond(true, { kind: input.kind, index }, null)
 }
 
+const attachSchema = postSchema.extend({ mediaIds: z.array(z.number().int().positive()).min(1).max(10) })
+
+/** Pasted/dropped images from the AI panel: first becomes the cover (if empty), the rest figure blocks at the end. */
+async function attachMedia(req: PayloadRequest, input: z.infer<typeof attachSchema>): Promise<Response> {
+  const media = await req.payload.find({ collection: 'media', where: { id: { in: input.mediaIds } }, limit: 10, depth: 0, overrideAccess: true })
+  const ids = input.mediaIds.filter((id) => media.docs.some((m) => m.id === id && String(m.mimeType ?? '').startsWith('image/')))
+  if (!ids.length) return respond(false, null, 'Image nahi mili', 400)
+  const doc = await req.payload.findByID({ collection: 'posts', id: input.postId, draft: true, depth: 0, overrideAccess: true })
+  const root = ((doc.content as { root?: LexNode } | null)?.root ?? { type: 'root', children: [] }) as LexNode
+  // No cover yet: the first image becomes the cover only (showing it again as a figure would duplicate it on the page).
+  const [coverId, ...rest] = doc.cover ? [null, ...ids] : ids
+  const children = [...(root.children ?? []), ...rest.map((id) => makeBlockNode('figure', { image: id }))]
+  await req.payload.update({ collection: 'posts', id: input.postId, draft: true, overrideAccess: true, context: { skipBlogOrganize: true, disableRevalidate: true, skipExternal: true }, data: { content: { root: { ...root, children } } as never, ...(coverId ? { cover: coverId } : {}) } })
+  return respond(true, { added: ids.length }, null)
+}
+
 const endpoint = (path: string, handler: Endpoint['handler']): Endpoint => ({ path, method: 'post', handler })
 
 export const blogEndpoints: Endpoint[] = [
   endpoint('/blog/organize', guarded(postSchema, async (req, input) => respond(true, await organizePost(req.payload, input.postId), null))),
   endpoint('/blog/beautify', guarded(postSchema, async (req, input) => respond(true, await beautifyPost(req.payload, input.postId), null))),
+  endpoint('/blog/enrich', guarded(postSchema, async (req, input) => respond(true, await enrichPost(req.payload, input.postId), null))),
+  endpoint('/blog/images', guarded(postSchema, async (req, input) => respond(true, await attachImages(req.payload, input.postId), null))),
+  endpoint('/blog/attach-media', guarded(attachSchema, attachMedia)),
   endpoint('/blog/suggestions/apply', guarded(applySchema, apply)),
   endpoint('/blog/suggestions/apply-all', guarded(postSchema, applyAll)),
 ]

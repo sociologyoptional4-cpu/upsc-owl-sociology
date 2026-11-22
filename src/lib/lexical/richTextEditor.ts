@@ -3,6 +3,6 @@ import { EXPERIMENTAL_TableFeature, lexicalEditor } from '@payloadcms/richtext-l
 /** Shared editor configuration for Payload editing and Markdown ingestion. */
 export function richTextEditor() {
   return lexicalEditor({
-    features: ({ rootFeatures }) => [...rootFeatures, EXPERIMENTAL_TableFeature()],
+    features: ({ defaultFeatures }) => [...defaultFeatures, EXPERIMENTAL_TableFeature()],
   })
 }

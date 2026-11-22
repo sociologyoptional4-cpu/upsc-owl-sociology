@@ -82,16 +82,16 @@ Return ONLY one JSON object matching the schema. Rules:
 - internalLinks: anchorText MUST be an exact phrase from the post; href MUST be from allowedLinks.
 - social: xThread (≤ 8 tweets ≤ 280 chars), instagramSlides (≤ 8), linkedin, telegram (≤ 900 chars). Use only facts present in the post.`
 
-async function callDeepSeek(system: string, user: string): Promise<{ content: string; usage: Usage }> {
+export async function callDeepSeek(system: string, user: string): Promise<{ content: string; usage: Usage }> {
   const response = await fetch(`${env.DEEPSEEK_BASE_URL ?? 'https://api.deepseek.com'}/chat/completions`, {
     method: 'POST',
     headers: { authorization: `Bearer ${env.DEEPSEEK_API_KEY ?? ''}`, 'content-type': 'application/json' },
-    body: JSON.stringify({ model: env.SCORER_MODEL ?? 'deepseek-flash', max_tokens: 8192, response_format: { type: 'json_object' }, messages: [{ role: 'system', content: system }, { role: 'user', content: user }] }),
+    body: JSON.stringify({ model: env.SCORER_MODEL ?? 'deepseek-flash', max_tokens: 12000, chat_template_kwargs: { thinking: false }, response_format: { type: 'json_object' }, messages: [{ role: 'system', content: system }, { role: 'user', content: user }] }),
   })
   if (!response.ok) throw new Error(`DeepSeek request failed (${response.status})`)
-  const body = (await response.json()) as { choices?: { message?: { content?: string } }[]; usage?: { prompt_tokens?: number; completion_tokens?: number } }
+  const body = (await response.json()) as { choices?: { finish_reason?: string; message?: { content?: string } }[]; usage?: { prompt_tokens?: number; completion_tokens?: number } }
   const content = body.choices?.[0]?.message?.content
-  if (!content) throw new Error('DeepSeek returned no content')
+  if (!content) throw new Error(`DeepSeek returned no content (finish_reason: ${body.choices?.[0]?.finish_reason ?? 'unknown'})`)
   return { content, usage: { input: body.usage?.prompt_tokens ?? 0, output: body.usage?.completion_tokens ?? 0 } }
 }
 
@@ -113,12 +113,34 @@ async function generate(plain: string, title: string, allowed: Allowed): Promise
     const result = await callDeepSeek(hint ? `${system}\n\nFix the previous invalid output: ${hint}` : system, user)
     usage.input += result.usage.input; usage.output += result.usage.output
     try {
-      return { output: organizeOutputSchema.parse(JSON.parse(result.content)), usage }
+      return { output: organizeOutputSchema.parse(clampOrganize(JSON.parse(result.content))), usage }
     } catch (error) {
       hint = error instanceof z.ZodError ? error.issues.slice(0, 6).map((i) => `${i.path.join('.')}: ${i.message}`).join('; ') : 'not valid JSON'
     }
   }
   throw new Error(`Organizer output invalid: ${hint}`)
+}
+
+const cut = (value: unknown, max: number): unknown => {
+  if (typeof value !== 'string' || value.length <= max) return value
+  const head = value.slice(0, max)
+  return head.slice(0, Math.max(head.lastIndexOf(' '), Math.floor(max * 0.6))).trimEnd()
+}
+const cutAll = (list: unknown, max: number): unknown => (Array.isArray(list) ? list.map((item) => cut(item, max)) : list)
+
+/** Models overshoot length limits; trim instead of failing the whole run. Pure → unit tested. */
+export function clampOrganize(raw: unknown): unknown {
+  if (typeof raw !== 'object' || raw === null) return raw
+  const r = raw as Record<string, unknown>
+  const social = (typeof r.social === 'object' && r.social !== null ? r.social : {}) as Record<string, unknown>
+  const slides = Array.isArray(social.instagramSlides) ? social.instagramSlides.map((x) => (typeof x === 'object' && x !== null ? { ...x, title: cut((x as Record<string, unknown>).title, 80), text: cut((x as Record<string, unknown>).text, 240) } : x)) : social.instagramSlides
+  const faq = Array.isArray(r.faq) ? r.faq.map((x) => (typeof x === 'object' && x !== null ? { ...x, question: cut((x as Record<string, unknown>).question, 200), answer: cut((x as Record<string, unknown>).answer, 800) } : x)) : r.faq
+  return {
+    ...r,
+    excerpt: cut(r.excerpt, 300), seoTitle: cut(r.seoTitle, 60), seoDescription: cut(r.seoDescription, 160), focusKeyword: cut(r.focusKeyword, 80), category: cut(r.category, 80),
+    tags: cutAll(r.tags, 40), faq,
+    social: { ...social, xThread: cutAll(social.xThread, 280), instagramSlides: slides, linkedin: cut(social.linkedin, 1500), telegram: cut(social.telegram, 900) },
+  }
 }
 
 const isEmpty = (value: unknown): boolean => value === null || value === undefined || value === '' || (Array.isArray(value) && value.length === 0)

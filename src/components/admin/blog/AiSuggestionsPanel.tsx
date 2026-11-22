@@ -3,6 +3,9 @@
 import { useDocumentInfo, useFormFields } from '@payloadcms/ui'
 import { useState } from 'react'
 
+import { uploadImage } from '../write/api'
+import { DropZone } from '../write/DropZone'
+
 type Suggestions = {
   generatedAt?: string
   error?: string
@@ -16,6 +19,8 @@ type Suggestions = {
     linkedin?: string
     telegram?: string
   }
+  imageSuggestions?: { afterHeading: string; kind?: string; title: string }[]
+  warnings?: { claim: string; reason: string }[]
   accepted?: { tags?: number[]; links?: number[]; faq?: number[]; telegram?: boolean }
 }
 
@@ -28,7 +33,13 @@ export function AiSuggestionsPanel() {
   const aiStatus = useFormFields(([fields]) => (fields.aiStatus?.value as string | undefined) ?? 'idle')
   const rawSuggestions = useFormFields(([fields]) => fields.aiSuggestions?.value as Suggestions | undefined)
   const [busy, setBusy] = useState<string | null>(null)
-  const [msg, setMsg] = useState<string | null>(null)
+  // Message carried over a reload (studio failed after earlier steps had already saved).
+  const [msg, setMsg] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null
+    const saved = sessionStorage.getItem('owl-studio-msg')
+    if (saved) sessionStorage.removeItem('owl-studio-msg')
+    return saved
+  })
   const [ignored, setIgnored] = useState<Record<string, boolean>>({})
 
   const postId = typeof id === 'number' ? id : Number(id)
@@ -51,14 +62,63 @@ export function AiSuggestionsPanel() {
     }
   }
 
+  const STEPS: [string, string][] = [
+    ['/api/blog/organize', '1/3 Topics, thinkers, SEO jod raha…'],
+    ['/api/blog/enrich', '2/3 Likh raha: khabar, colours, PYQ, examples…'],
+    ['/api/blog/images', '3/3 Photo + infographic / mind map…'],
+  ]
+
+  async function runStudio() {
+    if (!postId) { setMsg('Pehle post ko Save karo.'); return }
+    setBusy('Studio'); setMsg(null)
+    let done = 0
+    try {
+      for (const [url, label] of STEPS) {
+        setMsg(label)
+        const res = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ postId }) })
+        const json = (await res.json()) as { success?: boolean; error?: string }
+        if (!res.ok || !json.success) throw new Error(`${label.slice(0, 3)} ${json.error ?? `HTTP ${res.status}`}`)
+        done += 1
+      }
+      setMsg('Ho gaya — page refresh ho raha hai...')
+      window.location.reload()
+    } catch (e) {
+      // Earlier steps already saved on the server: reload so the open form cannot autosave stale (empty) fields over them.
+      const text = e instanceof Error ? e.message : 'Studio failed'
+      if (done > 0) { sessionStorage.setItem('owl-studio-msg', text); window.location.reload(); return }
+      setMsg(text)
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  async function addImages(files: File[]) {
+    if (!postId) { setMsg('Pehle post ko Save karo.'); return }
+    setBusy('Image'); setMsg(`${files.length} image upload ho rahi…`)
+    try {
+      const mediaIds: number[] = []
+      for (const file of files) mediaIds.push(await uploadImage(file))
+      const res = await fetch('/api/blog/attach-media', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ postId, mediaIds }) })
+      const json = (await res.json()) as { success?: boolean; error?: string }
+      if (!res.ok || !json.success) throw new Error(json.error ?? `HTTP ${res.status}`)
+      setMsg('Image lag gayi — page refresh ho raha hai...')
+      window.location.reload()
+    } catch (e) {
+      setMsg(e instanceof Error ? e.message : 'Image upload failed')
+    } finally {
+      setBusy(null)
+    }
+  }
+
   async function acceptAll() {
     if (!postId) { setMsg('Pehle post ko Save karo.'); return }
     setBusy('Sab accept'); setMsg(null)
     try {
       const res = await fetch('/api/blog/suggestions/apply-all', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ postId }) })
-      const json = (await res.json()) as { success?: boolean; error?: string }
+      const json = (await res.json()) as { success?: boolean; error?: string; data?: { links?: number; faq?: number; tags?: number } }
       if (!res.ok || !json.success) throw new Error(json.error ?? `HTTP ${res.status}`)
-      setMsg('Suggestions accept ho gaye — page refresh ho raha hai...')
+      const d = json.data ?? {}
+      sessionStorage.setItem('owl-studio-msg', `✓ Lag gaya: ${d.tags ?? 0} tags, ${d.faq ?? 0} FAQ (neeche FAQ section me), ${d.links ?? 0} internal links. Ab Publish karo.`)
       window.location.reload()
     } catch (e) {
       setMsg(e instanceof Error ? e.message : 'Accept failed')
@@ -66,6 +126,10 @@ export function AiSuggestionsPanel() {
       setBusy(null)
     }
   }
+
+  const pendingOf = (list: unknown[] | undefined, done: number[] | undefined) => (list ?? []).filter((_, i) => !(done ?? []).includes(i)).length
+  const pendingCount = pendingOf(suggestions.newTags, accepted.tags) + pendingOf(suggestions.internalLinks, accepted.links) + pendingOf(suggestions.faq, accepted.faq)
+  const totalCount = (suggestions.newTags?.length ?? 0) + (suggestions.internalLinks?.length ?? 0) + (suggestions.faq?.length ?? 0)
 
   const copy = async (text: string, label: string) => {
     try {
@@ -86,28 +150,37 @@ export function AiSuggestionsPanel() {
         Kisi coaching/book ka text copy mat karo.
       </p>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-        <button type="button" style={btn} disabled={Boolean(busy)} onClick={() => void callApi('/api/blog/organize', {}, 'Organize')}>
-          {busy === 'Organize' ? 'Organize ho raha…' : '✨ Abhi organize karo'}
-        </button>
-        <button type="button" style={btn} disabled={Boolean(busy)} onClick={() => void callApi('/api/blog/beautify', {}, 'Beautify')}>
-          {busy === 'Beautify' ? 'Sajaya ja raha…' : '✨ AI se sajao'}
-        </button>
-      </div>
+      <button type="button" style={{ ...btn, padding: '10px 14px', fontSize: 14 }} disabled={Boolean(busy)} onClick={() => void runStudio()}>
+        {busy === 'Studio' ? 'Kaam chal raha hai…' : '✨ AI se poora banao'}
+      </button>
       <p style={{ margin: '6px 0 0', fontSize: 11, color: '#52525b' }}>
-        &ldquo;AI se sajao&rdquo; naya draft version banata hai. Wapas jaane ke liye upar <strong>Versions</strong> tab se restore karo.
+        Ek click: topics/thinkers/SEO, khabar ka explain + simple language + colours, notes + PYQs ka linkage, Mains/Prelims angle, aur photo / infographic / mind map. Naya draft version banta hai; wapas jaane ke liye <strong>Versions</strong> tab. ~1-2 minute lagta hai.
       </p>
 
-      {msg && <p style={{ marginTop: 8, padding: 6, borderRadius: 4, background: '#fef9c3', fontSize: 12 }}>{msg}</p>}
-      {suggestions.error && <p style={{ marginTop: 8, color: '#b91c1c', fontSize: 12 }}>Error: {suggestions.error}</p>}
+      <div style={{ marginTop: 10 }}>
+        <DropZone label="📷 Image yahan paste (Cmd+V) ya drop karo" accept="image/*" multiple acceptPaste disabled={Boolean(busy)} onFiles={(files) => void addImages(files)}>
+          <span style={{ fontSize: 12 }}>📷 Image yahan <strong>paste (Cmd+V)</strong>, drop ya click karo — pehli image cover banegi (agar cover khali hai), baaki post ke end me lagengi (editor me drag karke jagah badlo).</span>
+        </DropZone>
+      </div>
 
-      {((suggestions.newTags?.length ?? 0) > 0 || (suggestions.internalLinks?.length ?? 0) > 0 || (suggestions.faq?.length ?? 0) > 0) && (
-        <div style={{ marginTop: 10 }}>
-          <button type="button" style={btnGhost} disabled={Boolean(busy)} onClick={() => void acceptAll()}>
-            Sab accept karo
-          </button>
+      {msg && <p style={{ marginTop: 8, padding: 6, borderRadius: 4, background: '#fef9c3', fontSize: 12 }}>{msg}</p>}
+      {(suggestions.warnings ?? []).length > 0 && (
+        <div style={{ marginTop: 8, padding: 6, borderRadius: 4, background: '#fee2e2', fontSize: 12 }}>
+          <strong>⚠️ Ek baar check karo (AI ko in ka source nahi mila):</strong>
+          {(suggestions.warnings ?? []).map((w, i) => <div key={`warn-${i}`}>• {w.claim} — <em>{w.reason}</em></div>)}
         </div>
       )}
+      {suggestions.error && <p style={{ marginTop: 8, color: '#b91c1c', fontSize: 12 }}>Error: {suggestions.error}</p>}
+
+      {pendingCount > 0 ? (
+        <div style={{ marginTop: 10 }}>
+          <button type="button" style={btn} disabled={Boolean(busy)} onClick={() => void acceptAll()}>
+            {busy === 'Sab accept' ? 'Laga raha…' : `✓ Sab accept karo (${pendingCount})`}
+          </button>
+        </div>
+      ) : totalCount > 0 ? (
+        <p style={{ marginTop: 10, fontSize: 12, color: '#15803d', fontWeight: 600 }}>✓ Saare suggestions lag chuke hain (tags, FAQ, links). Ab Publish kar sakte ho.</p>
+      ) : null}
 
       {(suggestions.newTags ?? []).map((tag, i) => {
         const key = `tag-${i}`

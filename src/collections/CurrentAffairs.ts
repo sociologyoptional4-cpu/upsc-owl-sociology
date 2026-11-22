@@ -14,7 +14,7 @@ const caPaths = async (doc: Record<string, unknown>, req: import('payload').Payl
   const slug = typeof doc.slug === 'string' ? doc.slug : ''
   const article = date && slug ? [`/current-affairs/${date}/${slug}`] : []
   const topicIds = Array.isArray(doc.topics) ? doc.topics.map((item) => typeof item === 'number' ? item : typeof item === 'object' && item ? (item as { id: number }).id : null).filter((id): id is number => typeof id === 'number') : []
-  const topics = topicIds.length ? await req.payload.find({ collection: 'topics', where: { id: { in: topicIds } }, limit: topicIds.length, depth: 2, overrideAccess: true }) : { docs: [] }
+  const topics = topicIds.length ? await req.payload.find({ collection: 'topics', where: { id: { in: topicIds } }, limit: topicIds.length, depth: 2, overrideAccess: true, req }) : { docs: [] }
   const topicPaths = topics.docs.flatMap((topic) => {
     const unit = typeof topic.unit === 'object' && topic.unit ? topic.unit : null
     const paper = unit && typeof unit.paper === 'object' ? unit.paper : null
