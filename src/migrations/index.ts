@@ -3,6 +3,7 @@ import * as migration_20261121_120755_initial from './20261121_120755_initial';
 import * as migration_20261121_130225_n1_syllabus_pyqs_notes from './20261121_130225_n1_syllabus_pyqs_notes';
 import * as migration_20261121_143405_blog_platform from './20261121_143405_blog_platform';
 import * as migration_20261122_005300_notebook_notes_visuals from './20261122_005300_notebook_notes_visuals';
+import * as migration_20261122_012115_bilingual_notes from './20261122_012115_bilingual_notes';
 
 export const migrations = [
   {
@@ -28,6 +29,11 @@ export const migrations = [
   {
     up: migration_20261122_005300_notebook_notes_visuals.up,
     down: migration_20261122_005300_notebook_notes_visuals.down,
-    name: '20261122_005300_notebook_notes_visuals'
+    name: '20261122_005300_notebook_notes_visuals',
+  },
+  {
+    up: migration_20261122_012115_bilingual_notes.up,
+    down: migration_20261122_012115_bilingual_notes.down,
+    name: '20261122_012115_bilingual_notes'
   },
 ];
