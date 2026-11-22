@@ -10,6 +10,7 @@ import { formatDateIST } from '@/lib/data/issue'
 import { blogEndpoints } from './blog'
 import { smartEndpoints } from './smart'
 import { importEndpoints } from './importer'
+import { repoContentImportEndpoints } from './repoContentImport'
 import { noteOutputSchema, tablesWithinLimits } from '@/pipeline/notes/schema'
 
 const windows = new Map<string, { start: number; count: number }>()
@@ -237,6 +238,7 @@ export const endpoints: Endpoint[] = [
   ...blogEndpoints,
   ...smartEndpoints,
   ...importEndpoints,
+  ...repoContentImportEndpoints,
   endpoint('/ingest/batch', 'post', ingest), endpoint('/ingest/notes/next', 'get', nextNoteTopics), endpoint('/ingest/notes', 'post', ingestNote), endpoint('/admin/review-queue', 'get', reviewQueue),
   endpoint('/admin/review/:id', 'post', review), endpoint('/admin/today', 'get', today), endpoint('/admin/coverage', 'get', coverage),
   endpoint('/pipeline/sources', 'get', pipelineSources), endpoint('/pipeline/sources/:id', 'patch', pipelineSources), endpoint('/pipeline/spend', 'get', pipelineSpend),

@@ -310,3 +310,11 @@
 - Checks: Postgres-compatible DDL apply/reapply and existing-row/rollback preservation ✓.
 - Contract changes: Additive nullable column for Payload S3 object keys.
 - Open issues: Verify media on the deployment after migration. Local-only CMS content still needs a reviewed export.
+
+## 2026-11-22 12:26 IST · Codex (GPT-5.6) · Production repo-content import
+- Did: Added an admin-only, idempotent production endpoint to create/link repo-owned thinker portraits and import completed bilingual Paper 1 Unit 1 notes, infographics and PYQ-topic mappings.
+- Files: `src/endpoints/repoContentImport.ts`, `src/endpoints/index.ts`, `docs/memory/**`.
+- Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-06, memory)
+- Checks: tsc ✓; eslint ✓ (one pre-existing unused-import warning in `src/endpoints/index.ts`); unit/build pending deployment.
+- Contract changes: `POST /api/admin/import-repo-content`, admin session only; temporary operational endpoint.
+- Open issues / proposals: Deploy and invoke once on Production, verify counts/pages, then remove endpoint in a follow-up deployment.

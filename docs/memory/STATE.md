@@ -10,6 +10,7 @@ Phase 0 ✅ committed → Phase 1 ✅ → **Phase 2 automation** (implementation
 |------|---------------|--------------------|---------|
 
 ## Next up
+0. Deploy and execute the temporary admin-only repo-content importer, then remove it after verifying portraits and Unit 1 in production.
 0. B1, B2, B3 and B4 (docs/09, docs/10) were all built by Claude (user: Gemini/Codex busy). Do NOT run the B1/B2/B4 prompts. Push needs the two new migrations `smart_paste` + `blog_attachments`; after deploy, user tests `/admin/write` on production.
 1. Review the SEO audit wording follow-up PR.
 2. Review the two production topic-note drafts after admin setup; production syllabus and PYQs are imported.
