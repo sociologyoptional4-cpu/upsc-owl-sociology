@@ -17,6 +17,7 @@ Ek **dynamic, AI-automated** UPSC Sociology Optional website. Roz subah AI curre
 | 7 | [07-blog-platform.md](07-blog-platform.md) | Blog add-on: editor, rich blocks, AI organizer/beautifier, SEO basics |
 | 8 | [08-seo-growth.md](08-seo-growth.md) | SEO growth: Search Console, redirects, site health, content intelligence, calendar |
 | 9 | [09-blog-writing-desk.md](09-blog-writing-desk.md) | Daily blog workflow: paste, notes upload, infographics, image posts, writing desk |
+| 10 | [10-smart-paste.md](10-smart-paste.md) | Paste quiz/current affairs, AI fills every field, auto SEO + IndexNow |
 
 ## Ek line mein architecture
 

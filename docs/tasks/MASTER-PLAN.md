@@ -66,6 +66,7 @@ Har prompt paste-ready hai. Har agent pehle [AGENTS.md](../../AGENTS.md) padhta 
 | B1 | Blog media paste + infographic/gallery blocks | Antigravity · Gemini 4 Neon | 🟢 | [B1](B1-blog-media-blocks.md) |
 | B2 | Blog import (notes → draft), attachments, hardening, prod smoke | Codex 6.0 | 🟢 | [B2](B2-blog-import-hardening.md) |
 | B3 | Writing desk `/admin/write` + infographic/gallery/attachment UI + integration + daily guide | Claude | 🔵 | [docs/09](../09-blog-writing-desk.md) |
+| B4 | Smart paste: quiz + current affairs auto-fill, auto SEO/IndexNow | Antigravity · Claude Opus 5.5 / Codex | ⏳ B2 ke baad | [B4](B4-smart-paste.md) |
 
 ## Cut / baad mein (D14): inke prompts mat chalana
 - R1 review (RF final review sab cover karega)

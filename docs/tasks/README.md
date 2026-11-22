@@ -15,6 +15,7 @@
 | B1 | [Blog media + blocks](B1-blog-media-blocks.md) | Antigravity · Gemini 4 Neon | — | 🟢 Ready |
 | B2 | [Blog import + hardening](B2-blog-import-hardening.md) | Codex · 6.0 | — | 🟢 Ready |
 | B3 | Writing desk + reader UI + integration | Claude Code (main) | B1, B2 contracts | 🔵 |
+| B4 | [Smart paste + auto SEO](B4-smart-paste.md) | Antigravity · Claude Opus 5.5 / Codex | B2 | ⏳ |
 
 Status: 🟢 Ready · 🔵 In progress · ✅ Done · ⏳ Waiting · ✂️ Cut
 
