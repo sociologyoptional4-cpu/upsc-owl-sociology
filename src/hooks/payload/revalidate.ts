@@ -37,6 +37,24 @@ export function revalidateAfterChange(pathsFor: PathsFor): CollectionAfterChange
   }
 }
 
+export function revalidateAlwaysAfterChange(pathsFor: PathsFor): CollectionAfterChangeHook {
+  return async ({ doc, req }) => {
+    if (req.context?.disableRevalidate) return doc
+    await revalidatePaths(await pathsFor(doc as Doc, req), req)
+    return doc
+  }
+}
+
+export async function unitPaths(doc: Doc, req: PayloadRequest): Promise<string[]> {
+  const unitSlug = typeof doc.slug === 'string' ? doc.slug : ''
+  const paperId = typeof doc.paper === 'number' ? doc.paper : typeof doc.paper === 'object' && doc.paper ? (doc.paper as { id?: number }).id : undefined
+  if (!unitSlug || !paperId) return ['/syllabus', '/']
+  const paper = await req.payload.findByID({ collection: 'papers', id: paperId, depth: 0, overrideAccess: true }).catch(() => null)
+  const paperSlug = paper?.slug ?? ''
+  if (!paperSlug) return ['/syllabus', '/']
+  return [`/syllabus/${paperSlug}/${unitSlug}`, `/syllabus/${paperSlug}`, '/syllabus', '/']
+}
+
 export async function topicPaths(doc: Doc, req: PayloadRequest): Promise<string[]> {
   const topicSlug = typeof doc.slug === 'string' ? doc.slug : ''
   const unitId = typeof doc.unit === 'number' ? doc.unit : typeof doc.unit === 'object' && doc.unit ? (doc.unit as { id?: number }).id : undefined

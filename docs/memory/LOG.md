@@ -260,3 +260,20 @@
 - Checks: tsc ✓ eslint ✓ (0 errors) unit ✓ (100/100); build see next entry.
 - Contract changes: none (additive route + helper).
 - Open issues / proposals: Correction to an earlier status note: `sitemap.ts` already lists thinkers; production just has no thinkers seeded (seed not run in prod). User still must verify Search Console/Bing and publish posts.
+
+## 2026-11-22 06:31 · Codex (GPT-6) · SEO Control Center review follow-up
+- Did: Reviewed the existing `/admin/seo` feature (already added to main in `bea1997`). Corrected user-facing claims that a 300-word minimum is a Google rule, FAQ pages are likely to earn a rich result, Google truncates titles at a fixed character count, and a cover image guarantees click-through. Kept the checks as editorial suggestions and explained the limits accurately.
+- Files: `src/lib/seo/audit.ts`, `tests/unit/seo-audit.test.ts`, `docs/memory/STATE.md`, `docs/memory/LOG.md`.
+- Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-07, memory, SEO implementation)
+- Checks: `npx tsc --noEmit` ✓; `npx eslint src tests` ✓ (0 errors, 15 warnings); `npm run test:unit` ✓ (112/112); `npm run build` ✓ (isolated worktree); targeted audit tests ✓ (14/14).
+- Contract changes: none.
+- Open issues / proposals: review PR contains SEO copy corrections only. Google/Bing verification and Search Console submission remain owner setup items.
+
+
+## 2026-11-22 06:35 · Antigravity · Task U01-notes (Stage 0 + Unit 1)
+- Did: Built shared Notion-style Notebook Engine (5-colour inline markup, `MindMap`, `InfographicGallery`, `PyqAnswerAccordion`, `ColorLegend`, standalone `resolveNotebookBlocks`, Unit hub + Chapter views with TOC & prev/next pager, idempotent `scripts/notes/upload-unit.ts`) and authored/uploaded complete Paper 1 Unit 1 (`sociology-the-discipline`: hub + 3 published chapters, 4 WebP infographics, 4 mind maps, all 25 solved 2013–2025 PYQs). Fixed Unit 1 PYQ #16 (C.W. Mills) topic mapping. Created 25-unit master tracker (`docs/tasks/25-units-notes-plan.md`, `T01` ✅ Done).
+- Files: `public/assets/infographics/p1-u1-*.webp`, `ASSETS.md`, `src/lib/notes/{notebook-types,notebook-builder,resolve-blocks}.ts`, `src/components/notebook/{ColorLegend,MindMap,InfographicGallery,PyqAnswerAccordion}.tsx`, `src/data/notes/unit-01/{index,topic-1-emergence,topic-2-scope,topic-3-common-sense}.ts`, `src/collections/{Units,Topics}.ts`, `src/hooks/payload/revalidate.ts`, `src/lib/data/{types,syllabus}.ts`, `src/components/views/{UnitView,TopicView}.tsx`, `src/app/(frontend)/syllabus/[paper]/[[...path]]/page.tsx`, `scripts/notes/upload-unit.ts`, `scripts/pyq/mapping.ts`, `src/migrations/{index.ts,20261122_005300_notebook_notes_visuals.{ts,json}}`, `src/payload-types.ts`, `tests/unit/notebook.test.ts`, `docs/tasks/25-units-notes-plan.md`, `docs/memory/{STATE,LOG}.md`.
+- Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-06, memory)
+- Checks: tsc ✓ (0 errors); eslint ✓ (0 errors, 19 pre-existing/generated-migration warnings); unit ✓ (18 files, 115/115 passed); build ✓ (166/166 static pages); `upload-unit.ts` idempotent re-run ✓ (3 published topics, 4 media assets / 0 duplicates, 25/25 solved PYQs, 2018 C.W. Mills PYQ fixed in local DB).
+- Contract changes: Additive fields on `Units` (`overview`, `studySequence`, `mindMap`, `infographics`) and `Topics` (`notebookContent`, `mindMap`, `pyqAnswers`); additive optional fields on `SyllabusTopic`, `UnitPageData`, and `TopicDetail` in `src/lib/data/types.ts`; re-exports notebook types.
+- Open issues / proposals: Sub-tasks `T02`–`T25` ready to author via `scripts/notes/upload-unit.ts`; production deployment will apply `20261122_005300_notebook_notes_visuals` on next build and then run `upload-unit.ts` for production DB sync.

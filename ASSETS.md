@@ -20,3 +20,7 @@ Har image, illustration, animation, 3D model aur font jo site pe ship hota hai, 
 | Robert K. Merton portrait | /assets/thinkers/robert-k-merton.webp | https://commons.wikimedia.org/wiki/File:Robert_Merton_(1965).jpg | CC0 1.0 Universal | Eric Koch / Anefo | Background removed, cropped |
 | Vilfredo Pareto portrait | /assets/thinkers/vilfredo-pareto.webp | https://commons.wikimedia.org/wiki/File:Vilfredo_Pareto_1870s2.jpg | Public domain (PD-old-70) | Unknown author | Background removed, cropped |
 | Yogendra Singh portrait | /assets/thinkers/yogendra-singh.webp | https://commons.wikimedia.org/wiki/File:Prof_Yogendra_Singh.jpg | CC BY-SA 4.0 | ThePerfectYellow | Background removed, cropped |
+| Unit 1 infographic: Sociological Imagination | /assets/infographics/p1-u1-01-sociological-imagination.webp | — | Own | UPSC OWL Sociology | Converted to WebP |
+| Unit 1 infographic: How Sociology Emerged | /assets/infographics/p1-u1-02-emergence.webp | — | Own | UPSC OWL Sociology | Converted to WebP |
+| Unit 1 infographic: Sociology & Other Social Sciences | /assets/infographics/p1-u1-03-social-sciences.webp | — | Own | UPSC OWL Sociology | Converted to WebP |
+| Unit 1 infographic: Chapter 1 PYQ Trends | /assets/infographics/p1-u1-04-pyq-trends.webp | — | Own | UPSC OWL Sociology | Converted to WebP |
