@@ -89,3 +89,66 @@
 .attachments-label { flex: 1; font-weight: 700; overflow-wrap: anywhere; }
 .attachments-size { font-size: 0.75rem; color: var(--ink-mute); }
 @media (prefers-reduced-motion: reduce) { .infographic-hint, .gallery-item, .attachments a { transition: none; } .gallery-item:hover, .attachments a:hover { transform: none; } }
+
+/* End-of-post quiz + series (docs: blog improvements 2026-11-22). Tokens only. */
+.post-quiz { margin: 3rem 0; padding: 1.5rem; border: 2px solid var(--ink); border-radius: 18px; background: var(--pastel-mint); color: var(--ink); box-shadow: var(--shadow-paper); }
+.post-quiz-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.5rem 1rem; }
+.post-quiz-title { flex-basis: 100%; margin: 0.6rem 0 0; font-family: var(--font-display, inherit); font-size: 1.35rem; font-weight: 800; }
+.post-quiz-score { margin: 0; font-weight: 700; font-size: 0.9rem; }
+.post-quiz-list { display: grid; gap: 1.25rem; margin: 1.25rem 0 0; padding: 0; list-style: none; }
+.post-quiz-item { padding: 1rem; border: 2px solid var(--ink); border-radius: 12px; background: var(--paper-raised); }
+.post-quiz-q { margin: 0 0 0.75rem; font-size: 1rem; font-weight: 700; line-height: 1.4; }
+.post-quiz-options { display: grid; gap: 0.5rem; }
+.post-quiz-option { display: flex; gap: 0.75rem; align-items: flex-start; width: 100%; padding: 0.6rem 0.8rem; text-align: left; border: 2px solid var(--rule); border-radius: 10px; background: var(--paper-raised); color: var(--ink); font: inherit; font-size: 0.92rem; cursor: pointer; transition: border-color 0.15s, transform 0.15s; }
+.post-quiz-option:hover:not(:disabled) { border-color: var(--ink); transform: translateX(2px); }
+.post-quiz-option:focus-visible { outline: 3px solid var(--saffron-deep); outline-offset: 2px; }
+.post-quiz-option:disabled { cursor: default; }
+.post-quiz-option.is-right { border-color: #16a34a; background: #dcfce7; color: #14532d; }
+.post-quiz-option.is-wrong { border-color: #dc2626; background: #fee2e2; color: #7f1d1d; }
+.post-quiz-option.is-dim { opacity: 0.55; }
+.post-quiz-letter { font-family: var(--font-display, inherit); font-weight: 800; }
+.post-quiz-explain { margin: 0.75rem 0 0; padding: 0.7rem 0.9rem; border-radius: 10px; background: var(--pastel-yellow); font-size: 0.9rem; }
+
+.series-box { margin: 0 0 2rem; padding: 1rem 1.25rem; border: 2px solid var(--ink); border-radius: 14px; background: var(--pastel-lavender); color: var(--ink); }
+.series-kicker { margin: 0 0 0.5rem; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
+.series-kicker a { color: inherit; }
+.series-parts { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.3rem; font-size: 0.9rem; }
+.series-parts a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
+.series-current { font-weight: 800; }
+.series-note { margin: 0.5rem 0 0; font-size: 0.75rem; color: var(--ink-soft); }
+.series-pager { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin: 2.5rem 0; }
+.series-step { display: grid; gap: 0.2rem; padding: 0.9rem 1rem; border: 2px solid var(--ink); border-radius: 12px; background: var(--paper-raised); color: var(--ink); text-decoration: none; transition: transform 0.15s, box-shadow 0.15s; }
+.series-step span { font-size: 0.75rem; font-weight: 700; color: var(--ink-mute); }
+.series-step.is-next { text-align: right; }
+.series-step:hover { transform: translateY(-2px); box-shadow: 4px 4px 0 var(--pastel-yellow); }
+.series-step:focus-visible { outline: 3px solid var(--saffron-deep); outline-offset: 2px; }
+@media (max-width: 640px) { .series-pager { grid-template-columns: 1fr; } .series-step.is-next { text-align: left; } }
+@media (prefers-reduced-motion: reduce) { .post-quiz-option, .series-step { transition: none; } .post-quiz-option:hover:not(:disabled), .series-step:hover { transform: none; } }
+
+/* Glossary + search pages. */
+.glossary-letters { position: sticky; top: 4.5rem; z-index: 10; display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 2rem 0; padding: 0.6rem; border: 2px solid var(--ink); border-radius: 12px; background: var(--paper-raised); }
+.glossary-letters a { min-width: 2rem; padding: 0.25rem 0.5rem; text-align: center; border-radius: 6px; font-weight: 800; color: var(--ink); text-decoration: none; }
+.glossary-letters a:hover, .glossary-letters a:focus-visible { background: var(--pastel-yellow); outline: none; }
+.glossary-section { scroll-margin-top: 8rem; margin-bottom: 2.5rem; }
+.glossary-letter { margin: 0 0 1rem; font-family: var(--font-display, inherit); font-size: 2rem; font-weight: 800; color: var(--saffron-deep); }
+.glossary-list { display: grid; gap: 0.75rem; margin: 0; }
+.glossary-term { scroll-margin-top: 8rem; padding: 0.9rem 1rem; border: 1px solid var(--rule); border-left: 4px solid var(--ink); border-radius: 10px; background: var(--paper-raised); }
+.glossary-term:target { border-left-color: var(--saffron-deep); background: var(--pastel-yellow); }
+.glossary-term dt { font-family: var(--font-display, inherit); font-weight: 800; }
+.glossary-thinker { font-family: inherit; font-weight: 500; color: var(--ink-mute); font-size: 0.85rem; }
+.glossary-term dd { margin: 0.3rem 0 0; color: var(--ink-soft); font-size: 0.95rem; }
+.glossary-term dd p { margin: 0; }
+.glossary-sources { margin-top: 0.4rem !important; font-size: 0.8rem; }
+.glossary-sources a { color: var(--saffron-deep); font-weight: 600; }
+
+.search-form { display: flex; gap: 0.5rem; margin: 2rem 0; }
+.search-form input { flex: 1; padding: 0.75rem 1rem; border: 2px solid var(--ink); border-radius: 10px; background: var(--paper-raised); color: var(--ink); font: inherit; }
+.search-form input:focus-visible { outline: 3px solid var(--saffron-deep); outline-offset: 2px; }
+.search-form button { padding: 0.75rem 1.25rem; border: 2px solid var(--ink); border-radius: 10px; background: var(--pastel-yellow); color: var(--ink); font-weight: 800; cursor: pointer; }
+.search-group { margin-bottom: 2rem; }
+.search-group h2 { margin: 0 0 0.75rem; font-family: var(--font-display, inherit); font-size: 1.15rem; font-weight: 800; }
+.search-results { display: grid; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
+.search-results a { display: block; padding: 0.75rem 1rem; border: 1px solid var(--rule); border-radius: 10px; background: var(--paper-raised); color: var(--ink); text-decoration: none; }
+.search-results a:hover, .search-results a:focus-visible { border-color: var(--ink); outline: none; }
+.search-results strong { display: block; }
+.search-results span { display: block; margin-top: 0.2rem; font-size: 0.85rem; color: var(--ink-soft); }

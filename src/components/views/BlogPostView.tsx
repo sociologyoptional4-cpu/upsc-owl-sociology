@@ -4,6 +4,8 @@ import Link from 'next/link'
 import type { BlogPostDetail } from '@/lib/data/types'
 import { AttachmentList } from '@/components/blog/AttachmentList'
 import { BlogRichText } from '@/components/blog/BlogRichText'
+import { PostQuiz } from '@/components/blog/PostQuiz'
+import { SeriesBox } from '@/components/blog/SeriesBox'
 import { BlogShareBar, ReadingProgressBar } from '@/components/blog/BlogTocAndShare'
 import { BlogCard } from '@/components/cards/BlogCard'
 import { Breadcrumbs, JsonLd } from '@/components/ui/Breadcrumbs'
@@ -68,9 +70,12 @@ export function BlogPostView({ post }: { post: BlogPostDetail }) {
 
       <div className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,1fr)_18rem]">
         <div className="min-w-0">
+          <SeriesBox series={post.series} placement="top" />
           <BlogRichText data={post.content} resolved={post.resolved} />
 
           <AttachmentList items={post.attachments} />
+          <PostQuiz items={post.quiz} />
+          <SeriesBox series={post.series} placement="bottom" />
 
           {/* Tags */}
           {post.tags.length > 0 && (

@@ -68,9 +68,20 @@ export type ResolvedBlogBlocks = {
 
 export type BlogAttachment = { label: string; url: string; sizeKb: number }
 
+export type BlogQuizItem = { question: string; options: string[]; answerIndex: number; explanation: string }
+export type BlogSeriesNav = {
+  title: string
+  href: string
+  parts: { title: string; href: string; order: number; isCurrent: boolean }[]
+  prev: { title: string; href: string } | null
+  next: { title: string; href: string } | null
+}
+
 export type BlogPostDetail = BlogCard & {
   content: unknown
   attachments: BlogAttachment[]
+  quiz: BlogQuizItem[]
+  series: BlogSeriesNav | null
   toc: TocItem[]
   faq: { question: string; answer: string }[]
   seo: {
@@ -104,7 +115,7 @@ export type BlogHubData = {
 }
 
 export type BlogListData = {
-  kind: 'category' | 'tag' | 'author'
+  kind: 'category' | 'tag' | 'author' | 'series'
   title: string
   description: string | null
   author?: BlogAuthor | null

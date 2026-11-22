@@ -124,6 +124,15 @@ describe('importPost', () => {
     await expect(importPost(fakePayload().payload, 1, { source: 'images', title: 'Few', mediaIds: [1], layout: 'gallery' })).rejects.toMatchObject({ status: 400 })
   })
 
+  it('builds a template draft with blocks and keeps it out of the AI organizer', async () => {
+    const { payload, created } = fakePayload()
+    const out = await importPost(payload, 1, { source: 'template', template: 'concept', title: 'Anomie explained' })
+    const post = created[0] as { context: Record<string, unknown>; data: { content: { root: { children: { type: string; fields?: { blockType: string } }[] } } } }
+    expect(post.context).toMatchObject({ skipBlogOrganize: true })
+    expect(post.data.content.root.children.some((c) => c.fields?.blockType === 'answerBox')).toBe(true)
+    expect(out.warnings[0]).toContain('[brackets]')
+  })
+
   it('rejects empty and oversize markdown', async () => {
     await expect(importPost(fakePayload().payload, 1, { source: 'markdown', text: 'tiny' })).rejects.toMatchObject({ status: 422 })
     await expect(importPost(fakePayload().payload, 1, { source: 'markdown', text: 'x '.repeat(110_000) })).rejects.toMatchObject({ status: 413 })

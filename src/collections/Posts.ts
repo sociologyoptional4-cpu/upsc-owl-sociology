@@ -66,7 +66,19 @@ export const Posts: CollectionConfig = {
     { name: 'author', type: 'relationship', relationTo: 'users', admin: { position: 'sidebar' } },
     { name: 'publishedAt', type: 'date', admin: { position: 'sidebar', date: { pickerAppearance: 'dayAndTime' } } },
     { name: 'featured', type: 'checkbox', defaultValue: false, admin: { position: 'sidebar', description: '/blog ke hero mein dikhega.' } },
+    { name: 'series', type: 'relationship', relationTo: 'blog-series', admin: { position: 'sidebar', description: 'Lagatar padhne wali series (prev/next banenge).' } },
+    { name: 'seriesOrder', type: 'number', min: 1, admin: { position: 'sidebar', description: 'Series mein kaunsa part (1, 2, 3...).', condition: (data) => Boolean(data?.series) } },
     { name: 'readingTime', type: 'number', admin: { position: 'sidebar', readOnly: true } },
+    {
+      name: 'quiz', type: 'array', maxRows: 5, label: 'Post ke ant mein quiz',
+      admin: { description: 'Sidebar ke "AI se quiz banao" se bharo ya khud likho. Reader post ke ant mein solve karega.' },
+      fields: [
+        { name: 'question', type: 'textarea', required: true },
+        { name: 'options', type: 'array', minRows: 4, maxRows: 4, fields: [{ name: 'text', type: 'text', required: true }] },
+        { name: 'answerIndex', type: 'number', required: true, min: 0, max: 3, admin: { description: '0 = pehla option, 3 = chautha' } },
+        { name: 'explanation', type: 'textarea', required: true },
+      ],
+    },
     {
       name: 'faq', type: 'array', maxRows: 8, label: 'FAQ (FAQPage JSON-LD)',
       fields: [{ name: 'question', type: 'text', required: true }, { name: 'answer', type: 'textarea', required: true }],
@@ -81,6 +93,10 @@ export const Posts: CollectionConfig = {
         { name: 'canonical', type: 'text' },
         { name: 'noindex', type: 'checkbox', defaultValue: false },
       ],
+    },
+    {
+      name: 'publishChecklist', type: 'ui',
+      admin: { position: 'sidebar', components: { Field: '/components/admin/blog/PublishChecklist#PublishChecklist' } },
     },
     {
       name: 'aiPanel', type: 'ui',

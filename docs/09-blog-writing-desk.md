@@ -79,3 +79,12 @@ Every card shows progress, a clear Hinglish error, and never loses the typed tex
 - Done: media alt auto-fill + size limits + PDF upload (`src/lib/mediaRules.ts`, `Media.ts`), `infographic`/`gallery` blocks + resolver, `POST /api/blog/import` (markdown, html, .md/.txt/.html/.docx/.pdf, images, optional PDF attach), `posts.attachments` (+ migration), public `AttachmentList`, desk cards 01-07.
 - Not done (B2 hardening, still open): idempotent FAQ/tag/link apply (409 on re-apply), session-based preview instead of `PREVIEW_SECRET` in URLs, staff-only read of `current-affairs` AI fields (`embedding`, `aiMeta`), shared rate-limit helper replacing the two old copies. The import endpoint itself calls no AI; after the draft is saved the normal blog organizer job fills empty SEO fields (D16).
 - Server-side WebP re-encode was dropped: `resizeOptions` caps new uploads at 2000 px width instead.
+
+## 7. Blog improvements (2026-11-22, Claude)
+- **Publish checklist** (post editor sidebar, `src/lib/blog/checklist.ts` + `PublishChecklist.tsx`): words, title/description length, keyword in title, cover, category, topic link, headings, tags, FAQ. Non-blocking: red = "abhi publish mat karo".
+- **Templates** (desk card 08, `source: "template"` on `/api/blog/import`): Concept explainer, Thinker profile, PYQ analysis, Answer-writing guide. Draft saved without queueing the AI organizer (placeholders must not be "organized").
+- **End-of-post quiz**: `posts.quiz` (≤5, 4 options), sidebar "AI se quiz banao" → `POST /api/blog/quiz` (OpenAI, 3 MCQs from the post only, budget + ledger), public `PostQuiz`.
+- **Series**: `blog-series` collection, `posts.series` + `seriesOrder`, series box (top) + prev/next (bottom), `/blog/series/[slug]`, sitemap.
+- **Glossary** `/glossary`: A-Z from blog `keyTerm` blocks + notes `keyTerms` tables, DefinedTermSet JSON-LD, footer link, sitemap.
+- **Search** `/search?q=`: published posts, topic notes, current affairs, thinkers, glossary; header icon; WebSite SearchAction JSON-LD; page is noindex.
+- Migration `blog_extras` (additive: quiz tables, series table/columns).

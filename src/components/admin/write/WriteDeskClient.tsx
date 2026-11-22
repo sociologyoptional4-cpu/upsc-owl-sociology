@@ -33,6 +33,33 @@ function NewBlogCard() {
   )
 }
 
+const TEMPLATE_OPTIONS = [
+  { value: 'concept', label: 'Concept explainer', hint: 'Definition, example, compare table, critique, model answer' },
+  { value: 'thinker', label: 'Thinker profile', hint: 'Mukhya vichaar, key term, timeline, aaj ka India, UPSC angle' },
+  { value: 'pyq', label: 'PYQ analysis', hint: 'Sawal ki demand, answer flow, model answer, marks tips' },
+  { value: 'answer', label: 'Answer-writing guide', hint: 'Structure, flow, yaad rakho, common galtiyan' },
+] as const
+
+function TemplateCard() {
+  const { state, run } = useRun()
+  const [template, setTemplate] = useState<(typeof TEMPLATE_OPTIONS)[number]['value']>('concept')
+  const [title, setTitle] = useState('')
+  const busy = state.status === 'busy'
+  const picked = TEMPLATE_OPTIONS.find((option) => option.value === template)
+  const submit = async () => { if (await run('Template draft ban raha hai...', () => importJson({ source: 'template', template, title: title.trim() }))) setTitle('') }
+  return (
+    <Card index="08" tone="lavender" title="Template se shuru karo" hint="Khaali page ke bajay tayyar dhaancha: headings aur blocks pehle se, bas [brackets] bharo." state={state}>
+      <label className={styles.field}><span>Template</span>
+        <select value={template} disabled={busy} onChange={(event) => setTemplate(event.target.value as typeof template)}>
+          {TEMPLATE_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+        </select></label>
+      {picked ? <p className={styles.cardHint}>{picked.hint}</p> : null}
+      <label className={styles.field}><span>Post ka title</span><input value={title} maxLength={200} disabled={busy} onChange={(event) => setTitle(event.target.value)} /></label>
+      <button type="button" className={styles.primary} disabled={busy || title.trim().length < 3} onClick={() => void submit()}>Draft banao</button>
+    </Card>
+  )
+}
+
 function PasteCard() {
   const { state, run } = useRun()
   const [title, setTitle] = useState('')
@@ -146,6 +173,7 @@ export function WriteDeskClient() {
   return (
     <div className={styles.grid}>
       <NewBlogCard />
+      <TemplateCard />
       <PasteCard />
       <NotesCard />
       <ImagesCard index="04" tone="pink" title="Infographic paste" hint="Screenshot ya infographic copy karo, zone mein click karke Ctrl/Cmd+V." layout="infographic" multiple={false} />

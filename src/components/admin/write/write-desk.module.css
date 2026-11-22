@@ -17,9 +17,9 @@
 .cardHint { margin: 0; font-size: 0.85rem; color: #404040; }
 
 .field { display: grid; gap: 0.25rem; font-size: 0.8rem; font-weight: 600; }
-.field input, .field textarea { width: 100%; padding: 0.55rem 0.7rem; border: 2px solid #0a0a0a; border-radius: 8px; background: #fff; color: #0a0a0a; font: inherit; font-weight: 400; }
+.field input, .field textarea, .field select { width: 100%; padding: 0.55rem 0.7rem; border: 2px solid #0a0a0a; border-radius: 8px; background: #fff; color: #0a0a0a; font: inherit; font-weight: 400; }
 .field textarea { resize: vertical; min-height: 7rem; }
-.field input:focus-visible, .field textarea:focus-visible { outline: 3px solid #dc2626; outline-offset: 1px; }
+.field input:focus-visible, .field textarea:focus-visible, .field select:focus-visible { outline: 3px solid #dc2626; outline-offset: 1px; }
 .check { display: flex; gap: 0.5rem; align-items: flex-start; font-size: 0.8rem; }
 .row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 

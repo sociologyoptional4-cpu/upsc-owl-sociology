@@ -21,7 +21,7 @@ async function revalidate(paths: string[], disabled: boolean | undefined): Promi
   }
 }
 
-function taxonomy(slug: 'blog-categories' | 'blog-tags', singular: string, plural: string, route: 'category' | 'tag'): CollectionConfig {
+function taxonomy(slug: 'blog-categories' | 'blog-tags' | 'blog-series', singular: string, plural: string, route: 'category' | 'tag' | 'series'): CollectionConfig {
   const pathsFor = (doc: Record<string, unknown>) => ['/blog', ...(typeof doc.slug === 'string' ? [`/blog/${route}/${doc.slug}`] : [])]
   const afterChange: CollectionAfterChangeHook = async ({ doc, req }) => { await revalidate(pathsFor(doc), req.context?.disableRevalidate as boolean | undefined); return doc }
   const afterDelete: CollectionAfterDeleteHook = async ({ doc, req }) => { await revalidate(pathsFor(doc), req.context?.disableRevalidate as boolean | undefined); return doc }
@@ -42,3 +42,4 @@ function taxonomy(slug: 'blog-categories' | 'blog-tags', singular: string, plura
 
 export const BlogCategories = taxonomy('blog-categories', 'Blog category', 'Blog categories', 'category')
 export const BlogTags = taxonomy('blog-tags', 'Blog tag', 'Blog tags', 'tag')
+export const BlogSeries = taxonomy('blog-series', 'Blog series', 'Blog series', 'series')

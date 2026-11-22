@@ -19,6 +19,7 @@ import type {
   BlogMedia,
   BlogPastel,
   BlogPostDetail,
+  BlogSeriesNav,
   BlogTagChip,
   PaperCode,
   PyqItem,
@@ -184,6 +185,8 @@ export const getPost = cache(async (slug: string, preview = false): Promise<Blog
   const ogMedia = mapMedia(seo.ogImage as Media | number | null, card.title)
   return {
     ...card, content: doc.content, toc: extractToc(doc.content),
+    quiz: (doc.quiz ?? []).flatMap((q) => (q.options?.length === 4 ? [{ question: q.question, options: q.options.map((o) => o.text), answerIndex: q.answerIndex, explanation: q.explanation }] : [])),
+    series: await getSeriesNav(doc.series, doc.id),
     attachments: (doc.attachments ?? []).flatMap((row) => {
       const file = isObj<Media>(row.file) ? row.file : null
       return file?.url ? [{ label: row.label, url: file.url, sizeKb: Math.round((file.filesize ?? 0) / 1024) }] : []
@@ -207,6 +210,28 @@ export const getPostsByCategory = cache(async (slug: string, page = 1): Promise<
   const posts = await payload.find({ collection: 'posts', where: { and: [{ _status: { equals: 'published' } }, { category: { equals: cat.id } }] }, page, limit: PAGE_SIZE, sort: '-publishedAt', depth: 3, draft: false, overrideAccess: false })
   return { kind: 'category', title: cat.title, description: cat.description ?? null, posts: { items: posts.docs.map(mapBlogCard), page: posts.page ?? page, totalPages: posts.totalPages, total: posts.totalDocs } }
 })
+
+export const getPostsBySeries = cache(async (slug: string, page = 1): Promise<BlogListData | null> => {
+  const payload = await getPayloadClient()
+  const series = (await payload.find({ collection: 'blog-series', where: { slug: { equals: slug } }, limit: 1, depth: 0, overrideAccess: false })).docs[0]
+  if (!series) return null
+  const posts = await payload.find({ collection: 'posts', where: { and: [{ _status: { equals: 'published' } }, { series: { equals: series.id } }] }, page, limit: PAGE_SIZE, sort: 'seriesOrder,publishedAt', depth: 3, draft: false, overrideAccess: false })
+  return { kind: 'series', title: series.title, description: series.description ?? null, posts: { items: posts.docs.map(mapBlogCard), page: posts.page ?? page, totalPages: posts.totalPages, total: posts.totalDocs } }
+})
+
+/** Series box for a post: all published parts in order + prev/next around the current one. */
+async function getSeriesNav(value: unknown, currentId: number): Promise<BlogSeriesNav | null> {
+  const seriesId = typeof value === 'number' ? value : isObj<{ id: number }>(value) ? value.id : null
+  if (!seriesId) return null
+  const payload = await getPayloadClient()
+  const series = await payload.findByID({ collection: 'blog-series', id: seriesId, depth: 0, overrideAccess: false }).catch(() => null)
+  if (!series?.slug) return null
+  const posts = await payload.find({ collection: 'posts', where: { and: [{ _status: { equals: 'published' } }, { series: { equals: seriesId } }] }, limit: 50, sort: 'seriesOrder,publishedAt', depth: 0, draft: false, overrideAccess: false, select: { title: true, slug: true, seriesOrder: true } })
+  const parts = posts.docs.filter((p) => p.slug).map((p, i) => ({ title: p.title, href: `/blog/${p.slug}`, order: p.seriesOrder ?? i + 1, isCurrent: p.id === currentId }))
+  const at = parts.findIndex((p) => p.isCurrent)
+  const pick = (i: number) => (i >= 0 && i < parts.length ? { title: parts[i]!.title, href: parts[i]!.href } : null)
+  return { title: series.title, href: `/blog/series/${series.slug}`, parts, prev: at >= 0 ? pick(at - 1) : null, next: at >= 0 ? pick(at + 1) : null }
+}
 
 export const getPostsByTag = cache(async (slug: string, page = 1): Promise<BlogListData | null> => {
   const payload = await getPayloadClient()

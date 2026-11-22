@@ -10,3 +10,4 @@ export function loadCaPrompts(): { scorer: string; writer: string; style: string
 export const loadQuizPrompt = (): string => read('smart-quiz.v1.md')
 export const loadMatchPrompt = (): string => read('smart-quiz-match.v1.md')
 export const loadSeoPrompt = (): string => read('smart-seo.v1.md')
+export const loadPostQuizPrompt = (): string => read('smart-post-quiz.v1.md')

@@ -41,6 +41,9 @@ export function Header({ nav }: { nav: NavItem[] }) {
           >
             Telegram join
           </Link>
+          <Link href="/search" aria-label="Site mein search karo" className="grid h-9 w-9 place-items-center rounded-md border border-rule text-ink-soft transition-colors hover:border-ink hover:text-ink">
+            <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+          </Link>
           <ThemeToggle />
         </div>
       </div>

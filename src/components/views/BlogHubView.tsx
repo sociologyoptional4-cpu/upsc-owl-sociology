@@ -131,7 +131,7 @@ export function BlogHubView({ data }: { data: BlogHubData }) {
 
 export function BlogListView({ data, baseHref }: { data: BlogListData; baseHref: string }) {
   const { posts } = data
-  const kicker = data.kind === 'category' ? 'Blog · Category' : data.kind === 'tag' ? 'Blog · Tag' : 'Blog · Author'
+  const kicker = data.kind === 'category' ? 'Blog · Category' : data.kind === 'tag' ? 'Blog · Tag' : data.kind === 'series' ? 'Blog · Series' : 'Blog · Author'
   return (
     <div className="mx-auto max-w-7xl px-5 pb-20 md:px-8">
       <PageHeader kicker={kicker} title={data.title} description={data.description ?? undefined} />

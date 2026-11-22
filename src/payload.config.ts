@@ -11,7 +11,7 @@ import { PipelineRuns } from './collections/PipelineRuns'
 import { Digests } from './collections/Digests'
 import { Quizzes } from './collections/Quizzes'
 import { Posts } from './collections/Posts'
-import { BlogCategories, BlogTags } from './collections/BlogTaxonomies'
+import { BlogCategories, BlogSeries, BlogTags } from './collections/BlogTaxonomies'
 import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
 import { Papers } from './collections/Papers'
@@ -52,7 +52,7 @@ export default buildConfig({
       },
     },
   },
-  collections: [Pages, CurrentAffairs, Topics, Units, Papers, Pyqs, Thinkers, Media, Users, Sources, PipelineRuns, Digests, Quizzes, Posts, BlogCategories, BlogTags],
+  collections: [Pages, CurrentAffairs, Topics, Units, Papers, Pyqs, Thinkers, Media, Users, Sources, PipelineRuns, Digests, Quizzes, Posts, BlogCategories, BlogTags, BlogSeries],
   globals: [SiteSettings, Navigation],
   editor: richTextEditor(),
   secret: env.PAYLOAD_SECRET,

@@ -83,6 +83,7 @@ export interface Config {
     posts: Post;
     'blog-categories': BlogCategory;
     'blog-tags': BlogTag;
+    'blog-series': BlogSery;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
@@ -107,6 +108,7 @@ export interface Config {
     posts: PostsSelect<false> | PostsSelect<true>;
     'blog-categories': BlogCategoriesSelect<false> | BlogCategoriesSelect<true>;
     'blog-tags': BlogTagsSelect<false> | BlogTagsSelect<true>;
+    'blog-series': BlogSeriesSelect<false> | BlogSeriesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -880,7 +882,35 @@ export interface Post {
    * /blog ke hero mein dikhega.
    */
   featured?: boolean | null;
+  /**
+   * Lagatar padhne wali series (prev/next banenge).
+   */
+  series?: (number | null) | BlogSery;
+  /**
+   * Series mein kaunsa part (1, 2, 3...).
+   */
+  seriesOrder?: number | null;
   readingTime?: number | null;
+  /**
+   * Sidebar ke "AI se quiz banao" se bharo ya khud likho. Reader post ke ant mein solve karega.
+   */
+  quiz?:
+    | {
+        question: string;
+        options?:
+          | {
+              text: string;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * 0 = pehla option, 3 = chautha
+         */
+        answerIndex: number;
+        explanation: string;
+        id?: string | null;
+      }[]
+    | null;
   faq?:
     | {
         question: string;
@@ -933,6 +963,22 @@ export interface BlogCategory {
  * via the `definition` "blog-tags".
  */
 export interface BlogTag {
+  id: number;
+  title: string;
+  /**
+   * Khali chhodo to "title" se apne aap banega.
+   */
+  slug?: string | null;
+  description?: string | null;
+  color?: ('lavender' | 'yellow' | 'mint' | 'pink') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-series".
+ */
+export interface BlogSery {
   id: number;
   title: string;
   /**
@@ -1123,6 +1169,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'blog-tags';
         value: number | BlogTag;
+      } | null)
+    | ({
+        relationTo: 'blog-series';
+        value: number | BlogSery;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1722,7 +1772,23 @@ export interface PostsSelect<T extends boolean = true> {
   author?: T;
   publishedAt?: T;
   featured?: T;
+  series?: T;
+  seriesOrder?: T;
   readingTime?: T;
+  quiz?:
+    | T
+    | {
+        question?: T;
+        options?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        answerIndex?: T;
+        explanation?: T;
+        id?: T;
+      };
   faq?:
     | T
     | {
@@ -1765,6 +1831,18 @@ export interface BlogCategoriesSelect<T extends boolean = true> {
  * via the `definition` "blog-tags_select".
  */
 export interface BlogTagsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  description?: T;
+  color?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-series_select".
+ */
+export interface BlogSeriesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
   description?: T;

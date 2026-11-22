@@ -6,6 +6,7 @@ import { rateLimited } from '@/lib/rateLimit'
 import { SmartError } from '@/lib/smart/errors'
 import { smartCurrentAffair } from '@/lib/smart/currentAffair'
 import { smartQuiz } from '@/lib/smart/quiz'
+import { generatePostQuiz } from '@/lib/blog/postQuiz'
 
 const MAX_BODY = 90_000
 const respond = (success: boolean, data: unknown, error: string | null, status = 200) => Response.json({ success, data, error }, { status })
@@ -40,7 +41,10 @@ function guarded<T extends z.ZodType>(scope: string, schema: T, run: (req: Paylo
   }
 }
 
+const postQuizBody = z.object({ postId: z.number().int().positive() }).strict()
+
 export const smartEndpoints: Endpoint[] = [
+  { path: '/blog/quiz', method: 'post', handler: guarded('post-quiz', postQuizBody, (req, input) => generatePostQuiz(req.payload, input.postId)) },
   { path: '/smart/quiz', method: 'post', handler: guarded('smart-quiz', quizBody, (req, input) => smartQuiz(req.payload, input)) },
   { path: '/smart/current-affair', method: 'post', handler: guarded('smart-ca', caBody, (req, input) => smartCurrentAffair(req.payload, input)) },
 ]

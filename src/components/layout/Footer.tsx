@@ -5,7 +5,7 @@ import { isExternalHref } from '@/lib/href'
 import { TELEGRAM_URL } from '../ui/links'
 
 const COLUMNS = [
-  { title: 'Quick links', links: [{ label: 'Current Affairs', href: '/current-affairs' }, { label: 'Syllabus', href: '/syllabus' }, { label: 'Thinkers', href: '/thinkers' }] },
+  { title: 'Quick links', links: [{ label: 'Current Affairs', href: '/current-affairs' }, { label: 'Syllabus', href: '/syllabus' }, { label: 'Thinkers', href: '/thinkers' }, { label: 'Glossary (A-Z)', href: '/glossary' }, { label: 'Search', href: '/search' }] },
   { title: 'Connect', links: [{ label: 'Telegram', href: TELEGRAM_URL }, { label: 'About', href: '/about' }] },
 ]
 

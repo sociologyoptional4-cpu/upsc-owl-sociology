@@ -12,6 +12,7 @@ const respond = (success: boolean, data: unknown, error: string | null, status =
 
 const jsonSchema = z.discriminatedUnion('source', [
   z.object({ source: z.enum(['markdown', 'html']), text: z.string().min(1).max(400_000), title: z.string().trim().max(200).optional() }).strict(),
+  z.object({ source: z.literal('template'), template: z.enum(['concept', 'thinker', 'pyq', 'answer']), title: z.string().trim().min(3).max(200) }).strict(),
   z.object({ source: z.literal('images'), title: z.string().trim().min(3).max(200), mediaIds: z.array(z.number().int().positive()).min(1).max(12), layout: z.enum(['infographic', 'gallery']) }).strict(),
 ])
 

@@ -4,11 +4,13 @@ import { markdownToBlogLexical, makeBlockNode } from '@/lib/blog/markdown'
 import { contentHash, countWords, lexicalToPlain, type LexNode } from '@/lib/blog/text'
 import { ImportError } from './errors'
 import { MAX_MARKDOWN_CHARS, fileToMarkdown, htmlToMarkdown, pickTitle } from './convert'
+import { TEMPLATES, TEMPLATE_LABELS, type TemplateKey } from './templates'
 
 export type ImportInput =
   | { source: 'markdown' | 'html'; text: string; title?: string }
   | { source: 'file'; name: string; bytes: Uint8Array; mimetype?: string; title?: string; attach?: boolean }
   | { source: 'images'; title: string; mediaIds: number[]; layout: 'infographic' | 'gallery' }
+  | { source: 'template'; template: TemplateKey; title: string }
 
 export type ImportResult = { postId: number; adminUrl: string; title: string; wordCount: number; warnings: string[] }
 
@@ -26,7 +28,7 @@ async function attachPdf(payload: Payload, input: Extract<ImportInput, { source:
   return [{ file: Number(media.id), label: (input.title?.trim() || input.name.replace(/\.pdf$/i, '')).slice(0, 120) }]
 }
 
-async function markdownFor(input: Exclude<ImportInput, { source: 'images' }>): Promise<{ markdown: string; warnings: string[]; filename?: string }> {
+async function markdownFor(input: Exclude<ImportInput, { source: 'images' } | { source: 'template' }>): Promise<{ markdown: string; warnings: string[]; filename?: string }> {
   if (input.source === 'file') return { ...(await fileToMarkdown(input.name, input.bytes)), filename: input.name }
   if (input.source === 'html') return htmlToMarkdown(input.text)
   return { markdown: input.text.replace(/\r\n?/g, '\n').trim(), warnings: [] }
@@ -52,9 +54,23 @@ async function createFromImages(payload: Payload, userId: number | string, input
   return { postId: Number(doc.id), adminUrl: adminUrl(Number(doc.id)), title, wordCount: 0, warnings: [] }
 }
 
+async function createFromTemplate(payload: Payload, userId: number | string, input: Extract<ImportInput, { source: 'template' }>): Promise<ImportResult> {
+  const children: LexNode[] = []
+  for (const segment of TEMPLATES[input.template]) {
+    if ('md' in segment) children.push(...((await markdownToBlogLexical(payload, segment.md)).root.children ?? []))
+    else children.push(makeBlockNode(segment.block, segment.fields))
+  }
+  const title = input.title.trim().slice(0, 200)
+  const content = { root: { type: 'root', format: '', indent: 0, version: 1, direction: 'ltr', children } }
+  // Placeholders must not reach the AI organizer, so the draft is saved without queueing it.
+  const doc = await payload.create({ collection: 'posts', draft: true, overrideAccess: true, context: { skipExternal: true, skipBlogOrganize: true }, data: { title, content: content as never, author: Number(userId), _status: 'draft' } })
+  return { postId: Number(doc.id), adminUrl: adminUrl(Number(doc.id)), title, wordCount: 0, warnings: [`${TEMPLATE_LABELS[input.template]} template: [brackets] wali jagah apna content likho, phir Save karo.`] }
+}
+
 /** One path for paste, file and image imports. Always a DRAFT; duplicate text → 409 with the old post. */
 export async function importPost(payload: Payload, userId: number | string, input: ImportInput): Promise<ImportResult> {
   if (input.source === 'images') return createFromImages(payload, userId, input)
+  if (input.source === 'template') return createFromTemplate(payload, userId, input)
   const converted = await markdownFor(input)
   if (converted.markdown.length < 20) throw new ImportError('Content bahut chhota hai.', 422)
   if (converted.markdown.length > MAX_MARKDOWN_CHARS) throw new ImportError('Content bahut bada hai (2 lakh characters se kam rakho).', 413)
