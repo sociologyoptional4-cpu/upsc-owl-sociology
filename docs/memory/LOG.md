@@ -260,3 +260,11 @@
 - Checks: tsc ✓ eslint ✓ (0 errors) unit ✓ (100/100); build see next entry.
 - Contract changes: none (additive route + helper).
 - Open issues / proposals: Correction to an earlier status note: `sitemap.ts` already lists thinkers; production just has no thinkers seeded (seed not run in prod). User still must verify Search Console/Bing and publish posts.
+
+## 2026-11-22 06:31 · Codex (GPT-6) · SEO Control Center review follow-up
+- Did: Reviewed the existing `/admin/seo` feature (already added to main in `bea1997`). Corrected user-facing claims that a 300-word minimum is a Google rule, FAQ pages are likely to earn a rich result, Google truncates titles at a fixed character count, and a cover image guarantees click-through. Kept the checks as editorial suggestions and explained the limits accurately.
+- Files: `src/lib/seo/audit.ts`, `tests/unit/seo-audit.test.ts`, `docs/memory/STATE.md`, `docs/memory/LOG.md`.
+- Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-07, memory, SEO implementation)
+- Checks: `npx tsc --noEmit` ✓; `npx eslint src tests` ✓ (0 errors, 15 warnings); `npm run test:unit` ✓ (112/112); `npm run build` ✓ (isolated worktree); targeted audit tests ✓ (14/14).
+- Contract changes: none.
+- Open issues / proposals: review PR contains SEO copy corrections only. Google/Bing verification and Search Console submission remain owner setup items.
