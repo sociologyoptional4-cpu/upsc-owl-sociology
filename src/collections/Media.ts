@@ -1,7 +1,16 @@
-import type { CollectionConfig } from 'payload'
+import { APIError, type CollectionBeforeValidateHook, type CollectionConfig } from 'payload'
 
 import { isStaff } from '@/access/roles'
 import { validateHref } from '@/lib/href'
+import { deriveAlt, uploadSizeError } from '@/lib/mediaRules'
+
+/** Paste/upload without a form: fill alt from the filename and enforce size limits (docs/09 C1). */
+const prepareUpload: CollectionBeforeValidateHook = ({ data, req, operation }) => {
+  if (operation !== 'create' || !req.file) return data
+  const tooBig = uploadSizeError(req.file.mimetype, req.file.size)
+  if (tooBig) throw new APIError(tooBig, 400, undefined, true)
+  return data?.alt ? data : { ...data, alt: deriveAlt(req.file.name) }
+}
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -13,13 +22,15 @@ export const Media: CollectionConfig = {
     delete: isStaff,
   },
   upload: {
-    mimeTypes: ['image/*', 'video/webm', 'video/mp4'],
+    mimeTypes: ['image/*', 'video/webm', 'video/mp4', 'application/pdf'],
+    resizeOptions: { width: 2000, withoutEnlargement: true },
     imageSizes: [
       { name: 'card', width: 640 },
       { name: 'feature', width: 1280 },
     ],
   },
   hooks: {
+    beforeValidate: [prepareUpload],
     afterRead: [({ doc }) => {
       const publicBase = process.env.S3_PUBLIC_URL?.replace(/\/$/, '')
       if (!publicBase) return doc
@@ -38,7 +49,7 @@ export const Media: CollectionConfig = {
     }],
   },
   fields: [
-    { name: 'alt', type: 'text', required: true },
+    { name: 'alt', type: 'text', required: true, admin: { description: 'Khaali chhodo to file ke naam se bharega. SEO ke liye behtar likho.' } },
     {
       name: 'license',
       type: 'select',
@@ -52,7 +63,7 @@ export const Media: CollectionConfig = {
         { label: 'CC BY-SA', value: 'cc-by-sa' },
         { label: 'Other (explain in credit)', value: 'other' },
       ],
-      admin: { description: 'Har asset ka license zaroori hai (ASSETS.md policy).' },
+      admin: { description: 'Har asset ka license zaroori hai (ASSETS.md policy). PDF public hoti hai, private handout mat daalo (D15).' },
     },
     { name: 'credit', type: 'text', admin: { description: 'Author / attribution text' } },
     { name: 'sourceUrl', type: 'text', validate: validateHref },

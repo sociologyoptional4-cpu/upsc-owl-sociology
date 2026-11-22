@@ -66,8 +66,11 @@ export type ResolvedBlogBlocks = {
   media: Record<number, BlogMedia>
 }
 
+export type BlogAttachment = { label: string; url: string; sizeKb: number }
+
 export type BlogPostDetail = BlogCard & {
   content: unknown
+  attachments: BlogAttachment[]
   toc: TocItem[]
   faq: { question: string; answer: string }[]
   seo: {

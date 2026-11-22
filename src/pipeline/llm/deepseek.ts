@@ -1,4 +1,6 @@
 import type { PipelineConfig } from '../config'
+
+type ScoreConfig = Pick<PipelineConfig, 'DEEPSEEK_BASE_URL' | 'DEEPSEEK_API_KEY' | 'SCORER_MODEL'>
 import type { FeedItem } from '../clean'
 import { z } from 'zod'
 
@@ -15,7 +17,7 @@ export function extractScoreList(parsed: unknown): unknown[] | null {
   return Object.values(parsed).find(isScoreList) ?? null
 }
 
-export async function scoreItems(config: PipelineConfig, items: FeedItem[], topics: string[], prompt: string): Promise<{ items: Score[]; inputTokens: number; outputTokens: number }> {
+export async function scoreItems(config: ScoreConfig, items: FeedItem[], topics: string[], prompt: string): Promise<{ items: Score[]; inputTokens: number; outputTokens: number }> {
   const response = await fetch(`${config.DEEPSEEK_BASE_URL}/chat/completions`, { method: 'POST', headers: { authorization: `Bearer ${config.DEEPSEEK_API_KEY}`, 'content-type': 'application/json' }, body: JSON.stringify({ model: config.SCORER_MODEL, max_tokens: 16384, response_format: { type: 'json_object' }, messages: [{ role: 'system', content: `${prompt}\nAllowed topic slugs: ${topics.join(', ')}\n\nOUTPUT FORMAT (strict): return ONLY a JSON object {"items": [ ... ]} with exactly one entry per input item, in input order, each using that item's id.` }, { role: 'user', content: JSON.stringify(items.map((item, index) => ({ id: String(index), title: item.title, description: item.description, source: item.source }))) }] }) })
   if (!response.ok) throw new Error(`Scorer request failed (${response.status})`)
   const body = await response.json() as { choices?: { finish_reason?: string; message?: { content?: string } }[]; usage?: { prompt_tokens?: number; completion_tokens?: number } }

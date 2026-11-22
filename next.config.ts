@@ -8,6 +8,8 @@ const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
 
 const nextConfig: NextConfig = {
+  // Smart paste reads the AI prompt files at runtime; make sure Vercel bundles them with the API routes.
+  outputFileTracingIncludes: { '/api/**': ['./src/pipeline/llm/prompts/**/*'] },
   images: {
     remotePatterns: [
       ...(env.S3_PUBLIC_URL ? [{ protocol: 'https' as const, hostname: new URL(env.S3_PUBLIC_URL).hostname, pathname: '/storage/v1/object/public/**' }] : []),

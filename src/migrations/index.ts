@@ -4,6 +4,8 @@ import * as migration_20261121_130225_n1_syllabus_pyqs_notes from './20261121_13
 import * as migration_20261121_143405_blog_platform from './20261121_143405_blog_platform';
 import * as migration_20261122_005300_notebook_notes_visuals from './20261122_005300_notebook_notes_visuals';
 import * as migration_20261122_012115_bilingual_notes from './20261122_012115_bilingual_notes';
+import * as migration_20261122_012313_smart_paste from './20261122_012313_smart_paste';
+import * as migration_20261122_012816_blog_attachments from './20261122_012816_blog_attachments';
 
 export const migrations = [
   {
@@ -34,6 +36,16 @@ export const migrations = [
   {
     up: migration_20261122_012115_bilingual_notes.up,
     down: migration_20261122_012115_bilingual_notes.down,
-    name: '20261122_012115_bilingual_notes'
+    name: '20261122_012115_bilingual_notes',
+  },
+  {
+    up: migration_20261122_012313_smart_paste.up,
+    down: migration_20261122_012313_smart_paste.down,
+    name: '20261122_012313_smart_paste',
+  },
+  {
+    up: migration_20261122_012816_blog_attachments.up,
+    down: migration_20261122_012816_blog_attachments.down,
+    name: '20261122_012816_blog_attachments'
   },
 ];

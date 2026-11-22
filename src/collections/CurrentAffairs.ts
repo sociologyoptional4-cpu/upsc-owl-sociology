@@ -4,6 +4,7 @@ import { canCreateContent, canUpdateContent, isAdmin, publishedOrLoggedIn } from
 import { LAYOUT_BLOCKS } from '@/blocks'
 import { slugField } from '@/fields/slug'
 import { forceBotDrafts } from '@/hooks/payload/forceBotDrafts'
+import { pingCurrentAffair } from '@/hooks/payload/indexnowCa'
 import { postCurrentAffair } from '@/lib/telegram/postCurrentAffair'
 import { revalidateAfterChange, revalidateAfterDelete } from '@/hooks/payload/revalidate'
 import { validateHref } from '@/lib/href'
@@ -42,7 +43,7 @@ export const CurrentAffairs: CollectionConfig = {
   versions: { drafts: true, maxPerDoc: 15 },
   hooks: {
     beforeChange: [forceBotDrafts],
-    afterChange: [revalidateAfterChange(caPaths), postCurrentAffair],
+    afterChange: [revalidateAfterChange(caPaths), postCurrentAffair, pingCurrentAffair],
     afterDelete: [revalidateAfterDelete(caPaths)],
   },
   fields: [
@@ -70,6 +71,14 @@ export const CurrentAffairs: CollectionConfig = {
       ],
     },
     { name: 'summary', type: 'textarea', admin: { description: 'Card aur SEO description' } },
+    {
+      name: 'seo', type: 'group', label: 'SEO',
+      admin: { description: 'Khaali ho to headline/summary use hota hai. Smart paste AI se bharta hai.' },
+      fields: [
+        { name: 'title', type: 'text', maxLength: 60 },
+        { name: 'description', type: 'textarea', maxLength: 160 },
+      ],
+    },
     { name: 'reviewStatus', type: 'select', defaultValue: 'pending', index: true, options: ['pending', 'approved', 'rejected'] },
     { name: 'rejectReason', type: 'textarea' },
     { name: 'sourceHash', type: 'text', unique: true, index: true, admin: { position: 'sidebar' } },

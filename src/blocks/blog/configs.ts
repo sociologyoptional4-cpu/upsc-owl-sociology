@@ -142,6 +142,33 @@ export const youtube: Block = {
   ],
 }
 
+export const infographic: Block = {
+  slug: 'infographic',
+  labels: { singular: 'Infographic', plural: 'Infographics' },
+  fields: [
+    { name: 'image', type: 'upload', relationTo: 'media', required: true },
+    { name: 'title', type: 'text', required: true, maxLength: 120 },
+    { name: 'caption', type: 'text' },
+    { name: 'credit', type: 'text' },
+    { name: 'downloadable', type: 'checkbox', defaultValue: true, label: 'Reader download kar sake' },
+  ],
+}
+
+export const gallery: Block = {
+  slug: 'gallery',
+  labels: { singular: 'Gallery', plural: 'Galleries' },
+  fields: [
+    {
+      name: 'images', type: 'array', required: true, minRows: 2, maxRows: 12,
+      fields: [
+        { name: 'image', type: 'upload', relationTo: 'media', required: true },
+        { name: 'caption', type: 'text' },
+      ],
+    },
+    { name: 'columns', type: 'select', defaultValue: '2', options: [{ label: '2 columns', value: '2' }, { label: '3 columns (desktop)', value: '3' }] },
+  ],
+}
+
 export const termChip: Block = {
   slug: 'termChip',
   labels: { singular: 'Term chip', plural: 'Term chips' },
@@ -151,5 +178,5 @@ export const termChip: Block = {
   ],
 }
 
-export const BLOG_BLOCKS: Block[] = [blogCallout, thinkerQuote, compare, timeline, flow, keyTerm, pyqEmbed, answerBox, figure, youtube]
+export const BLOG_BLOCKS: Block[] = [blogCallout, thinkerQuote, compare, timeline, flow, keyTerm, pyqEmbed, answerBox, figure, youtube, infographic, gallery]
 export const BLOG_INLINE_BLOCKS: Block[] = [termChip]

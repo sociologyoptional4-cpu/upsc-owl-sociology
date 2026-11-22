@@ -4,6 +4,9 @@ import { z } from 'zod'
 import type { IngestItem } from '@/lib/ingest/schema'
 import { ingestItemSchema } from '@/lib/ingest/schema'
 import type { PipelineConfig } from '../config'
+
+type EmbedConfig = Pick<PipelineConfig, 'OPENAI_API_KEY' | 'EMBEDDING_MODEL'>
+type WriteConfig = Pick<PipelineConfig, 'OPENAI_API_KEY' | 'WRITER_MODEL'>
 import type { FeedItem } from '../clean'
 import { validateWrittenItem } from '../validate'
 
@@ -15,12 +18,12 @@ export function stripNulls(value: unknown): unknown {
   return Object.fromEntries(Object.entries(value).filter(([, v]) => v !== null).map(([k, v]) => [k, stripNulls(v)]))
 }
 
-export async function embedTitles(config: PipelineConfig, titles: string[]): Promise<{ embeddings: number[][]; inputTokens: number }> {
+export async function embedTitles(config: EmbedConfig, titles: string[]): Promise<{ embeddings: number[][]; inputTokens: number }> {
   if (!titles.length) return { embeddings: [], inputTokens: 0 }
   const result = await client(config.OPENAI_API_KEY).embeddings.create({ model: config.EMBEDDING_MODEL, input: titles })
   return { embeddings: result.data.map((row) => row.embedding), inputTokens: result.usage.prompt_tokens }
 }
-export async function writeItem(config: PipelineConfig, item: FeedItem, paper: 'P1' | 'P2' | 'Both', topics: string[], thinkers: string[], prompt: string, style: string, examples: string, repairHint = ''): Promise<{ item: IngestItem; inputTokens: number; outputTokens: number; cachedTokens: number }> {
+export async function writeItem(config: WriteConfig, item: FeedItem, paper: 'P1' | 'P2' | 'Both', topics: string[], thinkers: string[], prompt: string, style: string, examples: string, repairHint = ''): Promise<{ item: IngestItem; inputTokens: number; outputTokens: number; cachedTokens: number }> {
   // JSON mode (not strict json_schema): OpenAI strict mode rejects parts of our Zod schema
   // (uri formats, oneOf unions, optional keys). The schema is given as guidance text and
   // the Zod check below is the real gate; the caller retries once with `repairHint`.

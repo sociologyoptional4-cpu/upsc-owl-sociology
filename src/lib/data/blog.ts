@@ -90,6 +90,7 @@ async function resolveBlockRelations(content: unknown): Promise<ResolvedBlogBloc
       addId(thinkerIds, f.thinker)
       addId(topicIds, f.topic)
       addId(mediaIds, f.image)
+      if (Array.isArray(f.images)) for (const row of f.images) addId(mediaIds, typeof row === 'object' && row !== null ? (row as { image?: unknown }).image : null)
       if (Array.isArray(f.pyqs)) for (const p of f.pyqs) addId(pyqIds, p)
     }
     for (const c of node.children ?? []) walk(c)
@@ -183,6 +184,10 @@ export const getPost = cache(async (slug: string, preview = false): Promise<Blog
   const ogMedia = mapMedia(seo.ogImage as Media | number | null, card.title)
   return {
     ...card, content: doc.content, toc: extractToc(doc.content),
+    attachments: (doc.attachments ?? []).flatMap((row) => {
+      const file = isObj<Media>(row.file) ? row.file : null
+      return file?.url ? [{ label: row.label, url: file.url, sizeKb: Math.round((file.filesize ?? 0) / 1024) }] : []
+    }),
     faq: (doc.faq ?? []).map(({ question, answer }) => ({ question, answer })),
     seo: { title: seo.title ?? null, description: seo.description ?? null, focusKeyword: seo.focusKeyword ?? null, canonical: seo.canonical ?? null, noindex: Boolean(seo.noindex), ogImageUrl: ogMedia?.url ?? card.cover?.url ?? null },
     resolved, relatedPosts: relatedPostsRes.docs.map(mapBlogCard), relatedTopics: card.topics, relatedPyqs,
