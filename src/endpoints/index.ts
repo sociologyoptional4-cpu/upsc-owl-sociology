@@ -6,6 +6,8 @@ import { ingestBatchSchema, reviewActionSchema } from '@/lib/ingest/schema'
 import { sourceHash } from '@/lib/ingest/hash'
 import { markdownToLexical } from '@/lib/ingest/markdownToLexical'
 import { createCurrentAffairDraft } from '@/lib/ingest/createDraft'
+import { reviseCurrentAffair } from '@/lib/smart/reviseCurrentAffair'
+import { SmartError } from '@/lib/smart/errors'
 import { formatDateIST } from '@/lib/data/issue'
 import { blogEndpoints } from './blog'
 import { smartEndpoints } from './smart'
@@ -62,9 +64,13 @@ async function review(req: PayloadRequest): Promise<Response> {
   const parsed = reviewActionSchema.safeParse(body)
   if (!parsed.success) return fail(parsed.error.issues.map((issue) => issue.message).join('; '))
   try {
+    if (parsed.data.action === 'revise') {
+      if (parsed.data.kind !== 'ca') return fail('AI revision abhi current affairs ke liye hai.', 400)
+      return response(true, await reviseCurrentAffair(req.payload, id, parsed.data.reason!), null)
+    }
     if (parsed.data.kind === 'topic') {
       const existing = await req.payload.findByID({ collection: 'topics', id, overrideAccess: true, draft: true, depth: 0 })
-      if (existing.reviewStatus !== 'pending' || existing._status !== 'draft' || !existing.layout?.length) return fail('No pending topic draft found', 409)
+      if (existing.reviewStatus !== 'pending' || !existing.layout?.length) return fail('No pending topic draft found', 409)
       if (parsed.data.action === 'approve') {
         const doc = await req.payload.update({ collection: 'topics', id, draft: false, data: { reviewStatus: 'approved', rejectReason: null, _status: 'published' }, overrideAccess: true })
         return response(true, doc, null)
@@ -73,7 +79,7 @@ async function review(req: PayloadRequest): Promise<Response> {
       return response(true, doc, null)
     }
     const existing = await req.payload.findByID({ collection: 'current-affairs', id, overrideAccess: true, draft: true })
-    if (existing.reviewStatus !== 'pending' || existing._status !== 'draft') return fail('No pending current-affairs draft found', 409)
+    if (existing.reviewStatus !== 'pending' || !existing.isAiGenerated || existing.aiMeta?.model === 'sample') return fail('No pending current-affairs draft found', 409)
     if (parsed.data.action === 'approve') {
       const doc = await req.payload.update({ collection: 'current-affairs', id, draft: false, data: { reviewStatus: 'approved', rejectReason: null, _status: 'published' }, overrideAccess: true })
       return response(true, doc, null)
@@ -81,6 +87,7 @@ async function review(req: PayloadRequest): Promise<Response> {
     const doc = await req.payload.update({ collection: 'current-affairs', id, draft: true, data: { reviewStatus: 'rejected', rejectReason: parsed.data.reason, _status: 'draft' }, overrideAccess: true })
     return response(true, doc, null)
   } catch (error) {
+    if (error instanceof SmartError) return fail(error.message, error.status)
     req.payload.logger.error(`Review action failed for item ${id}: ${error instanceof Error ? error.message : 'unknown error'}`)
     return fail('Publish nahi ho paya. Dobara try karo; agar phir bhi error aaye to admin ko batayein.', 500)
   }
@@ -89,11 +96,12 @@ async function review(req: PayloadRequest): Promise<Response> {
 async function reviewQueue(req: PayloadRequest): Promise<Response> {
   if (!allowed(req, 'admin', 'editor')) return fail('Unauthorized', 401)
   const [result, topicResult] = await Promise.all([
-    req.payload.find({ collection: 'current-affairs', where: { and: [{ reviewStatus: { equals: 'pending' } }, { _status: { equals: 'draft' } }] }, limit: 50, sort: '-aiMeta.relevance,-date', depth: 2, overrideAccess: true, draft: true }),
-    req.payload.find({ collection: 'topics', where: { and: [{ reviewStatus: { equals: 'pending' } }, { _status: { equals: 'draft' } }] }, limit: 100, sort: 'order', depth: 2, overrideAccess: true, draft: true }),
+    req.payload.find({ collection: 'current-affairs', where: { and: [{ reviewStatus: { equals: 'pending' } }, { isAiGenerated: { equals: true } }, { 'aiMeta.model': { not_equals: 'sample' } }] }, limit: 50, sort: '-aiMeta.relevance,-date', depth: 2, overrideAccess: true, draft: true }),
+    req.payload.find({ collection: 'topics', where: { reviewStatus: { equals: 'pending' } }, limit: 100, sort: 'order', depth: 2, overrideAccess: true, draft: true }),
   ])
   const currentAffairs = result.docs.map((doc) => ({
-    kind: 'ca' as const, id: Number(doc.id), headline: doc.headline, date: formatDateIST(String(doc.date)), relevance: doc.aiMeta?.relevance ?? null, summary: doc.summary ?? null,
+    kind: 'ca' as const, id: Number(doc.id), headline: doc.headline, date: formatDateIST(String(doc.date)), paper: doc.paper ?? null, relevance: doc.aiMeta?.relevance ?? null, summary: doc.summary ?? null,
+    quality: { source: doc.sources.length > 0, syllabus: Boolean(doc.topics?.length), sociology: Boolean(doc.layout?.some((block) => block.blockType === 'richText')), pyq: Boolean(doc.layout?.some((block) => block.blockType === 'pyqList')) },
     sources: doc.sources.map(({ name, url }) => ({ name, url })), topics: (doc.topics ?? []).flatMap((value) => {
       if (typeof value !== 'object') return []
       const unit = typeof value.unit === 'object' ? value.unit : null

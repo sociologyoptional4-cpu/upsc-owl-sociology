@@ -7,6 +7,12 @@
 .label > span { display: inline-block; transform: skewX(14deg); }
 
 .list { display: grid; gap: 1rem; list-style: none; margin: 0; padding: 0; }
+.reviewTools { display: flex; flex-wrap: wrap; align-items: end; gap: 0.75rem; margin-bottom: 1rem; padding: 1rem; border: 1px solid var(--theme-elevation-150); border-radius: 10px; background: var(--theme-elevation-0); }
+.filterLabel { display: grid; gap: 0.25rem; font-size: 0.75rem; font-weight: 700; color: var(--theme-elevation-600); }
+.filterInput { min-width: 150px; border: 1px solid var(--theme-elevation-250); border-radius: 6px; padding: 0.45rem 0.6rem; background: var(--theme-input-bg, var(--theme-elevation-0)); color: var(--theme-text); font: inherit; }
+.qualityList { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0; padding: 0; list-style: none; }
+.qualityList li { border: 1px solid var(--theme-elevation-150); border-radius: 999px; padding: 0.2rem 0.6rem; color: var(--theme-elevation-500); font-size: 0.75rem; }
+.qualityList li[data-ready='true'] { color: #166534; border-color: #86efac; background: #f0fdf4; }
 .card { border: 2px solid var(--theme-text); border-radius: 10px; background: var(--theme-elevation-0); padding: 1.25rem 1.5rem; display: grid; gap: 0.75rem; transition: opacity 0.3s, transform 0.3s; }
 .cardLeaving { opacity: 0; transform: translateX(24px); }
 .row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; }
