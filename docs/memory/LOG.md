@@ -346,3 +346,11 @@
 - Checks: `tsc --noEmit` ✓, `eslint` ✓, `test:unit` ✓ (28/28 files, 185/185 tests), `next build` ✓ (177/177 pages), Prod Supabase + live Vercel API checks ✓.
 - Contract changes: `resolveStaticMediaUrl` also maps the 5 synced blog filenames to `/assets/blog/*`.
 - Open issues / proposals: none.
+
+## 2026-11-22 11:30 IST · Codex · Production review recovery
+- Did: Mapped the code with Graphify. PR #1 diverged from main, including review AI and unrelated overlapping commits. Reapplied the staff preview and pending-review corrections and the SEO wording edits on a clean branch. Fixed note presence checks to recognize bilingual notebook content in the syllabus, note automation, and SEO.
+- Files: `src/app/api/preview/route.ts`, `src/collections/Posts.ts`, `src/endpoints/index.ts`, `src/lib/{notes,seo,data}/**`, `tests/unit/**`, `docs/memory/LOG.md`.
+- Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-06, memory, blog import hardening)
+- Checks: tsc ✓, ESLint ✓ with existing warnings, 191 unit tests ✓. Initial Next build passed compilation and type checking and stopped during prerender because there was no local Postgres fixture.
+- Contract changes: Draft preview requires an admin or editor session. The review queue selects pending draft versions.
+- Open issues: Authenticated production smoke and the reviewed local CMS export are pending. The media schema fix is tracked separately.

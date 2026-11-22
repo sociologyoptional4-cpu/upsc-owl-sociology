@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest'
 import { ALL_UNIT_NOTEBOOKS } from '@/data/notes'
 import { unit01Notebook } from '@/data/notes/unit-01'
 import type { LexNode } from '@/lib/blog/text'
+import { hasTopicNotes } from '@/lib/notes/has-topic-notes'
 import { applyNotebookMarkup } from '@/lib/notes/notebook-builder'
 import { mindMapDataSchema, type NotebookSection, unitNotebookSpecSchema } from '@/lib/notes/notebook-types'
 import { resolveStaticMediaUrl } from '@/lib/notes/static-media'
@@ -118,6 +119,7 @@ describe('Unit 1 bilingual notebook spec and PYQ mapping', () => {
   })
 })
 
+<<<<<<< HEAD
 describe('All 25 UPSC Sociology Units Notebook Suite', () => {
   it('validates that all 25 units (98 topics) are authored, schema-valid, bilingual, and resolve static infographic URLs', () => {
     expect(ALL_UNIT_NOTEBOOKS).toHaveLength(25)
@@ -156,4 +158,13 @@ describe('All 25 UPSC Sociology Units Notebook Suite', () => {
     expect(totalPyqsEn).toBe(597)
     expect(totalPyqsHi).toBe(597)
   })
+})
+
+it('recognizes either notebook language as existing topic notes', () => {
+  const root = { type: 'root', direction: null, format: '' as const, indent: 0, version: 1, children: [] }
+  const notebook = { root: { ...root, children: [{ type: 'paragraph', version: 1 }] } }
+
+  expect(hasTopicNotes({ notebookContent: { root } })).toBe(false)
+  expect(hasTopicNotes({ notebookContent: notebook })).toBe(true)
+  expect(hasTopicNotes({ notebookContentHinglish: notebook })).toBe(true)
 })

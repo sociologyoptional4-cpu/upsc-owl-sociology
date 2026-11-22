@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 import { endpoints } from '@/endpoints'
 
-function reviewRequest(body: unknown, existingLayout: unknown[] = [{ blockType: 'summary' }], reviewStatus = 'pending') {
+function reviewRequest(body: unknown, existingLayout: unknown[] = [{ blockType: 'summary' }], reviewStatus = 'pending', docStatus = 'draft') {
   const update = vi.fn(async (args: Record<string, unknown>) => ({ id: 7, ...(args.data as object) }))
-  const findByID = vi.fn(async () => ({ id: 7, layout: existingLayout, reviewStatus }))
+  const findByID = vi.fn(async () => ({ id: 7, layout: existingLayout, reviewStatus, _status: docStatus }))
   const endpoint = endpoints.find(({ path }) => path === '/admin/review/:id')!
   const req = {
     user: { id: 1, role: 'editor' }, routeParams: { id: '7' }, json: async () => body,
@@ -30,7 +30,14 @@ describe('topic review actions', () => {
   it('preserves the existing current-affairs review behavior when kind is omitted', async () => {
     const { handler, req, update } = reviewRequest({ action: 'approve' })
     await handler(req)
-    expect(update).toHaveBeenCalledWith(expect.objectContaining({ collection: 'current-affairs', id: 7, data: expect.objectContaining({ reviewStatus: 'approved' }) }))
+    expect(update).toHaveBeenCalledWith(expect.objectContaining({ collection: 'current-affairs', id: 7, draft: false, data: expect.objectContaining({ reviewStatus: 'approved', _status: 'published' }) }))
+  })
+
+  it('does not offer a published current-affairs item for review', async () => {
+    const { handler, req, update } = reviewRequest({ action: 'approve' }, [], 'pending', 'published')
+    const response = await handler(req)
+    expect(response.status).toBe(409)
+    expect(update).not.toHaveBeenCalled()
   })
 
   it('does not approve a topic without a pending note draft', async () => {
@@ -38,5 +45,25 @@ describe('topic review actions', () => {
     const response = await handler(req)
     expect(response.status).toBe(409)
     expect(update).not.toHaveBeenCalled()
+  })
+})
+
+describe('review queue preview links', () => {
+  it('returns session-authenticated preview links without embedding PREVIEW_SECRET', async () => {
+    const payload = {
+      find: vi.fn(async ({ collection, where }: { collection: string; where: { and: { _status?: { equals: string } }[] } }) => {
+        expect(where.and).toContainEqual({ _status: { equals: 'draft' } })
+        return collection === 'current-affairs'
+          ? { docs: [{ id: 7, headline: 'Current affair draft', date: '2026-11-21', _status: 'draft', aiMeta: {}, sources: [], topics: [], thinkers: [], createdAt: '2026-11-21T00:00:00Z' }] }
+          : { docs: [{ id: 8, title: 'Topic draft', date: '2026-11-21', updatedAt: '2026-11-21T00:00:00Z', createdAt: '2026-11-21T00:00:00Z', reviewStatus: 'pending', _status: 'draft', layout: [{}], unit: { slug: 'unit-1', paper: { slug: 'paper-1' } }, aiMeta: {} }] }
+      }),
+    }
+    const endpoint = endpoints.find(({ path }) => path === '/admin/review-queue')!
+    const response = await endpoint.handler({ user: { role: 'editor' }, payload } as never)
+    const body = await response.json() as { data: { id: number; previewHref: string }[] }
+
+    expect(body.data.find(({ id }) => id === 7)?.previewHref).toBe('/api/preview?collection=current-affairs&id=7')
+    expect(body.data.find(({ id }) => id === 8)?.previewHref).toBe('/api/preview?collection=topics&id=8')
+    expect(JSON.stringify(body)).not.toContain('PREVIEW_SECRET')
   })
 })
