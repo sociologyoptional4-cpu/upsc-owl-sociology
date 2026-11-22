@@ -17,7 +17,7 @@ export const Quizzes: CollectionConfig = {
       { name: 'options', type: 'array', minRows: 4, maxRows: 4, fields: [{ name: 'text', type: 'text', required: true }] },
       { name: 'answerIndex', type: 'number', required: true, min: 0, max: 3 },
       { name: 'explanation', type: 'textarea', required: true },
-      { name: 'caId', type: 'relationship', relationTo: 'current-affairs', required: true },
+      { name: 'caId', type: 'relationship', relationTo: 'current-affairs', admin: { description: 'Optional. Smart paste links the best matching current affair when it finds one.' } },
     ] },
   ],
 }

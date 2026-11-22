@@ -1,4 +1,4 @@
-export type BlogAttachment = { label: string; url: string; sizeKb: number }
+import type { BlogAttachment } from '@/lib/data/types'
 
 const sizeText = (kb: number): string => (kb >= 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(kb))} KB`)
 

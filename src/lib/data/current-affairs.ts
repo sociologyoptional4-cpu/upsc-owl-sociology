@@ -52,7 +52,7 @@ export const getCAArticle = cache(async (date: string, slug: string, preview = f
   ])
   const link = (item: (typeof older.docs)[number] | undefined) => item?.slug ? { href: urls.article(formatDateIST(item.date), item.slug), headline: item.headline } : null
   const card = mapCACard(doc)
-  return { ...card, sources: doc.sources.map(({ name, url }) => ({ name, url })), layout: doc.layout ?? [], prev: link(older.docs[0]), next: link(newer.docs[0]) }
+  return { ...card, seo: { title: doc.seo?.title ?? null, description: doc.seo?.description ?? null }, sources: doc.sources.map(({ name, url }) => ({ name, url })), layout: doc.layout ?? [], prev: link(older.docs[0]), next: link(newer.docs[0]) }
 })
 
 export const getCAStaticParams = cache(async (limit = 100): Promise<{ date: string; slug: string }[]> => {

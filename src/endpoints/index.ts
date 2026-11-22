@@ -5,8 +5,11 @@ import { hasRole } from '@/access/roles'
 import { ingestBatchSchema, reviewActionSchema, type IngestItem } from '@/lib/ingest/schema'
 import { sourceHash } from '@/lib/ingest/hash'
 import { markdownToLexical } from '@/lib/ingest/markdownToLexical'
+import { createCurrentAffairDraft } from '@/lib/ingest/createDraft'
 import { formatDateIST } from '@/lib/data/issue'
 import { blogEndpoints } from './blog'
+import { smartEndpoints } from './smart'
+import { importEndpoints } from './importer'
 import { noteOutputSchema, tablesWithinLimits } from '@/pipeline/notes/schema'
 
 const windows = new Map<string, { start: number; count: number }>()
@@ -21,14 +24,6 @@ const limited = (req: PayloadRequest): boolean => {
   return entry.count > 10
 }
 const fail = (message: string, status = 400) => response(false, null, message, status)
-
-function toLayout(item: IngestItem, req: PayloadRequest): Promise<Record<string, unknown>[]> {
-  return Promise.all(item.layout.map(async (block) => {
-    if (block.blockType !== 'richText') return block as Record<string, unknown>
-    const { markdown, ...rest } = block
-    return { ...rest, content: await markdownToLexical(req.payload, markdown) }
-  }))
-}
 
 async function ingest(req: PayloadRequest): Promise<Response> {
   if (!allowed(req, 'ai-bot', 'admin')) return fail('Unauthorized', 401)
@@ -50,20 +45,7 @@ async function ingest(req: PayloadRequest): Promise<Response> {
       const hash = sourceHash(item.sources[0]!.url)
       const existing = await req.payload.find({ collection: 'current-affairs', where: { sourceHash: { equals: hash } }, limit: 1, overrideAccess: true })
       if (existing.docs.length) { skipped.push({ headline: item.headline, reason: 'duplicate source' }); continue }
-      const [topics, thinkers] = await Promise.all([
-        req.payload.find({ collection: 'topics', where: { slug: { in: item.topicSlugs } }, limit: 100, depth: 0, overrideAccess: true }),
-        req.payload.find({ collection: 'thinkers', where: { slug: { in: item.thinkerSlugs } }, limit: 100, depth: 0, overrideAccess: true }),
-      ])
-      if (topics.docs.length !== new Set(item.topicSlugs).size || thinkers.docs.length !== new Set(item.thinkerSlugs).size) throw new Error('unknown topic or thinker slug')
-      const layout = await toLayout(item, req)
-      const publish = settings.autoPublish === true && item.relevance >= (settings.autoPublishMinRelevance ?? 0.8)
-      const doc = await req.payload.create({ collection: 'current-affairs', draft: !publish, context: { ingestValidated: true }, data: {
-        headline: item.headline, date: `${item.date}T00:00:00.000Z`, paper: item.paper, topics: topics.docs.map((topic) => topic.id),
-        thinkers: thinkers.docs.map((thinker) => thinker.id), sources: item.sources, summary: item.summary, layout: layout as never,
-        isAiGenerated: true, reviewStatus: 'pending', sourceHash: hash, embedding: item.embedding,
-        aiMeta: { model: item.model, promptVersion: item.promptVersion, relevance: item.relevance, costUsd: item.costUsd }, _status: publish ? 'published' : 'draft',
-      } })
-      created.push(Number(doc.id))
+      created.push(await createCurrentAffairDraft(req.payload, item, hash, settings))
     } catch (error) {
       skipped.push({ headline: item.headline, reason: error instanceof Error ? error.message : 'item failed' })
     }
@@ -253,6 +235,8 @@ async function pipelineSpend(req: PayloadRequest): Promise<Response> {
 const endpoint = (path: string, method: Endpoint['method'], handler: Endpoint['handler']): Endpoint => ({ path, method, handler })
 export const endpoints: Endpoint[] = [
   ...blogEndpoints,
+  ...smartEndpoints,
+  ...importEndpoints,
   endpoint('/ingest/batch', 'post', ingest), endpoint('/ingest/notes/next', 'get', nextNoteTopics), endpoint('/ingest/notes', 'post', ingestNote), endpoint('/admin/review-queue', 'get', reviewQueue),
   endpoint('/admin/review/:id', 'post', review), endpoint('/admin/today', 'get', today), endpoint('/admin/coverage', 'get', coverage),
   endpoint('/pipeline/sources', 'get', pipelineSources), endpoint('/pipeline/sources/:id', 'patch', pipelineSources), endpoint('/pipeline/spend', 'get', pipelineSpend),

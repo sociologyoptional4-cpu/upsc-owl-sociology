@@ -341,6 +341,13 @@ export interface CurrentAffair {
    * Card aur SEO description
    */
   summary?: string | null;
+  /**
+   * Khaali ho to headline/summary use hota hai. Smart paste AI se bharta hai.
+   */
+  seo?: {
+    title?: string | null;
+    description?: string | null;
+  };
   reviewStatus?: ('pending' | 'approved' | 'rejected') | null;
   rejectReason?: string | null;
   sourceHash?: string | null;
@@ -571,9 +578,12 @@ export interface Paper {
  */
 export interface Media {
   id: number;
+  /**
+   * Khaali chhodo to file ke naam se bharega. SEO ke liye behtar likho.
+   */
   alt: string;
   /**
-   * Har asset ka license zaroori hai (ASSETS.md policy).
+   * Har asset ka license zaroori hai (ASSETS.md policy). PDF public hoti hai, private handout mat daalo (D15).
    */
   license: 'own' | 'public-domain' | 'cc0' | 'cc-by' | 'cc-by-sa' | 'other';
   /**
@@ -751,9 +761,9 @@ export interface PipelineRun {
     | null;
   promptVersion?: string | null;
   /**
-   * Which job wrote this ledger row (blog = organizer / beautifier).
+   * Which job wrote this ledger row (blog = organizer / beautifier, smart-paste = owner paste in the writing desk).
    */
-  kind?: ('daily-ca' | 'notes' | 'digest' | 'quiz' | 'blog') | null;
+  kind?: ('daily-ca' | 'notes' | 'digest' | 'quiz' | 'blog' | 'smart-paste') | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -800,7 +810,10 @@ export interface Quiz {
           | null;
         answerIndex: number;
         explanation: string;
-        caId: number | CurrentAffair;
+        /**
+         * Optional. Smart paste links the best matching current affair when it finds one.
+         */
+        caId?: (number | null) | CurrentAffair;
         id?: string | null;
       }[]
     | null;
@@ -845,6 +858,16 @@ export interface Post {
    * Markdown paste karke Save karo: content mein badal jayega (khali ho to replace, warna neeche jodega). Yeh field store nahi hota.
    */
   importMarkdown?: string | null;
+  /**
+   * Reader ko "Notes download karo" box mein dikhega. PDF public hoti hai.
+   */
+  attachments?:
+    | {
+        file: number | Media;
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
   category?: (number | null) | BlogCategory;
   tags?: (number | BlogTag)[] | null;
   papers?: (number | Paper)[] | null;
@@ -1293,6 +1316,12 @@ export interface CurrentAffairsSelect<T extends boolean = true> {
         id?: T;
       };
   summary?: T;
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+      };
   reviewStatus?: T;
   rejectReason?: T;
   sourceHash?: T;
@@ -1677,6 +1706,13 @@ export interface PostsSelect<T extends boolean = true> {
   cover?: T;
   content?: T;
   importMarkdown?: T;
+  attachments?:
+    | T
+    | {
+        file?: T;
+        label?: T;
+        id?: T;
+      };
   category?: T;
   tags?: T;
   papers?: T;

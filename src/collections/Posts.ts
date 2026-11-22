@@ -44,6 +44,14 @@ export const Posts: CollectionConfig = {
       label: 'ChatGPT se paste (Markdown)',
       admin: { description: 'Markdown paste karke Save karo: content mein badal jayega (khali ho to replace, warna neeche jodega). Yeh field store nahi hota.' },
     },
+    {
+      name: 'attachments', type: 'array', maxRows: 6, label: 'Notes PDF (download)',
+      admin: { description: 'Reader ko "Notes download karo" box mein dikhega. PDF public hoti hai.' },
+      fields: [
+        { name: 'file', type: 'upload', relationTo: 'media', required: true, filterOptions: { mimeType: { equals: 'application/pdf' } } },
+        { name: 'label', type: 'text', required: true, maxLength: 120 },
+      ],
+    },
     { name: 'category', type: 'relationship', relationTo: 'blog-categories', admin: { position: 'sidebar' } },
     { name: 'tags', type: 'relationship', relationTo: 'blog-tags', hasMany: true, maxRows: 8, admin: { position: 'sidebar' } },
     {

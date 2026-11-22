@@ -17,6 +17,9 @@ export const blogBlockSchema = z.discriminatedUnion('blockType', [
   z.object({ blockType: z.literal('flow'), direction: z.enum(['horizontal', 'vertical']).default('horizontal'), steps: z.array(z.object({ label: text(60), text: text(160).optional() })).min(2).max(8) }),
   z.object({ blockType: z.literal('keyTerm'), term: text(80), meaning: text(500), thinkerSlug: z.string().regex(/^[a-z0-9-]+$/).optional() }),
   z.object({ blockType: z.literal('answerBox'), intro: text(500), points: z.array(z.object({ text: text(400) })).min(1).max(8), conclusion: text(500) }),
+  // Owner-only blocks (image ids come from the media library; the AI never emits them).
+  z.object({ blockType: z.literal('infographic'), image: z.number().int().positive(), title: text(120), caption: text(200).optional(), credit: text(160).optional(), downloadable: z.boolean().default(true) }),
+  z.object({ blockType: z.literal('gallery'), images: z.array(z.object({ image: z.number().int().positive(), caption: text(200).optional() })).min(2).max(12), columns: z.enum(['2', '3']).default('2') }),
 ])
 
 export type BlogBlockInput = z.infer<typeof blogBlockSchema>

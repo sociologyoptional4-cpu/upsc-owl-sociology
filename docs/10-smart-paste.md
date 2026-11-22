@@ -23,7 +23,7 @@ Response `{ success, data: { quizId, adminUrl, added: number, flags: { index, ki
 Request `{ "text": string, "url"?: string, "sourceName"?: string, "date"?: "YYYY-MM-DD" }`.
 Server pipeline (reuse, do not rebuild): DeepSeek scorer (`scorer.v1.md`) → paper, relevance, candidate topic slugs; OpenAI writer (`writer.v1.md` + `style-guide.md`) writes an `IngestItem` **in the site's own words** (pasted text is source material, never copied; reuse `src/pipeline/notes/copy-guard.ts` rules); slugs validated against DB topics/thinkers exactly like `/api/ingest/batch`. `sources`: given `url`, else first http(s) URL found in `text`, else `{ name: "Apna note", url: SITE_URL }`. `sourceHash` = existing `sourceHash(url)`; with the fallback source it is the sha256 of the normalised text instead. Duplicate hash → **409** with the existing id. Embedding computed with the existing embeddings call. Doc is created through ONE shared function extracted from `ingest()` in `src/endpoints/index.ts` (`createCurrentAffairDraft`), so both paths behave identically: `_status draft`, `reviewStatus pending`, `isAiGenerated true`, `aiMeta` filled, forceBotDrafts untouched.
 Response `{ success, data: { id, adminUrl, headline, topics: string[], thinkers: string[], warnings: string[] }, error }` (`warnings` e.g. "Source link nahi mila, 'Apna note' lagaya").
-Cost/budget: same `site-settings.pipelineEnabled` + `maxDailyUsd` gate, same `pipeline-runs` ledger with new `kind: "smart-paste"`.
+Cost/budget (as built): only the `site-settings.maxDailyUsd` daily cap applies (the `pipelineEnabled` switch is for the automated jobs, not for the owner's manual paste); every paste writes one `pipeline-runs` row with `kind: "smart-paste"`.
 
 ### C7 · Automatic SEO + indexing
 - `current-affairs.seo` group `{ title ≤ 60, description 120-160 }` (additive migration). Writer output adds `seoTitle`/`seoDescription`; frontend `generateMetadata` for CA pages prefers them over headline/summary when present.
@@ -40,3 +40,10 @@ Writing desk gets two more cards: **06 Quiz paste**, **07 Current affair paste**
 4. Publishing a CA from the Review Queue pings IndexNow once; `/sitemap.xml` lists it after revalidation.
 5. `/practice` renders a quiz item with `caId: null` without error.
 6. tsc, eslint, unit, build green; existing ingest, quiz and review flows unchanged.
+
+
+## 4. As built (2026-11-22, Claude)
+- Code: `src/lib/smart/**`, `src/endpoints/smart.ts`, shared `src/lib/ingest/createDraft.ts` (also used by `/api/ingest/batch`), prompts `src/pipeline/llm/prompts/smart-*.md`.
+- Quiz parse retries once with a repair hint; CA writer retries once with a concrete rewrite hint (copy-guard). Real-model proof on local keys: quiz 3/3 items parsed, CA 3/3 drafts created (~$0.006 each), AI SEO ok.
+- Prompts are bundled for Vercel via `outputFileTracingIncludes` in `next.config.ts`.
+- Known limits: story matching needs published/draft current affairs of the last 7 days (else `caId` stays empty and is flagged); a model that mislabels `answerGiven` can hide a guessed answer, so always glance at the answers.

@@ -73,3 +73,9 @@ Every card shows progress, a clear Hinglish error, and never loses the typed tex
 5. Re-importing the same file returns 409 with the existing post link.
 6. Anonymous users get 401/403 on `/api/blog/import` and cannot read drafts or attachments of drafts.
 7. tsc, eslint, unit, build green; existing blog, CA, notes, `/admin/seo` untouched.
+
+
+## 6. As built (2026-11-22, Claude took over B1/B2)
+- Done: media alt auto-fill + size limits + PDF upload (`src/lib/mediaRules.ts`, `Media.ts`), `infographic`/`gallery` blocks + resolver, `POST /api/blog/import` (markdown, html, .md/.txt/.html/.docx/.pdf, images, optional PDF attach), `posts.attachments` (+ migration), public `AttachmentList`, desk cards 01-07.
+- Not done (B2 hardening, still open): idempotent FAQ/tag/link apply (409 on re-apply), session-based preview instead of `PREVIEW_SECRET` in URLs, staff-only read of `current-affairs` AI fields (`embedding`, `aiMeta`), shared rate-limit helper replacing the two old copies. The import endpoint itself calls no AI; after the draft is saved the normal blog organizer job fills empty SEO fields (D16).
+- Server-side WebP re-encode was dropped: `resizeOptions` caps new uploads at 2000 px width instead.
