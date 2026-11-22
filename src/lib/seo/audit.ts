@@ -62,8 +62,8 @@ export function auditPost(post: PostSeoInput): AuditIssue[] {
   const out: AuditIssue[] = []
 
   const title = (post.seoTitle || post.title).trim()
-  if (title.length > TITLE_MAX) out.push(issue('post.title.length', 'warn', `SEO title ${title.length} chars ka hai`, `Google ${TITLE_MAX} chars ke baad kaat deta hai. Chhota karo.`))
-  if (title.length < 20) out.push(issue('post.title.length', 'warn', 'SEO title bahut chhota hai', 'Topic + "UPSC Sociology" jaise keywords ke saath 30-60 chars rakho.'))
+  if (title.length > TITLE_MAX) out.push(issue('post.title.length', 'warn', `SEO title ${title.length} chars ka hai`, `Search result title width ke hisaab se truncate ho sakta hai. Lagbhag ${TITLE_MAX} chars ek editorial guideline hai.`))
+  if (title.length < 20) out.push(issue('post.title.length', 'warn', 'SEO title bahut chhota ho sakta hai', 'Topic ko clearly batao. Koi fixed minimum nahi; roughly 30-60 chars ek common editorial target hai.'))
 
   const description = (post.seoDescription || post.excerpt || '').trim()
   if (!description) {
@@ -77,11 +77,11 @@ export function auditPost(post: PostSeoInput): AuditIssue[] {
   else if (!title.toLowerCase().includes(keyword.toLowerCase())) out.push(issue('post.keyword.title', 'warn', 'Focus keyword title mein nahi hai', `"${keyword}" ko SEO title mein daalo.`))
 
   if (post.noindex) out.push(issue('post.noindex', 'warn', 'Post noindex hai', 'Google ise index nahi karega. Jaanbujhkar nahi kiya to SEO tab mein noindex hatao.'))
-  if (post.wordCount < THIN_WORDS) out.push(issue('post.thin', 'warn', `Sirf ${post.wordCount} shabd`, `${THIN_WORDS}+ shabd likho, warna Google ise thin content maanta hai.`))
+  if (post.wordCount < THIN_WORDS) out.push(issue('post.thin', 'warn', `Sirf ${post.wordCount} shabd`, `Question ka poora, useful jawab do. ${THIN_WORDS} shabd sirf editorial heuristic hai; Google ki fixed minimum word count nahi.`))
   if (post.topicCount === 0) out.push(issue('post.topics', 'warn', 'Syllabus topic link nahi hai', 'Topic jodo: isse topic page aur blog ek-doosre ko link karte hain.'))
   if (post.tagCount === 0) out.push(issue('post.tags', 'info', 'Koi tag nahi', '2-4 tags lagao.'))
-  if (post.faqCount === 0) out.push(issue('post.faq', 'info', 'FAQ nahi hai', '2-3 FAQ jodo: Google result mein FAQ box aa sakta hai.'))
-  if (!post.hasCover) out.push(issue('post.cover', 'info', 'Cover image nahi hai', 'Branded OG image apne aap banti hai, par cover se click-through badhta hai.'))
+  if (post.faqCount === 0) out.push(issue('post.faq', 'info', 'FAQ nahi hai', 'Common reader questions ka jawab FAQ mein do. Google FAQ rich results sirf kuch sites par dikhata hai; guarantee nahi.'))
+  if (!post.hasCover) out.push(issue('post.cover', 'info', 'Cover image nahi hai', 'Cover image social sharing preview ko branded banati hai; OG image ka fallback pehle se hai.'))
   return out
 }
 
@@ -93,7 +93,7 @@ export function auditSite(site: SiteSeoInput): AuditIssue[] {
     out.push(issue('site.url', 'error', 'SITE_URL production URL nahi hai', 'Vercel env mein SITE_URL apna asli domain set karo (sitemap, canonical, OG isi se bante hain).'))
   }
   if (site.publishedPosts === 0) {
-    out.push(issue('site.posts.none', 'error', 'Ek bhi blog post publish nahi hua', 'Pehle 3-4 posts publish karo. Bina content ke SEO kuch nahi karega.', '/admin/collections/posts/create'))
+    out.push(issue('site.posts.none', 'error', 'Ek bhi blog post publish nahi hua', 'Blog ko index karwana hai to useful posts publish karo. Site ke dusre pages alag se index ho sakte hain.', '/admin/collections/posts/create'))
   }
   if (!site.googleVerified) out.push(issue('site.google', 'warn', 'Google Search Console verify nahi hua', 'GSC mein "HTML tag" verification lo, content ko GOOGLE_SITE_VERIFICATION env mein daalo, phir sitemap submit karo.'))
   if (!site.bingVerified) out.push(issue('site.bing', 'warn', 'Bing Webmaster verify nahi hua', 'BING_SITE_VERIFICATION env daalo. (GSC se import bhi kar sakte ho.)'))
@@ -101,7 +101,7 @@ export function auditSite(site: SiteSeoInput): AuditIssue[] {
   if (!site.cronSecret) out.push(issue('site.cron', 'warn', 'CRON_SECRET nahi hai', 'Bina iske blog jobs (AI SEO bharna, scheduled publish) nahi chalenge.'))
   if (site.draftPosts > 0) out.push(issue('site.drafts', 'info', `${site.draftPosts} blog draft publish ka intezaar kar rahe hain`, 'Review karke publish karo.', '/admin/collections/posts'))
   if (site.totalTopics > 0 && site.publishedTopicNotes < site.totalTopics) {
-    out.push(issue('site.topics.empty', 'info', `${site.totalTopics - site.publishedTopicNotes} topics ke notes abhi khaali hain`, 'Khaali topic pages thin content hain. Roz ke AI notes inhe bharte jayenge.', '/admin/review'))
+    out.push(issue('site.topics.empty', 'info', `${site.totalTopics - site.publishedTopicNotes} topics ke notes abhi khaali hain`, 'In topics par useful notes jodo; helpful coverage aur internal links improve honge.', '/admin/review'))
   }
   return out
 }

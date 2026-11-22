@@ -13,9 +13,10 @@ Phase 0 ✅ committed → Phase 1 ✅ → **Phase 2 automation** (implementation
 | B2 import + hardening | Codex (GPT-6) | see `docs/tasks/B2-blog-import-hardening.md` (claims itself on start) | pending |
 
 ## Next up
-1. Review the two production topic-note drafts after admin setup; production syllabus and PYQs are imported.
-2. User creates the first admin from the production `/admin` welcome screen.
-3. After admin setup, Codex creates the production draft-only `ai-bot` account/key, adds the key as the final GitHub Actions secret, then dispatches `daily-ca` with `dry_run=true`.
+1. Review the SEO audit wording follow-up PR.
+2. Review the two production topic-note drafts after admin setup; production syllabus and PYQs are imported.
+3. User creates the first admin from the production `/admin` welcome screen.
+4. After admin setup, Codex creates the production draft-only `ai-bot` account/key, adds the key as the final GitHub Actions secret, then dispatches `daily-ca` with `dry_run=true`.
 
 ## Blockers / waiting on user
 - Task 16-lite is live at `https://upsc-owl-sociology.vercel.app`; production migrations applied and `/`, `/current-affairs`, and `/admin` returned 200. Security headers are present. Supabase project `fhcnbuhlfzcuyhpkjddg` has the public `media` bucket and verified TLS pooler configuration.
@@ -32,6 +33,7 @@ Phase 0 ✅ committed → Phase 1 ✅ → **Phase 2 automation** (implementation
 - UPSC OWL Sociology content-generation providers: OpenAI API for writing and DeepSeek API for scoring/filtering; do not use Anthropic API. This is distinct from historical Claude Code UI/design role references.
 
 ## Completed
+- SEO Control Center was added to `main` in commit `bea1997`. Codex follow-up clarifies editorial heuristics and avoids promising Google ranking or rich-result behavior; review PR is pending.
 - Rich-text tables enabled in Payload and Markdown ingestion; Python HTML-to-Markdown helper added with pinned `markdownify` dependency.
 - Phase 2 code: Tasks 05–08; Task 08 reactivated for C2 by D15. Quiz/digest UI source has no nested `<main>`; the shared frontend layout provides the single main landmark.
 - Task C2 commits created locally in sequence: Tasks 05, 07, 06, 08, plus the draft-preview/async-guard follow-through. At that stage the workflow, remote, and Actions secrets were not yet installed; Task 16-lite has since configured them.
