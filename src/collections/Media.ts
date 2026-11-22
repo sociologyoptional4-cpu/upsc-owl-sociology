@@ -3,6 +3,7 @@ import { APIError, type CollectionBeforeValidateHook, type CollectionConfig } fr
 import { isStaff } from '@/access/roles'
 import { validateHref } from '@/lib/href'
 import { deriveAlt, uploadSizeError } from '@/lib/mediaRules'
+import { resolveStaticMediaUrl } from '@/lib/notes/static-media'
 
 /** Paste/upload without a form: fill alt from the filename and enforce size limits (docs/09 C1). */
 const prepareUpload: CollectionBeforeValidateHook = ({ data, req, operation }) => {
@@ -32,6 +33,11 @@ export const Media: CollectionConfig = {
   hooks: {
     beforeValidate: [prepareUpload],
     afterRead: [({ doc }) => {
+      const staticUrl = resolveStaticMediaUrl(doc.filename)
+      if (staticUrl) {
+        const staticSizes = Object.fromEntries(Object.entries(doc.sizes ?? {}).map(([name, size]) => [name, size && typeof size === 'object' ? { ...size, url: staticUrl } : size]))
+        return { ...doc, url: staticUrl, sizes: doc.sizes ? staticSizes : doc.sizes }
+      }
       const publicBase = process.env.S3_PUBLIC_URL?.replace(/\/$/, '')
       if (!publicBase) return doc
       const publicPath = (filename?: string | null) => filename ? `${publicBase}/${filename}` : null

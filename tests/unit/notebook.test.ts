@@ -2,10 +2,12 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
+import { ALL_UNIT_NOTEBOOKS } from '@/data/notes'
 import { unit01Notebook } from '@/data/notes/unit-01'
 import type { LexNode } from '@/lib/blog/text'
 import { applyNotebookMarkup } from '@/lib/notes/notebook-builder'
 import { mindMapDataSchema, type NotebookSection, unitNotebookSpecSchema } from '@/lib/notes/notebook-types'
+import { resolveStaticMediaUrl } from '@/lib/notes/static-media'
 import { mapPyqToTopic } from '../../scripts/pyq/mapping'
 import { parsePyqJsonl } from '../../scripts/pyq/read-data'
 
@@ -113,5 +115,45 @@ describe('Unit 1 bilingual notebook spec and PYQ mapping', () => {
   it('maps C.W. Mills Sociological Imagination PYQ to sociology-and-common-sense', () => {
     const q = '"The sociological imagination enables us to grasp history and biography and the relationship between the two in a society.” – C.W.Mills. Explain.'
     expect(mapPyqToTopic(1, q)).toBe('sociology-and-common-sense')
+  })
+})
+
+describe('All 25 UPSC Sociology Units Notebook Suite', () => {
+  it('validates that all 25 units (98 topics) are authored, schema-valid, bilingual, and resolve static infographic URLs', () => {
+    expect(ALL_UNIT_NOTEBOOKS).toHaveLength(25)
+
+    const allTopics = ALL_UNIT_NOTEBOOKS.flatMap((u) => u.topics)
+    expect(allTopics).toHaveLength(98)
+
+    let totalPyqsEn = 0
+    let totalPyqsHi = 0
+
+    for (const unit of ALL_UNIT_NOTEBOOKS) {
+      const parsed = unitNotebookSpecSchema.safeParse(unit)
+      expect(parsed.success).toBe(true)
+      expect(mindMapDataSchema.safeParse(unit.mindMap).success).toBe(true)
+      expect(mindMapDataSchema.safeParse(unit.mindMapHinglish).success).toBe(true)
+
+      for (const info of unit.infographics) {
+        const assetPath = path.resolve(process.cwd(), 'public/assets/infographics', info.assetFile)
+        expect(fs.existsSync(assetPath)).toBe(true)
+        expect(resolveStaticMediaUrl(info.assetFile)).toBe(`/assets/infographics/${info.assetFile}`)
+        expect(info.titleHinglish.length).toBeGreaterThan(0)
+      }
+
+      for (const topic of unit.topics) {
+        expect(mindMapDataSchema.safeParse(topic.mindMap).success).toBe(true)
+        expect(mindMapDataSchema.safeParse(topic.mindMapHinglish).success).toBe(true)
+        checkSections(topic.sections)
+        checkSections(topic.sectionsHinglish)
+
+        totalPyqsEn += topic.pyqAnswers.length
+        totalPyqsHi += topic.pyqAnswersHinglish.length
+        expect(topic.pyqAnswers.length).toBe(topic.pyqAnswersHinglish.length)
+      }
+    }
+
+    expect(totalPyqsEn).toBe(597)
+    expect(totalPyqsHi).toBe(597)
   })
 })

@@ -1,6 +1,6 @@
 # Project state
 
-_Last updated: 2026-11-22 by Codex (GPT-5.6)_
+_Last updated: 2026-11-22 by Gemini (Antigravity)_
 
 ## Phase
 Phase 0 ✅ committed → Phase 1 ✅ → **Phase 2 automation** (implementation complete; acceptance soak pending).
@@ -31,6 +31,7 @@ Phase 0 ✅ committed → Phase 1 ✅ → **Phase 2 automation** (implementation
 - UPSC OWL Sociology content-generation providers: OpenAI API for writing and DeepSeek API for scoring/filtering; do not use Anthropic API. This is distinct from historical Claude Code UI/design role references.
 
 ## Completed
+- All 25 UPSC Sociology Units + Static Media Fix (`T01`–`T25` on `main`): Authored, validated (`npx tsx scripts/notes/validate-units.ts` 25/25 units, 98/98 topics, 0 errors), and synced all 25 units (98 topics EN+HI, 597 bilingual solved PYQs, 52 WebP infographics) to Production Supabase Postgres; added `src/lib/notes/static-media.ts` + `Media.afterRead` static `/assets/...` resolution so repo infographics and portraits serve directly from Vercel CDN; updated Vercel Production `DATABASE_URL`.
 - Production repo content import completed: 8 thinker profiles, 7 portraits, 11 media records, 3 bilingual Unit 1 chapters and 25 solved PYQs. Mac-only content awaits export.
 - Task U01-bilingual (English Priority + Hinglish Toggle & Deep Explanations): Added strictly additive bilingual columns on `Units`/`Topics` + migration `20261122_012115_bilingual_notes`; built `NoteLanguageContext`, prominent `LanguageSwitch` (`banner` + sticky `compact`), `BilingualUnitShell`, and `BilingualTopicShell` defaulting to English Notes with instant client-side Hinglish switching; rewrote & expanded Unit 1 (`sociology-the-discipline`, all 3 chapters, 4 mind maps, 4 infographics, and 25 PYQ answers) in pure English primary + enriched Hinglish with plain-language conceptual walkthroughs; verified idempotent double upload and live HTTP 200 on all Unit 1 routes.
 - Task U01-notes (Stage 0 Notebook Engine + Paper 1 Unit 1): Built reusable Notion-style Hinglish study engine (`notebook-types`, `notebook-builder`, `resolve-blocks`, `ColorLegend`, `MindMap`, `InfographicGallery`, `PyqAnswerAccordion`, unit hub + chapter views with TOC & prev/next pager), `docs/tasks/25-units-notes-plan.md` (T01 ✅ Done, T02–T25 planned), C.W. Mills PYQ mapping fix, additive migration `20261122_005300_notebook_notes_visuals`, and uploaded Unit 1 (`sociology-the-discipline`: 3 chapters, 4 WebP infographics, 4 mind maps, all 25 solved 2013–2025 PYQs) idempotently to local Postgres.

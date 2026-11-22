@@ -330,3 +330,11 @@
 ## 2026-11-22 · Codex · Production content importer cleanup
 - Added the missing M. N. Srinivas profile from seed data and completed the authenticated production import. Verified 8 thinkers, 7 portraits, 11 Media records, 3 bilingual Unit 1 chapters, 25 solved PYQs, and 1 corrected PYQ link.
 - Removed the temporary admin page and POST endpoint. Mac-only content still awaits a reviewed export.
+
+## 2026-11-22 16:35 · Gemini (Antigravity) · Tasks T01–T25 Full Syllabus Push & Production Sync
+- Did: Completed & committed all 25 bilingual UPSC Sociology units (`unit-01` through `unit-25`, 98 topics, 597 solved PYQs in English + Roman-script Hinglish) and all 52 WebP infographics (`public/assets/infographics/*.webp`) cleanly onto `main`. Added `src/lib/notes/static-media.ts` and wired `Media.afterRead` so repo-shipped infographics and thinker portraits resolve directly to Vercel CDN `/assets/...` paths instead of missing Supabase Storage keys. Hardened `scripts/notes/upload-unit.ts` filename matching (`overwriteExistingFiles: true`), uploaded all 25 units to Production Supabase Postgres, and updated Vercel Production `DATABASE_URL`.
+- Files: `src/data/notes/index.ts`, `src/data/notes/unit-02`..`unit-25`, `src/lib/notes/static-media.ts`, `src/collections/Media.ts`, `public/assets/infographics/*.webp`, `scripts/notes/*`, `ASSETS.md`, `docs/tasks/25-units-notes-plan.md`, `tests/unit/notebook.test.ts`, `docs/memory/{STATE,LOG}.md`.
+- Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-06, memory)
+- Checks: `validate-units.ts` ✓ (25/25 units, 98/98 topics, 0 errors), `tsc --noEmit` ✓, `eslint` ✓, `test:unit` ✓ (28/28 files, 185/185 tests), `next build` ✓ (177/177 static pages).
+- Contract changes: none (`Media.afterRead` resolves repo static assets before S3 rewrite).
+- Open issues / proposals: none.
