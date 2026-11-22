@@ -16,6 +16,7 @@ Ek **dynamic, AI-automated** UPSC Sociology Optional website. Roz subah AI curre
 | 6 | [06-roadmap.md](06-roadmap.md) | Phases, deliverables, acceptance checks, risks, open decisions |
 | 7 | [07-blog-platform.md](07-blog-platform.md) | Blog add-on: editor, rich blocks, AI organizer/beautifier, SEO basics |
 | 8 | [08-seo-growth.md](08-seo-growth.md) | SEO growth: Search Console, redirects, site health, content intelligence, calendar |
+| 9 | [09-blog-writing-desk.md](09-blog-writing-desk.md) | Daily blog workflow: paste, notes upload, infographics, image posts, writing desk |
 
 ## Ek line mein architecture
 

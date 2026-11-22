@@ -12,6 +12,9 @@
 | 02 | [Thinker portraits (licensed cut-outs)](02-codex-assets-thinkers.md) | Antigravity · Gemini 3.8 Flash | 01 Part A | ✅ Done |
 | R1 | [Review Task 01](R1-review-task01.md) | Antigravity · Claude Sonnet 5.5 | 01 | ⏳ |
 | 03 | Phase 1 UI: Home, CA, Syllabus, Topic, Thinker views + motion | Claude Code (main) | 01, R1 | ✅ Done |
+| B1 | [Blog media + blocks](B1-blog-media-blocks.md) | Antigravity · Gemini 4 Neon | — | 🟢 Ready |
+| B2 | [Blog import + hardening](B2-blog-import-hardening.md) | Codex · 6.0 | — | 🟢 Ready |
+| B3 | Writing desk + reader UI + integration | Claude Code (main) | B1, B2 contracts | 🔵 |
 
 Status: 🟢 Ready · 🔵 In progress · ✅ Done · ⏳ Waiting · ✂️ Cut
 

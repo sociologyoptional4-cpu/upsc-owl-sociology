@@ -62,7 +62,10 @@ Har prompt paste-ready hai. Har agent pehle [AGENTS.md](../../AGENTS.md) padhta 
 | 07 | Blog platform (editor, AI organizer/beautifier, SEO basics) | Antigravity + Codex review | ✅ code; prod smoke pending | [07](../07-blog-platform.md) |
 | SEO-CC | `/admin/seo` SEO Control Center v1 | Claude | ✅ `bea1997` | — |
 | U3 | **Tumhara kaam:** GSC verify + service account ([docs/08 §10](../08-seo-growth.md#10-owners-one-time-gsc-setup-hinglish)) | Tum | 🟢 | — |
-| S1 | SEO growth: audit, redirects, Search Console, site health, content intelligence, calendar | Codex 6.0 / Antigravity Opus 5.5 | 🟢 | [S1](S1-seo-growth.md) |
+| S1 | SEO growth: audit, redirects, Search Console, site health, content intelligence, calendar | Codex 6.0 / Antigravity Opus 5.5 | ⏳ B2 ke baad | [S1](S1-seo-growth.md) |
+| B1 | Blog media paste + infographic/gallery blocks | Antigravity · Gemini 4 Neon | 🟢 | [B1](B1-blog-media-blocks.md) |
+| B2 | Blog import (notes → draft), attachments, hardening, prod smoke | Codex 6.0 | 🟢 | [B2](B2-blog-import-hardening.md) |
+| B3 | Writing desk `/admin/write` + infographic/gallery/attachment UI + integration + daily guide | Claude | 🔵 | [docs/09](../09-blog-writing-desk.md) |
 
 ## Cut / baad mein (D14): inke prompts mat chalana
 - R1 review (RF final review sab cover karega)

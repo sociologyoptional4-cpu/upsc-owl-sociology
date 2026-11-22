@@ -8,7 +8,9 @@ Phase 0 ✅ committed → Phase 1 ✅ → **Phase 2 automation** (implementation
 ## Active (claim files before you start)
 | Task | Agent (model) | Claimed files/dirs | Started |
 |------|---------------|--------------------|---------|
-_(none)_
+| B3 writing desk (Claude, design) | Claude (Opus 5.5) | `src/components/admin/write/**`, `src/components/blog/{InfographicBlock,GalleryBlock,AttachmentList}.tsx`, `src/components/blog/blog.css`, `src/components/blog/BlogRichText.tsx`, `src/components/admin/OwlDashboard.tsx`, `src/payload.config.ts` (views only), `src/app/(payload)/admin/importMap.js`, `src/components/blog/{Lightbox,MediaBlocks}.tsx`, `tests/unit/blog-media-ui.test.ts`, `docs/ops/blog-daily.md` | 2026-11-22 |
+| B1 media + blocks | Antigravity (Gemini 4 Neon) | see `docs/tasks/B1-blog-media-blocks.md` (claims itself on start) | pending |
+| B2 import + hardening | Codex (GPT-6) | see `docs/tasks/B2-blog-import-hardening.md` (claims itself on start) | pending |
 
 ## Next up
 1. Review the two production topic-note drafts after admin setup; production syllabus and PYQs are imported.

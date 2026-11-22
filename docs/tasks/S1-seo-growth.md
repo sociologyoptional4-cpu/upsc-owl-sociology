@@ -1,6 +1,6 @@
 # Task S1: SEO growth layer (audit → GSC → site health → content → calendar)
 
-**Kaun:** Codex 6.0 (ya Antigravity Claude Opus 5.5) · **Kab:** blog (07) prod smoke ke baad · **Spec:** [docs/08-seo-growth.md](../08-seo-growth.md)
+**Kaun:** Codex 6.0 (ya Antigravity Claude Opus 5.5) · **Kab:** B2 (blog import, Posts.ts + migration) ke BAAD, kyunki dono `Posts.ts` aur migrations chhute hain · **Spec:** [docs/08-seo-growth.md](../08-seo-growth.md)
 **Tumhara kaam pehle:** `docs/08` §10 ka GSC setup (service account). Iske bina bhi M0-M3 chal jayenge; M2 sirf setup screen dikhayega.
 
 ````text
