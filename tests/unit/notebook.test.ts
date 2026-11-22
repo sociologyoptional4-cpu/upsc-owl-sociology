@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 
 import { unit01Notebook } from '@/data/notes/unit-01'
 import type { LexNode } from '@/lib/blog/text'
+import { hasTopicNotes } from '@/lib/notes/has-topic-notes'
 import { applyNotebookMarkup } from '@/lib/notes/notebook-builder'
 import { mindMapDataSchema, type NotebookSection, unitNotebookSpecSchema } from '@/lib/notes/notebook-types'
 import { mapPyqToTopic } from '../../scripts/pyq/mapping'
@@ -114,4 +115,13 @@ describe('Unit 1 bilingual notebook spec and PYQ mapping', () => {
     const q = '"The sociological imagination enables us to grasp history and biography and the relationship between the two in a society.” – C.W.Mills. Explain.'
     expect(mapPyqToTopic(1, q)).toBe('sociology-and-common-sense')
   })
+})
+
+it('recognizes either notebook language as existing topic notes', () => {
+  const root = { type: 'root', direction: null, format: '' as const, indent: 0, version: 1, children: [] }
+  const notebook = { root: { ...root, children: [{ type: 'paragraph', version: 1 }] } }
+
+  expect(hasTopicNotes({ notebookContent: { root } })).toBe(false)
+  expect(hasTopicNotes({ notebookContent: notebook })).toBe(true)
+  expect(hasTopicNotes({ notebookContentHinglish: notebook })).toBe(true)
 })

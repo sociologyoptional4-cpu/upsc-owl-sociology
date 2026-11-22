@@ -1,5 +1,7 @@
 import type { Payload } from 'payload'
 
+import { hasTopicNotes } from '@/lib/notes/has-topic-notes'
+
 import { countWords, lexicalToPlain, type LexRoot } from '@/lib/blog/text'
 import { buildSeoReport, type PostSeoInput, type SeoReport, type SiteSeoInput } from '@/lib/seo/audit'
 
@@ -11,7 +13,7 @@ export async function loadSeoReport(payload: Payload): Promise<SeoReport & { pos
   const [posts, drafts, topics] = await Promise.all([
     payload.find({ collection: 'posts', where: { _status: { equals: 'published' } }, limit: 500, depth: 0, draft: false, overrideAccess: true }),
     payload.count({ collection: 'posts', where: { _status: { equals: 'draft' } }, overrideAccess: true }),
-    payload.find({ collection: 'topics', where: { _status: { equals: 'published' } }, limit: 500, depth: 0, draft: false, select: { layout: true }, overrideAccess: true }),
+    payload.find({ collection: 'topics', where: { _status: { equals: 'published' } }, limit: 500, depth: 0, draft: false, select: { layout: true, notebookContent: true, notebookContentHinglish: true }, overrideAccess: true }),
   ])
 
   const inputs: PostSeoInput[] = posts.docs.map((post) => ({
@@ -38,7 +40,7 @@ export async function loadSeoReport(payload: Payload): Promise<SeoReport & { pos
     cronSecret: Boolean(process.env.CRON_SECRET),
     publishedPosts: posts.totalDocs,
     draftPosts: drafts.totalDocs,
-    publishedTopicNotes: topics.docs.filter((t) => len(t.layout) > 0).length,
+    publishedTopicNotes: topics.docs.filter(hasTopicNotes).length,
     totalTopics: topics.totalDocs,
   }
   return { ...buildSeoReport(site, inputs), posts: inputs.length }
