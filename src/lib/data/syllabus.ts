@@ -53,11 +53,16 @@ function parsePyqAnswers(raw: Topic['pyqAnswers']): PyqAnswerItem[] {
   })
 }
 
+function normalizeMediaUrl(url: string | null | undefined): string {
+  if (!url) return ''
+  return url.replace(/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?/, '')
+}
+
 function mapUnitInfographics(raw: Unit['infographics']): UnitInfographic[] {
   if (!Array.isArray(raw)) return []
   return raw.flatMap((row) => {
     const media = isDoc<Media>(row.image) ? row.image : null
-    const url = media?.url || row.staticSrc || ''
+    const url = row.staticSrc || normalizeMediaUrl(media?.url)
     if (!url) return []
     return [{
       title: row.title,

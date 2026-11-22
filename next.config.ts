@@ -9,7 +9,11 @@ const dirname = path.dirname(__filename)
 
 const nextConfig: NextConfig = {
   images: {
-    remotePatterns: env.S3_PUBLIC_URL ? [{ protocol: 'https', hostname: new URL(env.S3_PUBLIC_URL).hostname, pathname: '/storage/v1/object/public/**' }] : [],
+    remotePatterns: [
+      ...(env.S3_PUBLIC_URL ? [{ protocol: 'https' as const, hostname: new URL(env.S3_PUBLIC_URL).hostname, pathname: '/storage/v1/object/public/**' }] : []),
+      { protocol: 'http' as const, hostname: 'localhost', pathname: '/api/media/file/**' },
+      { protocol: 'http' as const, hostname: '127.0.0.1', pathname: '/api/media/file/**' },
+    ],
     localPatterns: [
       {
         pathname: '/api/media/file/**',

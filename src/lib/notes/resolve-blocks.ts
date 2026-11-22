@@ -26,7 +26,8 @@ function addId(set: Set<number>, val: unknown): void {
 
 function mapMedia(doc: Media | null | undefined): BlogMedia | null {
   if (!doc?.url) return null
-  return { url: doc.url, alt: doc.alt || 'Notebook figure', width: doc.width ?? 1200, height: doc.height ?? 1500 }
+  const url = doc.url.replace(/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?/, '')
+  return { url, alt: doc.alt || 'Notebook figure', width: doc.width ?? 1200, height: doc.height ?? 1500 }
 }
 
 function collectBlockIds(content: unknown): IdBuckets {
