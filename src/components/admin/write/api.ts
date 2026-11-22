@@ -1,6 +1,6 @@
 /** Browser-side calls for the writing desk. Contracts: docs/09 §3 (C1 media, C3 import). */
 
-export type ImportResult = { postId: number; adminUrl: string; title: string; wordCount: number; warnings: string[] }
+export type ImportResult = { postId: number; adminUrl: string; title: string; wordCount: number; warnings: string[]; detail?: string }
 type Envelope<T> = { success: boolean; data: T | null; error: string | null }
 
 export class DeskError extends Error {
@@ -69,4 +69,44 @@ export function imagesFrom(list: ArrayLike<File | DataTransferItem> | null | und
     if (file?.type.startsWith('image/')) files.push(file)
   }
   return files
+}
+
+// ---- Smart paste (docs/10 C5/C6) ----
+const QUIZ_FLAG_TEXT: Record<string, string> = {
+  'answer-guessed': 'answer AI ne guess kiya, check karo',
+  'explanation-written': 'explanation AI ne likha, check karo',
+  'no-story-match': 'koi current affair match nahi hua',
+  'options-fixed': 'options 4 nahi the, thik kiye gaye, check karo',
+}
+type QuizData = { quizId: number; adminUrl: string; added: number; flags: { index: number; kind: string }[] }
+type CaData = { id: number; adminUrl: string; headline: string; topics: string[]; thinkers: string[]; warnings: string[] }
+
+async function smartPost<T>(path: string, body: Record<string, unknown>): Promise<{ data: T; status: number }> {
+  let res: Response
+  try { res = await fetch(path, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }) } catch { throw new DeskError('Network error. Internet check karo aur dobara try karo.') }
+  const payload = (await readJson(res)) as Envelope<T> | null
+  if (res.status === 404 || res.status === 405) throw new DeskError('Ye feature abhi server pe ready nahi hai (update deploy hone do).')
+  if (res.status === 409 && payload?.data) {
+    const data = payload.data as unknown as { quizId?: number; id?: number; adminUrl?: string }
+    const id = data.quizId ?? data.id
+    throw new DeskError(payload.error ?? 'Ye pehle se maujood hai.', id ? { postId: id, adminUrl: data.adminUrl ?? '/admin' } : undefined)
+  }
+  if (!res.ok || !payload?.success || !payload.data) throw new DeskError(payload?.error ?? explain(res.status, `Request fail hui (${res.status}).`))
+  return { data: payload.data, status: res.status }
+}
+
+export async function smartQuiz(text: string, date?: string): Promise<ImportResult> {
+  const { data } = await smartPost<QuizData>('/api/smart/quiz', { text, ...(date ? { date } : {}) })
+  return {
+    postId: data.quizId, adminUrl: data.adminUrl, title: `Quiz draft (${data.added} sawal)`, wordCount: 0, detail: `${data.added} sawal`,
+    warnings: data.flags.map((flag) => `Sawal ${flag.index + 1}: ${QUIZ_FLAG_TEXT[flag.kind] ?? flag.kind}`),
+  }
+}
+
+export async function smartCurrentAffair(text: string, url?: string): Promise<ImportResult> {
+  const { data } = await smartPost<CaData>('/api/smart/current-affair', { text, ...(url ? { url } : {}) })
+  return {
+    postId: data.id, adminUrl: '/admin/review', title: data.headline, wordCount: 0,
+    detail: `${data.topics.length} topics, ${data.thinkers.length} thinkers jude`, warnings: data.warnings,
+  }
 }
