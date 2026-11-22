@@ -2,10 +2,19 @@ import 'server-only'
 
 import { cache } from 'react'
 import { draftMode } from 'next/headers'
+import { z } from 'zod'
 import type { Media, Paper, Topic, Unit } from '@/payload-types'
 import { extractToc } from '@/lib/blog/text'
 import { getPayloadClient } from '@/lib/queries'
-import { mindMapDataSchema, pyqAnswerItemSchema, type MindMapData, type PyqAnswerItem, type UnitInfographic, type UnitStudyStep } from '@/lib/notes/notebook-types'
+import {
+  mindMapDataSchema,
+  pyqAnswerItemSchema,
+  unitStudyStepSchema,
+  type MindMapData,
+  type PyqAnswerItem,
+  type UnitInfographic,
+  type UnitStudyStep,
+} from '@/lib/notes/notebook-types'
 import { resolveNotebookBlocks } from '@/lib/notes/resolve-blocks'
 import type { PaperCode, SyllabusPaper, TopicChip, TopicDetail, UnitPageData } from './types'
 import { relationDocs } from './types'
@@ -33,21 +42,28 @@ function parseMindMap(raw: unknown): MindMapData | null {
   return parsed.success ? parsed.data : null
 }
 
-function parsePyqAnswers(raw: Topic['pyqAnswers']): PyqAnswerItem[] {
+function parseStudySequence(raw: unknown): UnitStudyStep[] {
+  const parsed = z.array(unitStudyStepSchema).safeParse(raw)
+  return parsed.success ? parsed.data : []
+}
+
+function parsePyqAnswers(raw: unknown): PyqAnswerItem[] {
   if (!Array.isArray(raw)) return []
   return raw.flatMap((row) => {
-    const points = Array.isArray(row.points) ? row.points.map((pt) => (typeof pt === 'string' ? pt : pt.text)) : []
+    if (!row || typeof row !== 'object') return []
+    const r = row as Record<string, unknown>
+    const points = Array.isArray(r.points) ? r.points.map((pt) => (typeof pt === 'string' ? pt : (pt as { text?: unknown }).text)) : []
     const parsed = pyqAnswerItemSchema.safeParse({
-      year: row.year,
-      paper: row.paper,
-      marks: row.marks,
-      question: row.question,
-      theme: row.theme ?? null,
-      intro: row.intro,
+      year: r.year,
+      paper: r.paper,
+      marks: r.marks,
+      question: r.question,
+      theme: r.theme ?? null,
+      intro: r.intro,
       points,
-      thinkers: row.thinkers ?? null,
-      example: row.example ?? null,
-      conclusion: row.conclusion,
+      thinkers: r.thinkers ?? null,
+      example: r.example ?? null,
+      conclusion: r.conclusion,
     })
     return parsed.success ? [parsed.data] : []
   })
@@ -66,8 +82,11 @@ function mapUnitInfographics(raw: Unit['infographics']): UnitInfographic[] {
     if (!url) return []
     return [{
       title: row.title,
+      titleHinglish: row.titleHinglish ?? null,
       caption: row.caption ?? null,
+      captionHinglish: row.captionHinglish ?? null,
       badge: row.badge ?? null,
+      badgeHinglish: row.badgeHinglish ?? null,
       url,
       width: media?.width ?? 819,
       height: media?.height ?? 1024,
@@ -108,8 +127,9 @@ export const getSyllabusTree = cache(async (): Promise<SyllabusPaper[]> => {
             href: urls.topic(paperSlug, unit.slug ?? '', topic.slug ?? ''),
             caCount: caCounts.get(topic.id) ?? 0,
             summary: topic.summary ?? null,
+            summaryHinglish: topic.summaryHinglish ?? null,
             pyqCount: pyqCounts.get(topic.id) ?? 0,
-            hasNotes: Boolean(topic.notebookContent) || (topic.layout?.length ?? 0) > 0,
+            hasNotes: Boolean(topic.notebookContent || topic.notebookContentHinglish) || (topic.layout?.length ?? 0) > 0,
           })),
         }
       }),
@@ -136,8 +156,11 @@ export const getUnitPageData = cache(async (paperSlug: string, unitSlug: string)
     paper: { code: paper.code, title: paper.title, slug: paper.slug, href: paper.href },
     unit,
     overview: unitDoc?.overview ?? null,
+    overviewHinglish: unitDoc?.overviewHinglish ?? null,
     studySequence,
+    studySequenceHinglish: parseStudySequence(unitDoc?.studySequenceHinglish),
     mindMap: parseMindMap(unitDoc?.mindMap),
+    mindMapHinglish: parseMindMap(unitDoc?.mindMapHinglish),
     infographics: mapUnitInfographics(unitDoc?.infographics),
     totalPyqs,
   }
@@ -157,10 +180,11 @@ export const getTopicDetail = cache(async (paperSlug: string, unitSlug: string, 
   const topic = found.docs[0]
   if (!topic || !isDoc(topic.unit) || !isDoc(topic.unit.paper) || topic.unit.slug !== unitSlug || topic.unit.paper.slug !== paperSlug) return null
 
-  const [affairs, posts, resolvedBlocks, tree] = await Promise.all([
+  const [affairs, posts, resolvedBlocks, resolvedBlocksHinglish, tree] = await Promise.all([
     payload.find({ collection: 'current-affairs', where: { and: [{ topics: { contains: topic.id } }, { _status: { equals: 'published' } }] }, limit: 6, sort: '-date', depth: 3, draft: false, overrideAccess: false }),
     getTopicPosts(topic.id, 4),
     topic.notebookContent ? resolveNotebookBlocks(topic.notebookContent) : Promise.resolve(undefined),
+    topic.notebookContentHinglish ? resolveNotebookBlocks(topic.notebookContentHinglish) : Promise.resolve(undefined),
     getSyllabusTree(),
   ])
 
@@ -178,6 +202,7 @@ export const getTopicDetail = cache(async (paperSlug: string, unitSlug: string, 
     slug: topic.slug ?? '',
     href: topicChip.href,
     summary: topic.summary ?? null,
+    summaryHinglish: topic.summaryHinglish ?? null,
     paper,
     breadcrumbs: crumbs,
     layout: topic.layout ?? [],
@@ -187,10 +212,15 @@ export const getTopicDetail = cache(async (paperSlug: string, unitSlug: string, 
     caCount: affairs.totalDocs,
     posts,
     notebookContent: topic.notebookContent ?? undefined,
+    notebookContentHinglish: topic.notebookContentHinglish ?? undefined,
     resolvedBlocks,
+    resolvedBlocksHinglish,
     toc: topic.notebookContent ? extractToc(topic.notebookContent) : [],
+    tocHinglish: topic.notebookContentHinglish ? extractToc(topic.notebookContentHinglish) : [],
     mindMap: parseMindMap(topic.mindMap),
+    mindMapHinglish: parseMindMap(topic.mindMapHinglish),
     pyqAnswers: parsePyqAnswers(topic.pyqAnswers),
+    pyqAnswersHinglish: parsePyqAnswers(topic.pyqAnswersHinglish),
     prevTopic,
     nextTopic,
   }

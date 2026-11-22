@@ -387,9 +387,13 @@ export interface Topic {
     costUsd?: number | null;
   };
   /**
-   * 2-3 line overview (cards aur SEO mein)
+   * 2-3 line overview (English default, cards & SEO)
    */
   summary?: string | null;
+  /**
+   * 2-3 line overview in Hinglish (toggle option)
+   */
+  summaryHinglish?: string | null;
   layout?: (HeroBlock | RichTextBlock | SummaryBlock | CalloutBlock | KeyTermsBlock | CtaBlock | PyqListBlock)[] | null;
   notebookContent?: {
     root: {
@@ -406,7 +410,31 @@ export interface Topic {
     };
     [k: string]: unknown;
   } | null;
+  notebookContentHinglish?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   mindMap?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  mindMapHinglish?:
     | {
         [k: string]: unknown;
       }
@@ -433,6 +461,15 @@ export interface Topic {
         id?: string | null;
       }[]
     | null;
+  pyqAnswersHinglish?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   thinkers?: (number | Thinker)[] | null;
   relatedTopics?: (number | Topic)[] | null;
   updatedAt: string;
@@ -455,9 +492,13 @@ export interface Unit {
    */
   slug?: string | null;
   /**
-   * Unit overview aur UPSC weightage (Hinglish)
+   * Unit overview & UPSC weightage (English default)
    */
   overview?: string | null;
+  /**
+   * Unit overview in Hinglish (toggle option)
+   */
+  overviewHinglish?: string | null;
   studySequence?:
     | {
         step: string;
@@ -465,7 +506,25 @@ export interface Unit {
         id?: string | null;
       }[]
     | null;
+  studySequenceHinglish?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   mindMap?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  mindMapHinglish?:
     | {
         [k: string]: unknown;
       }
@@ -477,8 +536,11 @@ export interface Unit {
   infographics?:
     | {
         title: string;
+        titleHinglish?: string | null;
         caption?: string | null;
+        captionHinglish?: string | null;
         badge?: string | null;
+        badgeHinglish?: string | null;
         image?: (number | null) | Media;
         staticSrc?: string | null;
         id?: string | null;
@@ -1279,6 +1341,7 @@ export interface TopicsSelect<T extends boolean = true> {
         costUsd?: T;
       };
   summary?: T;
+  summaryHinglish?: T;
   layout?:
     | T
     | {
@@ -1291,7 +1354,9 @@ export interface TopicsSelect<T extends boolean = true> {
         pyqList?: T | PyqListBlockSelect<T>;
       };
   notebookContent?: T;
+  notebookContentHinglish?: T;
   mindMap?: T;
+  mindMapHinglish?: T;
   pyqAnswers?:
     | T
     | {
@@ -1312,6 +1377,7 @@ export interface TopicsSelect<T extends boolean = true> {
         conclusion?: T;
         id?: T;
       };
+  pyqAnswersHinglish?: T;
   thinkers?: T;
   relatedTopics?: T;
   updatedAt?: T;
@@ -1330,6 +1396,7 @@ export interface UnitsSelect<T extends boolean = true> {
   section?: T;
   slug?: T;
   overview?: T;
+  overviewHinglish?: T;
   studySequence?:
     | T
     | {
@@ -1337,13 +1404,18 @@ export interface UnitsSelect<T extends boolean = true> {
         detail?: T;
         id?: T;
       };
+  studySequenceHinglish?: T;
   mindMap?: T;
+  mindMapHinglish?: T;
   infographics?:
     | T
     | {
         title?: T;
+        titleHinglish?: T;
         caption?: T;
+        captionHinglish?: T;
         badge?: T;
+        badgeHinglish?: T;
         image?: T;
         staticSrc?: T;
         id?: T;

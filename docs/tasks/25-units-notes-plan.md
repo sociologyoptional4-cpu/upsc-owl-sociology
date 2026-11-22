@@ -2,7 +2,8 @@
 
 This plan tracks the full-syllabus authoring and visual-notes rollout across **25 official units** and **98 official topics** (source of truth: `scripts/notes/syllabus.ts`):
 
-- **Stage 0 — Shared Notebook Engine**: Reusable notebook layout, structured note schema, topic/unit sync & upload pipeline, and PYQ mapping foundation built before/alongside `T01` so every subsequent unit shares one interactive reader, callout/table format, and infographic pipeline without per-unit UI rewrites.
+- **Stage 0 — Shared Notebook Engine**: Reusable bilingual notebook layout (**English Notes default/priority on screen** with prominent **English ↔ Hinglish** toggle, explanatory prose before bullets/thinkers, interactive mind maps, infographics gallery, colour-coded Lexical renderer, PYQ model-answer accordion, and idempotent `upload-unit.ts` pipeline) built for `T01` so every subsequent unit `T02`–`T25` reuses the exact same engine.
+- **Authoring Standard (`T01`–`T25`)**: Every concept opens with 2–4 plain-language explanatory sentences + everyday Indian examples before bullets/thinkers, provided in both pure UPSC English (default) and Hinglish (`summaryHinglish`, `notebookContentHinglish`, `mindMapHinglish`, `pyqAnswersHinglish`).
 - **Paper 1 (`T01`–`T10`)**: 10 units, **41 official topics**.
 - **Paper 2 (`T11`–`T25`)**: 15 units across Sections A, B, and C (flattened into Units 1–15), **57 official topics**.
 - **Total**: **25 sub-tasks**, **98 official topics**.

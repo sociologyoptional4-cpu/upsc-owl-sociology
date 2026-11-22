@@ -2,7 +2,7 @@
 
 import { useId, useMemo, useState } from 'react'
 
-import type { PyqAnswerItem } from '@/lib/notes/notebook-types'
+import type { NoteLang, PyqAnswerItem } from '@/lib/notes/notebook-types'
 
 function PyqCardMeta({ item }: { item: PyqAnswerItem }) {
   const paperDot = item.paper === 'P1' ? 'bg-paper-1' : 'bg-paper-2'
@@ -108,8 +108,48 @@ function PyqAnswerCard({ item, index, baseId, isOpen, onToggle }: CardProps) {
   )
 }
 
+function PyqAccordionBar({
+  count,
+  allOpen,
+  lang,
+  onToggleAll,
+}: {
+  count: number
+  allOpen: boolean
+  lang: NoteLang
+  onToggleAll: () => void
+}) {
+  const toggleLabel = allOpen
+    ? lang === 'hi'
+      ? 'Sab band karo'
+      : 'Collapse all'
+    : lang === 'hi'
+      ? 'Sab kholo'
+      : 'Expand all'
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-card border-2 border-ink bg-paper-raised px-4 py-3 text-ink shadow-paper">
+      <p className="font-display text-sm font-extrabold text-ink">{count} PYQs with Model Answers</p>
+      <button
+        type="button"
+        onClick={onToggleAll}
+        className="rounded-chip border-2 border-ink bg-pastel-yellow px-3.5 py-1.5 font-display text-xs font-extrabold text-ink transition-colors hover:bg-paper-sunk"
+      >
+        {toggleLabel}
+      </button>
+    </div>
+  )
+}
+
 /** Newest-first interactive accordion of UPSC PYQs with structured model answer outlines. */
-export function PyqAnswerAccordion({ items, className = '' }: { items: PyqAnswerItem[]; className?: string }) {
+export function PyqAnswerAccordion({
+  items,
+  className = '',
+  lang = 'en',
+}: {
+  items: PyqAnswerItem[]
+  className?: string
+  lang?: NoteLang
+}) {
   const baseId = useId()
   const sorted = useMemo(() => [...items].sort((a, b) => b.year - a.year), [items])
   const [openIndices, setOpenIndices] = useState<Set<number>>(() => new Set([0]))
@@ -132,16 +172,7 @@ export function PyqAnswerAccordion({ items, className = '' }: { items: PyqAnswer
 
   return (
     <div className={`space-y-4 ${className}`.trim()}>
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-card border-2 border-ink bg-paper-raised px-4 py-3 text-ink shadow-paper">
-        <p className="font-display text-sm font-extrabold text-ink">{items.length} PYQs with Model Answers</p>
-        <button
-          type="button"
-          onClick={toggleAll}
-          className="rounded-chip border-2 border-ink bg-pastel-yellow px-3.5 py-1.5 font-display text-xs font-extrabold text-ink transition-colors hover:bg-paper-sunk"
-        >
-          {allOpen ? 'Sab band karo' : 'Sab kholo'}
-        </button>
-      </div>
+      <PyqAccordionBar count={items.length} allOpen={allOpen} lang={lang} onToggleAll={toggleAll} />
       <div className="space-y-4">
         {sorted.map((item, index) => (
           <PyqAnswerCard

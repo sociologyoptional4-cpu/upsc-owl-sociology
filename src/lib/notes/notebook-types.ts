@@ -4,6 +4,9 @@ const nonEmptyString = z.string().trim().min(1)
 const paperCodeSchema = z.enum(['P1', 'P2'])
 const yearSchema = z.number().int().min(1950).max(2100)
 
+export const noteLangSchema = z.enum(['en', 'hi'])
+export type NoteLang = z.infer<typeof noteLangSchema>
+
 export const mindMapColorSchema = z.enum(['lavender', 'yellow', 'mint', 'pink'])
 export type MindMapColor = z.infer<typeof mindMapColorSchema>
 
@@ -25,8 +28,11 @@ export type MindMapData = z.infer<typeof mindMapDataSchema>
 
 export const unitInfographicSchema = z.object({
   title: nonEmptyString,
+  titleHinglish: z.string().nullable().optional(),
   caption: z.string().nullable().optional(),
+  captionHinglish: z.string().nullable().optional(),
   badge: z.string().nullable().optional(),
+  badgeHinglish: z.string().nullable().optional(),
   url: nonEmptyString,
   width: z.number().int().nonnegative(),
   height: z.number().int().nonnegative(),
@@ -135,19 +141,26 @@ export type NotebookSection = z.infer<typeof notebookSectionSchema>
 export const topicNotebookSpecSchema = z.object({
   topicSlug: nonEmptyString,
   summary: nonEmptyString,
+  summaryHinglish: nonEmptyString,
   thinkerSlugs: z.array(nonEmptyString),
   relatedTopicSlugs: z.array(nonEmptyString),
   mindMap: mindMapDataSchema,
+  mindMapHinglish: mindMapDataSchema,
   sections: z.array(notebookSectionSchema),
+  sectionsHinglish: z.array(notebookSectionSchema),
   pyqAnswers: z.array(pyqAnswerItemSchema),
+  pyqAnswersHinglish: z.array(pyqAnswerItemSchema),
 })
 export type TopicNotebookSpec = z.infer<typeof topicNotebookSpecSchema>
 
 export const unitInfographicSpecSchema = z.object({
   assetFile: nonEmptyString,
   title: nonEmptyString,
+  titleHinglish: nonEmptyString,
   caption: z.string(),
+  captionHinglish: z.string(),
   badge: z.string(),
+  badgeHinglish: z.string(),
   alt: nonEmptyString,
 })
 
@@ -155,8 +168,11 @@ export const unitNotebookSpecSchema = z.object({
   paperCode: paperCodeSchema,
   unitSlug: nonEmptyString,
   overview: nonEmptyString,
+  overviewHinglish: nonEmptyString,
   studySequence: z.array(unitStudyStepSchema),
+  studySequenceHinglish: z.array(unitStudyStepSchema),
   mindMap: mindMapDataSchema,
+  mindMapHinglish: mindMapDataSchema,
   infographics: z.array(unitInfographicSpecSchema),
   topics: z.array(topicNotebookSpecSchema),
 })

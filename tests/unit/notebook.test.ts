@@ -5,9 +5,25 @@ import { describe, expect, it } from 'vitest'
 import { unit01Notebook } from '@/data/notes/unit-01'
 import type { LexNode } from '@/lib/blog/text'
 import { applyNotebookMarkup } from '@/lib/notes/notebook-builder'
-import { mindMapDataSchema, unitNotebookSpecSchema } from '@/lib/notes/notebook-types'
+import { mindMapDataSchema, type NotebookSection, unitNotebookSpecSchema } from '@/lib/notes/notebook-types'
 import { mapPyqToTopic } from '../../scripts/pyq/mapping'
 import { parsePyqJsonl } from '../../scripts/pyq/read-data'
+
+function checkSections(sections: NotebookSection[]): void {
+  for (const section of sections) {
+    if (section.kind === 'thinkerQuote') {
+      const words = section.quote.trim().split(/\s+/).filter(Boolean).length
+      expect(words).toBeLessThanOrEqual(25)
+    }
+    if (section.kind === 'md') {
+      const marked = applyNotebookMarkup([{ type: 'text', text: section.body }])
+      for (const node of marked) {
+        expect(node.text ?? '').not.toContain('[[')
+        expect(node.text ?? '').not.toContain('==')
+      }
+    }
+  }
+}
 
 describe('notebook markup converter', () => {
   it('converts all 5 colour markers while preserving existing formatting without collision', () => {
@@ -52,8 +68,8 @@ describe('notebook markup converter', () => {
   })
 })
 
-describe('Unit 1 notebook spec and PYQ mapping', () => {
-  it('validates the full Unit 1 notebook spec, media assets, quotes, and all 25 PYQs', () => {
+describe('Unit 1 bilingual notebook spec and PYQ mapping', () => {
+  it('validates the full bilingual Unit 1 spec (English priority + Hinglish), assets, quotes, and all 25 PYQs in both languages', () => {
     expect(unitNotebookSpecSchema.safeParse(unit01Notebook).success).toBe(true)
     expect(unit01Notebook.topics.map((t) => t.topicSlug)).toEqual([
       'modernity-and-emergence-of-sociology',
@@ -62,39 +78,36 @@ describe('Unit 1 notebook spec and PYQ mapping', () => {
     ])
 
     expect(mindMapDataSchema.safeParse(unit01Notebook.mindMap).success).toBe(true)
+    expect(mindMapDataSchema.safeParse(unit01Notebook.mindMapHinglish).success).toBe(true)
+    expect(unit01Notebook.studySequenceHinglish.length).toBe(unit01Notebook.studySequence.length)
+
     for (const info of unit01Notebook.infographics) {
       const assetPath = path.resolve(process.cwd(), 'public/assets/infographics', info.assetFile)
       expect(fs.existsSync(assetPath)).toBe(true)
+      expect(info.titleHinglish.length).toBeGreaterThan(0)
     }
 
     for (const topic of unit01Notebook.topics) {
       expect(mindMapDataSchema.safeParse(topic.mindMap).success).toBe(true)
-      for (const section of topic.sections) {
-        if (section.kind === 'thinkerQuote') {
-          const words = section.quote.trim().split(/\s+/).filter(Boolean).length
-          expect(words).toBeLessThanOrEqual(25)
-        }
-        if (section.kind === 'md') {
-          const marked = applyNotebookMarkup([{ type: 'text', text: section.body }])
-          for (const node of marked) {
-            expect(node.text ?? '').not.toContain('[[')
-            expect(node.text ?? '').not.toContain('==')
-          }
-        }
-      }
+      expect(mindMapDataSchema.safeParse(topic.mindMapHinglish).success).toBe(true)
+      checkSections(topic.sections)
+      checkSections(topic.sectionsHinglish)
     }
 
     const jsonlPath = path.resolve(process.cwd(), 'data/pyq/paper1-2013-2025.jsonl')
     const unit1Jsonl = parsePyqJsonl(fs.readFileSync(jsonlPath, 'utf8')).filter((r) => r.unit === 1)
     expect(unit1Jsonl).toHaveLength(25)
-
-    const allAnswers = unit01Notebook.topics.flatMap((t) => t.pyqAnswers)
-    expect(allAnswers).toHaveLength(25)
-    expect(unit01Notebook.topics.map((t) => t.pyqAnswers.length)).toEqual([9, 10, 6])
-
     const expectedSet = new Set(unit1Jsonl.map((r) => `${r.year}::${r.question.trim()}`))
-    const actualSet = new Set(allAnswers.map((a) => `${a.year}::${a.question.trim()}`))
-    expect(actualSet).toEqual(expectedSet)
+
+    const answersEn = unit01Notebook.topics.flatMap((t) => t.pyqAnswers)
+    expect(answersEn).toHaveLength(25)
+    expect(unit01Notebook.topics.map((t) => t.pyqAnswers.length)).toEqual([9, 10, 6])
+    expect(new Set(answersEn.map((a) => `${a.year}::${a.question.trim()}`))).toEqual(expectedSet)
+
+    const answersHi = unit01Notebook.topics.flatMap((t) => t.pyqAnswersHinglish)
+    expect(answersHi).toHaveLength(25)
+    expect(unit01Notebook.topics.map((t) => t.pyqAnswersHinglish.length)).toEqual([9, 10, 6])
+    expect(new Set(answersHi.map((a) => `${a.year}::${a.question.trim()}`))).toEqual(expectedSet)
   })
 
   it('maps C.W. Mills Sociological Imagination PYQ to sociology-and-common-sense', () => {

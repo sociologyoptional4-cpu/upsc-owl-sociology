@@ -52,7 +52,7 @@ function collectAssetRefs(spec: UnitNotebookSpec): Map<string, string> {
   const assets = new Map<string, string>()
   for (const item of spec.infographics) assets.set(item.assetFile, item.alt)
   for (const topic of spec.topics) {
-    for (const section of topic.sections) {
+    for (const section of [...topic.sections, ...topic.sectionsHinglish]) {
       if ((section as NotebookSection).kind === 'figure') {
         const fig = section as Extract<NotebookSection, { kind: 'figure' }>
         if (!assets.has(fig.assetFile)) assets.set(fig.assetFile, fig.alt)
@@ -118,12 +118,18 @@ async function uploadUnit(payload: Payload, spec: UnitNotebookSpec): Promise<voi
     id: unitDoc.id,
     data: {
       overview: spec.overview,
+      overviewHinglish: spec.overviewHinglish,
       studySequence: spec.studySequence.map((s) => ({ step: s.step, detail: s.detail ?? undefined })),
+      studySequenceHinglish: spec.studySequenceHinglish as unknown as Record<string, unknown>[],
       mindMap: spec.mindMap as unknown as Record<string, unknown>,
+      mindMapHinglish: spec.mindMapHinglish as unknown as Record<string, unknown>,
       infographics: spec.infographics.map((item) => ({
         title: item.title,
+        titleHinglish: item.titleHinglish,
         caption: item.caption,
+        captionHinglish: item.captionHinglish,
         badge: item.badge,
+        badgeHinglish: item.badgeHinglish,
         image: mediaByAsset.get(item.assetFile) ?? undefined,
         staticSrc: `/assets/infographics/${item.assetFile}`,
       })),
@@ -135,7 +141,10 @@ async function uploadUnit(payload: Payload, spec: UnitNotebookSpec): Promise<voi
   for (const topicSpec of spec.topics) {
     const topicId = topicsBySlug.get(topicSpec.topicSlug)
     if (!topicId) throw new Error(`Topic not found: ${topicSpec.topicSlug}`)
-    const lexical = await buildNotebookLexical(payload, topicSpec.sections, { thinkersBySlug, mediaByAsset })
+    const [lexicalEn, lexicalHi] = await Promise.all([
+      buildNotebookLexical(payload, topicSpec.sections, { thinkersBySlug, mediaByAsset }),
+      buildNotebookLexical(payload, topicSpec.sectionsHinglish, { thinkersBySlug, mediaByAsset }),
+    ])
     await payload.update({
       collection: 'topics',
       id: topicId,
@@ -143,8 +152,11 @@ async function uploadUnit(payload: Payload, spec: UnitNotebookSpec): Promise<voi
         _status: 'published',
         reviewStatus: 'approved',
         summary: topicSpec.summary,
-        notebookContent: lexical as never,
+        summaryHinglish: topicSpec.summaryHinglish,
+        notebookContent: lexicalEn as never,
+        notebookContentHinglish: lexicalHi as never,
         mindMap: topicSpec.mindMap as unknown as Record<string, unknown>,
+        mindMapHinglish: topicSpec.mindMapHinglish as unknown as Record<string, unknown>,
         pyqAnswers: topicSpec.pyqAnswers.map((ans) => ({
           year: ans.year,
           paper: ans.paper,
@@ -157,6 +169,7 @@ async function uploadUnit(payload: Payload, spec: UnitNotebookSpec): Promise<voi
           example: ans.example ?? undefined,
           conclusion: ans.conclusion,
         })),
+        pyqAnswersHinglish: topicSpec.pyqAnswersHinglish as unknown as Record<string, unknown>[],
         thinkers: topicSpec.thinkerSlugs.map((s) => thinkersBySlug.get(s)).filter((id): id is number => id !== undefined),
         relatedTopics: topicSpec.relatedTopicSlugs.map((s) => topicsBySlug.get(s)).filter((id): id is number => id !== undefined),
       },
@@ -167,7 +180,7 @@ async function uploadUnit(payload: Payload, spec: UnitNotebookSpec): Promise<voi
   }
 
   const fixedPyqs = spec.paperCode === 'P1' && unitDoc.number === 1 ? await fixUnit1MappedPyqs(payload, unitDoc.id, topicsBySlug) : 0
-  payload.logger.info(`Uploaded unit "${spec.unitSlug}": ${spec.topics.length} topics, ${mediaByAsset.size} media assets, ${fixedPyqs} PYQ topic fixes.`)
+  payload.logger.info(`Uploaded bilingual unit "${spec.unitSlug}": ${spec.topics.length} topics (EN+HI), ${mediaByAsset.size} media assets, ${fixedPyqs} PYQ topic fixes.`)
 }
 
 const unitSlug = parseUnitSlug()
