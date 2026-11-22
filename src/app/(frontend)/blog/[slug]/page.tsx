@@ -24,7 +24,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = post.seo.title ?? post.title
   const description = post.seo.description ?? post.excerpt ?? post.title
   const canonical = post.seo.canonical ?? `${base}${post.href}`
-  const images = post.seo.ogImageUrl ? [{ url: new URL(post.seo.ogImageUrl, base).toString(), width: 1200, height: 630, alt: title }] : undefined
+  // Declare the real size: a hard-coded 1200x630 on a square/portrait upload makes some scrapers mis-crop it.
+  const dims = post.cover && post.seo.ogImageUrl === post.cover.url ? { width: post.cover.width, height: post.cover.height } : {}
+  const images = post.seo.ogImageUrl ? [{ url: new URL(post.seo.ogImageUrl, base).toString(), ...dims, alt: title }] : undefined
 
   return {
     title,

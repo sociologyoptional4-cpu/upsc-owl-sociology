@@ -5,7 +5,7 @@ import { revalidateAfterChange, revalidateAfterDelete } from '@/hooks/payload/re
 
 const pyqPaths = async (doc: Record<string, unknown>, req: import('payload').PayloadRequest) => {
   const ids = Array.isArray(doc.topics) ? doc.topics.map((item) => typeof item === 'number' ? item : typeof item === 'object' && item ? (item as { id?: number }).id : null).filter((id): id is number => typeof id === 'number') : []
-  const topics = ids.length ? await req.payload.find({ collection: 'topics', where: { id: { in: ids } }, limit: ids.length, depth: 2, overrideAccess: true }) : { docs: [] }
+  const topics = ids.length ? await req.payload.find({ collection: 'topics', where: { id: { in: ids } }, limit: ids.length, depth: 2, overrideAccess: true, req }) : { docs: [] }
   const paths = topics.docs.flatMap((topic) => {
     const unit = typeof topic.unit === 'object' && topic.unit ? topic.unit : null
     const paper = unit && typeof unit.paper === 'object' && unit.paper ? unit.paper : null

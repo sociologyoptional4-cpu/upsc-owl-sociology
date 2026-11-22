@@ -8,8 +8,8 @@ import { BLOG_BLOCKS, BLOG_COLOR_STATE, BLOG_INLINE_BLOCKS } from '@/blocks/blog
  */
 export function blogEditor() {
   return lexicalEditor({
-    features: ({ rootFeatures }) => [
-      ...rootFeatures,
+    features: ({ defaultFeatures }) => [
+      ...defaultFeatures,
       EXPERIMENTAL_TableFeature(),
       TextStateFeature({ state: BLOG_COLOR_STATE }),
       BlocksFeature({ blocks: BLOG_BLOCKS, inlineBlocks: BLOG_INLINE_BLOCKS }),

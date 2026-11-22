@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
 
+import { urls } from '@/lib/data/urls'
 import { slugify } from '@/lib/slug'
 
 export type TocItem = { id: string; text: string; level: 2 | 3 }
@@ -30,12 +31,13 @@ function fieldStrings(value: unknown, skipKeys: Set<string>, out: string[]): voi
 }
 
 /** Plain text of a Lexical document, including text inside blog blocks. */
-export function lexicalToPlain(data: LexRoot, opts: { skipFieldKeys?: string[] } = {}): string {
+export function lexicalToPlain(data: LexRoot, opts: { skipFieldKeys?: string[]; skipHeadings?: boolean } = {}): string {
   const skip = new Set([...SKIP_FIELD_KEYS, ...(opts.skipFieldKeys ?? [])])
   const parts: string[] = []
   const walk = (node: LexNode): void => {
     if (node.type === 'text' && typeof node.text === 'string') { parts.push(node.text); return }
     if (node.type === 'linebreak') { parts.push('\n'); return }
+    if (opts.skipHeadings && node.type === 'heading') return
     if (node.type === 'block' || node.type === 'inlineBlock') {
       const strings: string[] = []
       fieldStrings(node.fields, skip, strings)
@@ -140,18 +142,52 @@ export function lexicalToMarkdown(data: LexRoot): string {
   return lines.join('\n').replace(/\n{3,}/g, '\n\n').trim()
 }
 
-/** Wraps `==text==` markers into yellow-highlight text-state nodes. */
+const MARKER = /==(.+?)==|\{\{(eg|trap|core|thinker:[a-z0-9-]+|link:\/[^|}\s]+)\|(.+?)\}\}/g
+
+/** Marker → text-state: `==x==`/`{{core|x}}` yellow, `{{eg|x}}` mint, `{{trap|x}}` pink, `{{thinker:slug|x}}` plum link, `{{link:/path|x}}` sky link. */
+function markerNode(base: LexNode, text: string, kind: string): LexNode {
+  const state = (extra: Record<string, string>): LexNode => ({ ...base, text, $: { ...(base.$ ?? {}), ...extra } })
+  if (kind === 'eg') return state({ highlight: 'mint' })
+  if (kind === 'trap') return state({ highlight: 'pink' })
+  if (kind.startsWith('link:')) {
+    return { type: 'link', version: 3, format: '', indent: 0, direction: 'ltr', fields: { linkType: 'custom', url: kind.slice(5), newTab: false }, children: [state({ highlight: 'sky' })] } as LexNode
+  }
+  if (kind.startsWith('thinker:')) {
+    const url = urls.thinker(kind.slice(8))
+    return { type: 'link', version: 3, format: '', indent: 0, direction: 'ltr', fields: { linkType: 'custom', url, newTab: false }, children: [state({ color: 'plum' })] } as LexNode
+  }
+  return state({ highlight: 'yellow' })
+}
+
+/** Turns the AI's inline markers into Lexical text-state nodes (see markerNode). */
 export function applyMarkers(nodes: LexNode[]): LexNode[] {
   return nodes.flatMap((node): LexNode[] => {
-    if (node.type === 'text' && typeof node.text === 'string' && node.text.includes('==')) {
+    if (node.type === 'text' && typeof node.text === 'string' && (node.text.includes('==') || node.text.includes('{{'))) {
       const out: LexNode[] = []
-      const parts = node.text.split(/==(.+?)==/g)
-      parts.forEach((part, index) => {
-        if (!part) return
-        out.push(index % 2 === 1 ? { ...node, text: part, $: { ...(node.$ ?? {}), highlight: 'yellow' } } : { ...node, text: part })
-      })
+      let last = 0
+      for (const match of node.text.matchAll(MARKER)) {
+        const index = match.index ?? 0
+        if (index > last) out.push({ ...node, text: node.text.slice(last, index) })
+        out.push(markerNode(node, match[1] ?? match[3] ?? '', match[2] ?? 'core'))
+        last = index + match[0].length
+      }
+      if (last < node.text.length) out.push({ ...node, text: node.text.slice(last) })
       return out
     }
     return node.children ? [{ ...node, children: applyMarkers(node.children) }] : [node]
   })
+}
+
+/** Block fields are plain text: drop every inline marker but keep its words. */
+export const unmark = (text: string): string => text
+  .replace(/\{\{(?:eg|trap|core|thinker:[^|}]+|link:[^|}]+)\|(.+?)\}\}/g, '$1')
+  .replace(/\[\[thinker:([^\]]+)\]\]/g, '$1')
+  .replace(/==(.+?)==/g, '$1')
+
+/** Unknown thinker slugs / link paths lose their marker (text stays); everything else passes through. */
+export function stripUnknownMarkers(markdown: string, thinkers: ReadonlySet<string>, paths: ReadonlySet<string> = new Set()): string {
+  return markdown
+    .replace(/\[\[thinker:([^\]]+)\]\]/g, '$1')
+    .replace(/\{\{thinker:([a-z0-9-]+)\|(.+?)\}\}/g, (whole, slug: string, text: string) => (thinkers.has(slug) ? whole : text))
+    .replace(/\{\{link:(\/[^|}\s]+)\|(.+?)\}\}/g, (whole, path: string, text: string) => (paths.has(path) ? whole : text))
 }

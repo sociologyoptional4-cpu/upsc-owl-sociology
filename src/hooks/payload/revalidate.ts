@@ -49,7 +49,7 @@ export async function unitPaths(doc: Doc, req: PayloadRequest): Promise<string[]
   const unitSlug = typeof doc.slug === 'string' ? doc.slug : ''
   const paperId = typeof doc.paper === 'number' ? doc.paper : typeof doc.paper === 'object' && doc.paper ? (doc.paper as { id?: number }).id : undefined
   if (!unitSlug || !paperId) return ['/syllabus', '/']
-  const paper = await req.payload.findByID({ collection: 'papers', id: paperId, depth: 0, overrideAccess: true }).catch(() => null)
+  const paper = await req.payload.findByID({ collection: 'papers', id: paperId, depth: 0, overrideAccess: true, req }).catch(() => null)
   const paperSlug = paper?.slug ?? ''
   if (!paperSlug) return ['/syllabus', '/']
   return [`/syllabus/${paperSlug}/${unitSlug}`, `/syllabus/${paperSlug}`, '/syllabus', '/']
@@ -59,8 +59,8 @@ export async function topicPaths(doc: Doc, req: PayloadRequest): Promise<string[
   const topicSlug = typeof doc.slug === 'string' ? doc.slug : ''
   const unitId = typeof doc.unit === 'number' ? doc.unit : typeof doc.unit === 'object' && doc.unit ? (doc.unit as { id?: number }).id : undefined
   if (!topicSlug || !unitId) return ['/syllabus', '/']
-  const unit = await req.payload.findByID({ collection: 'units', id: unitId, depth: 1, overrideAccess: true })
-  const paper = typeof unit.paper === 'object' && unit.paper ? unit.paper : await req.payload.findByID({ collection: 'papers', id: typeof unit.paper === 'number' ? unit.paper : 0, depth: 0, overrideAccess: true }).catch(() => null)
+  const unit = await req.payload.findByID({ collection: 'units', id: unitId, depth: 1, overrideAccess: true, req })
+  const paper = typeof unit.paper === 'object' && unit.paper ? unit.paper : await req.payload.findByID({ collection: 'papers', id: typeof unit.paper === 'number' ? unit.paper : 0, depth: 0, overrideAccess: true, req }).catch(() => null)
   const paperSlug = paper?.slug ?? ''
   const unitSlug = unit.slug ?? ''
   return [`/syllabus/${paperSlug}/${unitSlug}/${topicSlug}`, `/syllabus/${paperSlug}/${unitSlug}`, `/syllabus/${paperSlug}`, '/syllabus', '/']

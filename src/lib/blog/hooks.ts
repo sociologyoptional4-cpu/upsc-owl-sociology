@@ -45,17 +45,17 @@ export async function postPaths(doc: Doc, req: PayloadRequest): Promise<string[]
   if (slug) paths.push(`/blog/${slug}`)
   const categoryId = idOf(doc.category)
   if (categoryId) {
-    const category = await req.payload.findByID({ collection: 'blog-categories', id: categoryId, depth: 0, overrideAccess: true }).catch(() => null)
+    const category = await req.payload.findByID({ collection: 'blog-categories', id: categoryId, depth: 0, overrideAccess: true, req }).catch(() => null)
     if (category?.slug) paths.push(`/blog/category/${category.slug}`)
   }
   const tagIds = (Array.isArray(doc.tags) ? doc.tags : []).map(idOf).filter((id): id is number => id !== null)
   if (tagIds.length) {
-    const tags = await req.payload.find({ collection: 'blog-tags', where: { id: { in: tagIds } }, limit: tagIds.length, depth: 0, overrideAccess: true })
+    const tags = await req.payload.find({ collection: 'blog-tags', where: { id: { in: tagIds } }, limit: tagIds.length, depth: 0, overrideAccess: true, req })
     for (const tag of tags.docs) if (tag.slug) paths.push(`/blog/tag/${tag.slug}`)
   }
   const topicIds = (Array.isArray(doc.topics) ? doc.topics : []).map(idOf).filter((id): id is number => id !== null)
   for (const id of topicIds) {
-    const topic = await req.payload.findByID({ collection: 'topics', id, depth: 0, overrideAccess: true }).catch(() => null)
+    const topic = await req.payload.findByID({ collection: 'topics', id, depth: 0, overrideAccess: true, req }).catch(() => null)
     if (topic) paths.push(...(await topicPaths(topic as unknown as Doc, req)))
   }
   return paths
@@ -70,9 +70,9 @@ export const queueOrganize: CollectionAfterChangeHook = async ({ doc, previousDo
     const pending = await req.payload.find({
       collection: 'payload-jobs',
       where: { and: [{ taskSlug: { equals: 'blog-organize' } }, { completedAt: { exists: false } }, { hasError: { not_equals: true } }, { 'input.postId': { equals: doc.id } }] },
-      limit: 1, depth: 0, overrideAccess: true,
+      limit: 1, depth: 0, overrideAccess: true, req,
     })
-    if (pending.docs.length === 0) await req.payload.jobs.queue({ task: 'blog-organize', input: { postId: doc.id } })
+    if (pending.docs.length === 0) await req.payload.jobs.queue({ task: 'blog-organize', input: { postId: doc.id }, req })
   } catch (error) {
     req.payload.logger.error(`blog-organize queue failed: ${error instanceof Error ? error.message : 'unknown error'}`)
   }
@@ -92,7 +92,7 @@ export const announcePost: CollectionAfterChangeHook = async ({ doc, previousDoc
     const social = (doc.aiSuggestions as { social?: { telegram?: string }; acceptedTelegram?: boolean } | null) ?? null
     const sent = await postBlog(req.payload, { title: String(doc.title), excerpt: doc.excerpt as string | null, url, telegramText: social?.acceptedTelegram ? social.social?.telegram : null })
     if (sent) {
-      await req.payload.update({ collection: 'posts', id: doc.id, data: { telegramPostedAt: new Date().toISOString() }, overrideAccess: true, context: { skipExternal: true, skipBlogOrganize: true, disableRevalidate: true } })
+      await req.payload.update({ collection: 'posts', id: doc.id, data: { telegramPostedAt: new Date().toISOString() }, overrideAccess: true, req, context: { skipExternal: true, skipBlogOrganize: true, disableRevalidate: true } })
     }
   } catch (error) {
     req.payload.logger.error(`Blog Telegram post failed: ${error instanceof Error ? error.message : 'unknown'}`)

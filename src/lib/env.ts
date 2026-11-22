@@ -20,6 +20,7 @@ const schema = z.object({
   DEEPSEEK_BASE_URL: z.string().url().optional(),
   SCORER_MODEL: z.string().optional(),
   WRITER_MODEL: z.string().optional(),
+  IMAGE_MODEL: z.string().optional(),
   EMBEDDING_MODEL: z.string().optional(),
   PRICE_OPENAI_INPUT: z.coerce.number().nonnegative().optional(),
   PRICE_OPENAI_OUTPUT: z.coerce.number().nonnegative().optional(),

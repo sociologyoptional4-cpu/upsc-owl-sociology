@@ -42,7 +42,7 @@ export const Posts: CollectionConfig = {
     {
       name: 'importMarkdown', type: 'textarea', virtual: true,
       label: 'ChatGPT se paste (Markdown)',
-      admin: { description: 'Markdown paste karke Save karo: content mein badal jayega (khali ho to replace, warna neeche jodega). Yeh field store nahi hota.' },
+      admin: { readOnly: false, description: 'Markdown paste karke Save karo: content mein badal jayega (khali ho to replace, warna neeche jodega). Yeh field store nahi hota.' },
     },
     {
       name: 'attachments', type: 'array', maxRows: 6, label: 'Notes PDF (download)',

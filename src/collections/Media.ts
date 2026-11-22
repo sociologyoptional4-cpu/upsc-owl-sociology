@@ -39,7 +39,12 @@ export const Media: CollectionConfig = {
         return { ...doc, url: staticUrl, sizes: doc.sizes ? staticSizes : doc.sizes }
       }
       const publicBase = process.env.S3_PUBLIC_URL?.replace(/\/$/, '')
-      if (!publicBase) return doc
+      if (!publicBase) {
+        // Local disk storage: Payload prefixes serverURL (e.g. http://localhost:3000), which next/image rejects as a private host. Same-origin path works everywhere.
+        const local = (url: unknown) => (typeof url === 'string' ? url.replace(/^https?:\/\/[^/]+(?=\/api\/media\/)/, '') : url)
+        const localSizes = Object.fromEntries(Object.entries(doc.sizes ?? {}).map(([name, size]) => [name, size && typeof size === 'object' ? { ...size, url: local((size as Record<string, unknown>).url) } : size]))
+        return { ...doc, url: local(doc.url), sizes: doc.sizes ? localSizes : doc.sizes }
+      }
       const publicPath = (filename?: string | null) => filename ? `${publicBase}/${filename}` : null
       const sizes = Object.fromEntries(Object.entries(doc.sizes ?? {}).map(([name, size]) => {
         if (!size || typeof size !== 'object') return [name, size]
