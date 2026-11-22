@@ -200,7 +200,7 @@
 
 ## 2026-11-21 17:53 · Codex (GPT-6) · Task 16-lite production deploy
 - Did: Added startup env validation, production migrations, Supabase S3 media, basic security headers, seed guard, deploy/runbook, `dry_run` workflow input, and a safe skip until the production bot key exists. Production is live at https://upsc-owl-sociology.vercel.app; migrations applied; `/`, `/current-affairs`, and `/admin` returned 200. Added all available pipeline Actions secrets except `AI_BOT_API_KEY`.
-- Files: `src/lib/env.ts`, `src/payload.config.ts`, `src/migrations/**`, `src/collections/Media.ts`, `src/seed/index.ts`, `next.config.ts`, `package.json`, `.env.example`, `.github/workflows/daily-ca.yml`, `vercel.json`, `docs/ops/runbook.md`, `docs/tasks/MASTER-PLAN.md`, `docs/memory/STATE.md`.
+- Files: `src/lib/env.ts`, `src/collections/Media.ts`, `src/migrations/**`, `src/collections/Media.ts`, `src/seed/index.ts`, `next.config.ts`, `package.json`, `.env.example`, `.github/workflows/daily-ca.yml`, `vercel.json`, `docs/ops/runbook.md`, `docs/tasks/MASTER-PLAN.md`, `docs/memory/STATE.md`.
 - Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-06, memory, Task 16-lite / U2)
 - Checks: tsc ✓ eslint ✓ (0 errors, 7 warnings) unit ✓ (71/71) build ✓; production migrations ✓; HTTP smoke ✓.
 - Contract changes: env requires database URL and Payload secret; Vercel requires Supabase root CA and complete S3 env; pipeline dispatch now accepts `dry_run`.
@@ -305,7 +305,7 @@
 
 ## 2026-11-22 11:27 IST · Codex · Production media schema
 - Did: Confirmed production deployment `47caebd` Ready. Traced the media API/admin 500 to the S3 plugin selecting a missing `media._objectkey` column. Added the nullable column, kept local and S3-enabled schema fields aligned, and preserved upload keys on rollback.
-- Files: `src/payload.config.ts`, `src/migrations/**`, `docs/memory/LOG.md`.
+- Files: `src/collections/Media.ts`, `src/migrations/**`, `docs/memory/LOG.md`.
 - Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-06, memory, deployment runbook)
 - Checks: Postgres-compatible DDL apply/reapply and existing-row/rollback preservation ✓.
 - Contract changes: Additive nullable column for Payload S3 object keys.

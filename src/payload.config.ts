@@ -71,18 +71,16 @@ export default buildConfig({
     },
   }),
   sharp,
-  plugins: [s3Storage({
-    enabled: Boolean(env.S3_ENDPOINT),
-    alwaysInsertFields: true,
+  plugins: env.S3_ENDPOINT ? [s3Storage({
     collections: { media: true },
-    bucket: env.S3_BUCKET ?? '',
+    bucket: env.S3_BUCKET!,
     config: {
       endpoint: env.S3_ENDPOINT,
       region: env.S3_REGION,
       forcePathStyle: true,
       credentials: { accessKeyId: env.S3_ACCESS_KEY_ID!, secretAccessKey: env.S3_SECRET_ACCESS_KEY! },
     },
-  })],
+  })] : [],
   endpoints,
   jobs: blogJobs,
 })
