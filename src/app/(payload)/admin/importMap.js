@@ -13,7 +13,6 @@ import { OwlDashboard as OwlDashboard_1f0fd930e95fbeb13a357d12c2eceea1 } from '.
 import { ReviewQueueView as ReviewQueueView_02f1ecfe363c3e174c36ec34482c6f38 } from '../../../components/admin/ReviewQueueView'
 import { WriteDesk as WriteDesk_21d693abaf8db410815970ca634e9e80 } from '../../../components/admin/WriteDesk'
 import { SeoControlCenter as SeoControlCenter_8140f234c7437d1b03dea7dccf2a6a15 } from '../../../components/admin/SeoControlCenter'
-import { RepoContentImport as RepoContentImport_7752ce7d05adfd2c820ccc46c09ef8ea } from '../../../components/admin/RepoContentImport'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 /** @type import('payload').ImportMap */
@@ -33,6 +32,5 @@ export const importMap = {
   "/components/admin/ReviewQueueView#ReviewQueueView": ReviewQueueView_02f1ecfe363c3e174c36ec34482c6f38,
   "/components/admin/WriteDesk#WriteDesk": WriteDesk_21d693abaf8db410815970ca634e9e80,
   "/components/admin/SeoControlCenter#SeoControlCenter": SeoControlCenter_8140f234c7437d1b03dea7dccf2a6a15,
-  "/components/admin/RepoContentImport#RepoContentImport": RepoContentImport_7752ce7d05adfd2c820ccc46c09ef8ea,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

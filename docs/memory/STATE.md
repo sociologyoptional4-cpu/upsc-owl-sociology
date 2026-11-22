@@ -10,7 +10,6 @@ Phase 0 ✅ committed → Phase 1 ✅ → **Phase 2 automation** (implementation
 |------|---------------|--------------------|---------|
 
 ## Next up
-0. Deploy and execute the temporary admin-only repo-content importer, then remove it after verifying portraits and Unit 1 in production.
 0. B1, B2, B3 and B4 (docs/09, docs/10) were all built by Claude (user: Gemini/Codex busy). Do NOT run the B1/B2/B4 prompts. Push needs the two new migrations `smart_paste` + `blog_attachments`; after deploy, user tests `/admin/write` on production.
 1. Review the SEO audit wording follow-up PR.
 2. Review the two production topic-note drafts after admin setup; production syllabus and PYQs are imported.
@@ -32,6 +31,7 @@ Phase 0 ✅ committed → Phase 1 ✅ → **Phase 2 automation** (implementation
 - UPSC OWL Sociology content-generation providers: OpenAI API for writing and DeepSeek API for scoring/filtering; do not use Anthropic API. This is distinct from historical Claude Code UI/design role references.
 
 ## Completed
+- Production repo content import completed: 8 thinker profiles, 7 portraits, 11 media records, 3 bilingual Unit 1 chapters and 25 solved PYQs. Mac-only content awaits export.
 - Task U01-bilingual (English Priority + Hinglish Toggle & Deep Explanations): Added strictly additive bilingual columns on `Units`/`Topics` + migration `20261122_012115_bilingual_notes`; built `NoteLanguageContext`, prominent `LanguageSwitch` (`banner` + sticky `compact`), `BilingualUnitShell`, and `BilingualTopicShell` defaulting to English Notes with instant client-side Hinglish switching; rewrote & expanded Unit 1 (`sociology-the-discipline`, all 3 chapters, 4 mind maps, 4 infographics, and 25 PYQ answers) in pure English primary + enriched Hinglish with plain-language conceptual walkthroughs; verified idempotent double upload and live HTTP 200 on all Unit 1 routes.
 - Task U01-notes (Stage 0 Notebook Engine + Paper 1 Unit 1): Built reusable Notion-style Hinglish study engine (`notebook-types`, `notebook-builder`, `resolve-blocks`, `ColorLegend`, `MindMap`, `InfographicGallery`, `PyqAnswerAccordion`, unit hub + chapter views with TOC & prev/next pager), `docs/tasks/25-units-notes-plan.md` (T01 ✅ Done, T02–T25 planned), C.W. Mills PYQ mapping fix, additive migration `20261122_005300_notebook_notes_visuals`, and uploaded Unit 1 (`sociology-the-discipline`: 3 chapters, 4 WebP infographics, 4 mind maps, all 25 solved 2013–2025 PYQs) idempotently to local Postgres.
 - SEO Control Center was added to `main` in commit `bea1997`. Codex follow-up clarifies editorial heuristics and avoids promising Google ranking or rich-result behavior; review PR is pending.

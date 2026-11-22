@@ -50,7 +50,6 @@ export default buildConfig({
         reviewQueue: { Component: '/components/admin/ReviewQueueView#ReviewQueueView', path: '/review' },
         writeDesk: { Component: '/components/admin/WriteDesk#WriteDesk', path: '/write' },
         seoControlCenter: { Component: '/components/admin/SeoControlCenter#SeoControlCenter', path: '/seo' },
-        repoContentImport: { Component: '/components/admin/RepoContentImport#RepoContentImport', path: '/import-repo-content' },
       },
     },
   },

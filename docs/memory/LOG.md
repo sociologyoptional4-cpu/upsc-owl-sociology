@@ -326,3 +326,7 @@
 - Checks: tsc ✓; eslint ✓ (0 errors; generated import-map ignore warning only).
 - Contract changes: none.
 - Open issues / proposals: Deploy this narrow fix, run the one-time import as an authenticated admin, verify production data, then remove the temporary endpoint/view.
+
+## 2026-11-22 · Codex · Production content importer cleanup
+- Added the missing M. N. Srinivas profile from seed data and completed the authenticated production import. Verified 8 thinkers, 7 portraits, 11 Media records, 3 bilingual Unit 1 chapters, 25 solved PYQs, and 1 corrected PYQ link.
+- Removed the temporary admin page and POST endpoint. Mac-only content still awaits a reviewed export.
