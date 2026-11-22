@@ -42,9 +42,9 @@ export function Card({ index, tone, title, hint, state, children }: CardProps) {
         {state.status === 'busy' ? <p className={styles.busy}>{state.note}</p> : null}
         {state.status === 'done' ? (
           <div className={styles.done}>
-            <p>✓ Draft ban gaya: <strong>{state.result.title}</strong> ({state.result.wordCount} words)</p>
+            <p>✓ Draft ban gaya: <strong>{state.result.title}</strong> ({state.result.detail ?? `${state.result.wordCount} words`})</p>
             {state.result.warnings.map((warning) => <p key={warning} className={styles.warn}>⚠ {warning}</p>)}
-            <Link href={state.result.adminUrl} className={styles.open}>Draft kholo →</Link>
+            <Link href={state.result.adminUrl} className={styles.open}>{state.result.adminUrl === '/admin/review' ? 'Review Queue kholo →' : 'Draft kholo →'}</Link>
           </div>
         ) : null}
         {state.status === 'error' ? (

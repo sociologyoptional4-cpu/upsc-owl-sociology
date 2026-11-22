@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { imagesFrom, importFile, importJson, uploadImage } from './api'
+import { imagesFrom, importFile, importJson, smartCurrentAffair, smartQuiz, uploadImage } from './api'
 import { Card, useRun } from './Card'
 import { DropZone } from './DropZone'
 import styles from './write-desk.module.css'
@@ -124,6 +124,24 @@ function ImagesCard({ index, tone, title, hint, layout, multiple }: { index: str
   )
 }
 
+function SmartCard({ index, tone, title, hint, placeholder, withUrl, send }: { index: string; tone: 'yellow' | 'mint'; title: string; hint: string; placeholder: string; withUrl: boolean; send: (text: string, url?: string) => Promise<import('./api').ImportResult> }) {
+  const { state, run } = useRun()
+  const [text, setText] = useState('')
+  const [url, setUrl] = useState('')
+  const busy = state.status === 'busy'
+  const submit = async () => {
+    if (await run('AI padh raha hai aur fields bhar raha hai (30-60 sec)...', () => send(text, url.trim() || undefined))) { setText(''); setUrl('') }
+  }
+  return (
+    <Card index={index} tone={tone} title={title} hint={hint} state={state}>
+      {withUrl ? <label className={styles.field}><span>Source link (optional, hai to bahut behtar)</span><input value={url} type="url" disabled={busy} onChange={(event) => setUrl(event.target.value)} placeholder="https://..." /></label> : null}
+      <label className={styles.field}><span>Content</span>
+        <textarea value={text} rows={8} disabled={busy} maxLength={60000} placeholder={placeholder} onChange={(event) => setText(event.target.value)} /></label>
+      <button type="button" className={styles.primary} disabled={busy || text.trim().length < 30} onClick={() => void submit()}>AI se bharwao →</button>
+    </Card>
+  )
+}
+
 export function WriteDeskClient() {
   return (
     <div className={styles.grid}>
@@ -132,6 +150,8 @@ export function WriteDeskClient() {
       <NotesCard />
       <ImagesCard index="04" tone="pink" title="Infographic paste" hint="Screenshot ya infographic copy karo, zone mein click karke Ctrl/Cmd+V." layout="infographic" multiple={false} />
       <ImagesCard index="05" tone="lavender" title="Images ka post" hint="2 se 12 images, gallery ban jayegi. Phone pe 2 columns mein dikhegi." layout="gallery" multiple />
+      <SmartCard index="06" tone="mint" title="Quiz paste" hint="Saare MCQs ek saath, kisi bhi format mein. Answer, explanation aur current-affair link AI bharega. Jo guess kiya, wo flag hoga." placeholder={'1. Question...\n(a) ... (b) ... (c) ... (d) ...\nAnswer: b'} withUrl={false} send={(text) => smartQuiz(text)} />
+      <SmartCard index="07" tone="yellow" title="Current affair paste" hint="Article ya apne notes paste karo. Headline, topics, thinkers, source, summary aur SEO AI bharega. Review Queue mein pending jayega." placeholder="Khabar ka text ya notes yahan paste karo" withUrl send={(text, url) => smartCurrentAffair(text, url)} />
     </div>
   )
 }
