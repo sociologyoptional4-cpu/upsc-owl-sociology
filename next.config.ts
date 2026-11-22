@@ -9,6 +9,8 @@ const dirname = path.dirname(__filename)
 
 const nextConfig: NextConfig = {
   // Smart paste reads the AI prompt files at runtime; make sure Vercel bundles them with the API routes.
+  // Prerendering many DB-backed pages at once exhausted Supabase connections on Vercel; fewer at a time + retry.
+  experimental: { staticGenerationMaxConcurrency: 2, staticGenerationRetryCount: 3 },
   outputFileTracingIncludes: { '/api/**': ['./src/pipeline/llm/prompts/**/*'] },
   images: {
     remotePatterns: [

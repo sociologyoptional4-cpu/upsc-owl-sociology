@@ -30,6 +30,7 @@ import { blogJobs } from './lib/blog/jobs'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+const IS_BUILD = process.env.NEXT_PHASE === 'phase-production-build'
 
 export default buildConfig({
   serverURL: getServerSideURL(),
@@ -61,9 +62,11 @@ export default buildConfig({
     push: env.NODE_ENV !== 'production',
     pool: {
       connectionString: env.DATABASE_URL,
-      max: 1,
+      // `next build` prerenders hundreds of pages in parallel workers; one connection with a 10 s wait
+      // timed out on Vercel. Build gets a slightly larger pool and longer wait; runtime stays lean.
+      max: IS_BUILD ? 3 : 1,
       idleTimeoutMillis: 10_000,
-      connectionTimeoutMillis: 10_000,
+      connectionTimeoutMillis: IS_BUILD ? 60_000 : 10_000,
       ssl: env.DATABASE_SSL_CA ? { ca: env.DATABASE_SSL_CA } : undefined,
     },
   }),
