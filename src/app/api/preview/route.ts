@@ -1,20 +1,19 @@
-import { timingSafeEqual } from 'node:crypto'
 import { draftMode } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
 
+import { hasRole } from '@/access/roles'
 import config from '@/payload.config'
 
 export async function GET(request: Request): Promise<Response> {
   const url = new URL(request.url)
-  const secret = url.searchParams.get('secret') ?? ''
-  const expected = process.env.PREVIEW_SECRET ?? ''
-  if (!expected || secret.length !== expected.length || !timingSafeEqual(Buffer.from(secret), Buffer.from(expected))) return new Response('Unauthorized', { status: 401 })
   const collection = url.searchParams.get('collection')
   if (collection !== 'current-affairs' && collection !== 'topics' && collection !== 'posts') return new Response('Unsupported collection', { status: 400 })
   const id = Number(url.searchParams.get('id'))
   if (!Number.isSafeInteger(id) || id < 1) return new Response('Invalid id', { status: 400 })
   const payload = await getPayload({ config })
+  const { user } = await payload.auth({ headers: request.headers })
+  if (!hasRole(user as { role?: 'admin' | 'editor' | 'ai-bot' } | null, 'admin', 'editor')) return new Response('Unauthorized', { status: 401 })
   if (collection === 'topics') {
     const doc = await payload.findByID({ collection: 'topics', id, draft: true, depth: 2, overrideAccess: true })
     const unit = typeof doc.unit === 'object' ? doc.unit : null

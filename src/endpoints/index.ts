@@ -2,7 +2,7 @@ import type { Endpoint, PayloadRequest, Where } from 'payload'
 import { z } from 'zod'
 
 import { hasRole } from '@/access/roles'
-import { ingestBatchSchema, reviewActionSchema, type IngestItem } from '@/lib/ingest/schema'
+import { ingestBatchSchema, reviewActionSchema } from '@/lib/ingest/schema'
 import { sourceHash } from '@/lib/ingest/hash'
 import { markdownToLexical } from '@/lib/ingest/markdownToLexical'
 import { createCurrentAffairDraft } from '@/lib/ingest/createDraft'
@@ -61,30 +61,36 @@ async function review(req: PayloadRequest): Promise<Response> {
   try { body = req.json ? await req.json() : null } catch { return fail('Invalid JSON') }
   const parsed = reviewActionSchema.safeParse(body)
   if (!parsed.success) return fail(parsed.error.issues.map((issue) => issue.message).join('; '))
-  if (parsed.data.kind === 'topic') {
-    const existing = await req.payload.findByID({ collection: 'topics', id, overrideAccess: true, draft: true, depth: 0 })
-    if (existing.reviewStatus !== 'pending' || !existing.layout?.length) return fail('No pending topic draft found', 409)
-    if (parsed.data.action === 'approve') {
-      const doc = await req.payload.update({ collection: 'topics', id, draft: false, data: { reviewStatus: 'approved', rejectReason: null, _status: 'published' }, overrideAccess: true })
+  try {
+    if (parsed.data.kind === 'topic') {
+      const existing = await req.payload.findByID({ collection: 'topics', id, overrideAccess: true, draft: true, depth: 0 })
+      if (existing.reviewStatus !== 'pending' || existing._status !== 'draft' || !existing.layout?.length) return fail('No pending topic draft found', 409)
+      if (parsed.data.action === 'approve') {
+        const doc = await req.payload.update({ collection: 'topics', id, draft: false, data: { reviewStatus: 'approved', rejectReason: null, _status: 'published' }, overrideAccess: true })
+        return response(true, doc, null)
+      }
+      const doc = await req.payload.update({ collection: 'topics', id, draft: false, data: { layout: [], reviewStatus: 'rejected', rejectReason: parsed.data.reason, _status: 'published' }, overrideAccess: true })
       return response(true, doc, null)
     }
-    const doc = await req.payload.update({ collection: 'topics', id, draft: false, data: { layout: existing.layout?.length ? [] : existing.layout, reviewStatus: 'rejected', rejectReason: parsed.data.reason, _status: 'published' }, overrideAccess: true })
+    const existing = await req.payload.findByID({ collection: 'current-affairs', id, overrideAccess: true, draft: true })
+    if (existing.reviewStatus !== 'pending' || existing._status !== 'draft') return fail('No pending current-affairs draft found', 409)
+    if (parsed.data.action === 'approve') {
+      const doc = await req.payload.update({ collection: 'current-affairs', id, draft: false, data: { reviewStatus: 'approved', rejectReason: null, _status: 'published' }, overrideAccess: true })
+      return response(true, doc, null)
+    }
+    const doc = await req.payload.update({ collection: 'current-affairs', id, draft: true, data: { reviewStatus: 'rejected', rejectReason: parsed.data.reason, _status: 'draft' }, overrideAccess: true })
     return response(true, doc, null)
+  } catch (error) {
+    req.payload.logger.error(`Review action failed for item ${id}: ${error instanceof Error ? error.message : 'unknown error'}`)
+    return fail('Publish nahi ho paya. Dobara try karo; agar phir bhi error aaye to admin ko batayein.', 500)
   }
-  await req.payload.findByID({ collection: 'current-affairs', id, overrideAccess: true })
-  if (parsed.data.action === 'approve') {
-    const doc = await req.payload.update({ collection: 'current-affairs', id, data: { reviewStatus: 'approved', rejectReason: null, _status: 'published' }, overrideAccess: true })
-    return response(true, doc, null)
-  }
-  const doc = await req.payload.update({ collection: 'current-affairs', id, data: { reviewStatus: 'rejected', rejectReason: parsed.data.reason, _status: 'draft' }, overrideAccess: true })
-  return response(true, doc, null)
 }
 
 async function reviewQueue(req: PayloadRequest): Promise<Response> {
   if (!allowed(req, 'admin', 'editor')) return fail('Unauthorized', 401)
   const [result, topicResult] = await Promise.all([
-    req.payload.find({ collection: 'current-affairs', where: { reviewStatus: { equals: 'pending' } }, limit: 50, sort: '-aiMeta.relevance,-date', depth: 2, overrideAccess: true }),
-    req.payload.find({ collection: 'topics', where: { reviewStatus: { equals: 'pending' } }, limit: 100, sort: 'order', depth: 2, overrideAccess: true, draft: true }),
+    req.payload.find({ collection: 'current-affairs', where: { and: [{ reviewStatus: { equals: 'pending' } }, { _status: { equals: 'draft' } }] }, limit: 50, sort: '-aiMeta.relevance,-date', depth: 2, overrideAccess: true, draft: true }),
+    req.payload.find({ collection: 'topics', where: { and: [{ reviewStatus: { equals: 'pending' } }, { _status: { equals: 'draft' } }] }, limit: 100, sort: 'order', depth: 2, overrideAccess: true, draft: true }),
   ])
   const currentAffairs = result.docs.map((doc) => ({
     kind: 'ca' as const, id: Number(doc.id), headline: doc.headline, date: formatDateIST(String(doc.date)), relevance: doc.aiMeta?.relevance ?? null, summary: doc.summary ?? null,
@@ -95,12 +101,12 @@ async function reviewQueue(req: PayloadRequest): Promise<Response> {
       if (!unit || !paper || (paper.code !== 'P1' && paper.code !== 'P2')) return []
       return [{ title: value.title, slug: value.slug ?? '', href: `/syllabus/${paper.slug}/${unit.slug}/${value.slug}`, paper: paper.code }]
     }), thinkers: (doc.thinkers ?? []).flatMap((value) => typeof value === 'object' ? [{ name: value.name, slug: value.slug ?? '', href: `/thinkers/${value.slug}` }] : []), model: doc.aiMeta?.model ?? null,
-    promptVersion: doc.aiMeta?.promptVersion ?? null, createdAt: String(doc.createdAt), previewHref: `/api/preview?collection=current-affairs&id=${doc.id}&secret=${encodeURIComponent(process.env.PREVIEW_SECRET ?? '')}`,
+    promptVersion: doc.aiMeta?.promptVersion ?? null, createdAt: String(doc.createdAt), previewHref: `/api/preview?collection=current-affairs&id=${doc.id}`,
   }))
   const topicDrafts = topicResult.docs.filter((doc) => doc.reviewStatus === 'pending' && Boolean(doc.layout?.length)).map((doc) => {
     const unit = typeof doc.unit === 'object' && doc.unit ? doc.unit : null
     const paper = unit && typeof unit.paper === 'object' && unit.paper ? unit.paper : null
-    return { kind: 'topic' as const, id: Number(doc.id), headline: doc.title, date: String(doc.updatedAt ?? doc.createdAt).slice(0, 10), relevance: null, summary: doc.summary ?? null, sources: [], topics: [], thinkers: [], model: doc.aiMeta?.model ?? null, promptVersion: doc.aiMeta?.promptVersion ?? null, createdAt: String(doc.createdAt), previewHref: paper && unit ? `/api/preview?collection=topics&id=${doc.id}&secret=${encodeURIComponent(process.env.PREVIEW_SECRET ?? '')}` : '/syllabus' }
+    return { kind: 'topic' as const, id: Number(doc.id), headline: doc.title, date: String(doc.updatedAt ?? doc.createdAt).slice(0, 10), relevance: null, summary: doc.summary ?? null, sources: [], topics: [], thinkers: [], model: doc.aiMeta?.model ?? null, promptVersion: doc.aiMeta?.promptVersion ?? null, createdAt: String(doc.createdAt), previewHref: paper && unit ? `/api/preview?collection=topics&id=${doc.id}` : '/syllabus' }
   })
   return response(true, [...currentAffairs, ...topicDrafts].sort((a, b) => b.date.localeCompare(a.date)), null)
 }
