@@ -85,6 +85,7 @@ export async function OwlDashboard({ initPageResult }: AdminViewServerProps) {
 
   const actions: Action[] = [
     { title: 'Review Queue', body: 'AI drafts padho, approve ya reject karo', href: '/admin/review', badge: pending, isHot: pending > 0 },
+    { title: '✍ Writing desk', body: 'Blog, notes, infographic, images: sab ek jagah se', href: '/admin/write', isHot: true },
     { title: '+ Naya blog post', body: 'Blog likho ya ChatGPT se paste karo', href: '/admin/collections/posts/create' },
     { title: '+ Naya current affair', body: 'Khud se ek khabar ka note likho', href: '/admin/collections/current-affairs/create' },
     { title: 'SEO Control Center', body: 'Site + blog ki SEO sehat, kya sudharna hai', href: '/admin/seo' },

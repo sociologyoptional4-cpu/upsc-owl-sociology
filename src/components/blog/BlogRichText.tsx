@@ -17,6 +17,7 @@ import {
   TimelineBlock,
   YouTubeBlock,
 } from './BlogBlocks'
+import { GalleryBlock, InfographicBlock } from './MediaBlocks'
 import './blog.css'
 
 type TextNode = {
@@ -96,6 +97,8 @@ export function BlogRichText({ data, resolved }: { data: unknown; resolved: Reso
       answerBox: ({ node }: BlockArg) => <AnswerBoxBlock fields={node.fields ?? {}} />,
       figure: ({ node }: BlockArg) => <FigureBlock fields={node.fields ?? {}} resolved={resolved} />,
       youtube: ({ node }: BlockArg) => <YouTubeBlock fields={node.fields ?? {}} />,
+      infographic: ({ node }: BlockArg) => <InfographicBlock fields={node.fields ?? {}} resolved={resolved} />,
+      gallery: ({ node }: BlockArg) => <GalleryBlock fields={node.fields ?? {}} resolved={resolved} />,
     },
     inlineBlocks: {
       termChip: ({ node }: BlockArg) => <TermChipInline fields={node.fields ?? {}} resolved={resolved} />,
