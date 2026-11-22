@@ -302,3 +302,11 @@
 - Checks: see commit message / final reply (tsc, eslint, unit, build run before commit).
 - Contract changes: `posts.quiz[]`, `posts.series`, `posts.seriesOrder`, new collection `blog-series`; `BlogPostDetail.quiz`, `.series`; `BlogListData.kind` + `'series'`; import JSON source `template`; new endpoint `POST /api/blog/quiz`.
 - Open issues / proposals: AI quiz not yet proven against real models (same client as smart paste, which was proven); no browser check of the editor sidebar (no local login).
+
+## 2026-11-22 11:27 IST · Codex · Production media schema
+- Did: Confirmed production deployment `47caebd` Ready. Traced the media API/admin 500 to the S3 plugin selecting a missing `media._objectkey` column. Added the nullable column, kept local and S3-enabled schema fields aligned, and preserved upload keys on rollback.
+- Files: `src/payload.config.ts`, `src/migrations/**`, `docs/memory/LOG.md`.
+- Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-06, memory, deployment runbook)
+- Checks: Postgres-compatible DDL apply/reapply and existing-row/rollback preservation ✓.
+- Contract changes: Additive nullable column for Payload S3 object keys.
+- Open issues: Verify media on the deployment after migration. Local-only CMS content still needs a reviewed export.
