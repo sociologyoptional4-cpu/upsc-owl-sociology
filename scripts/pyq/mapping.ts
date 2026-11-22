@@ -7,7 +7,7 @@ type Rule = { slug: string; keywords: string[] }
 
 const RULES: Record<number, Rule[]> = {
   1: [
-    { slug: 'sociology-and-common-sense', keywords: ['common sense', 'commonsense', 'common knowledge', 'everyday'] },
+    { slug: 'sociology-and-common-sense', keywords: ['common sense', 'commonsense', 'common knowledge', 'everyday', 'sociological imagination', 'c.w.mills', 'c.w. mills'] },
     { slug: 'modernity-and-emergence-of-sociology', keywords: ['modern', 'enlightenment', 'revolution', 'emergence', 'industrial', 'renaissance', 'europe', 'comte', 'origin'] },
     { slug: 'scope-and-other-social-sciences', keywords: [] },
   ],

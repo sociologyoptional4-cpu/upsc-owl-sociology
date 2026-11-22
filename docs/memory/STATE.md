@@ -33,6 +33,7 @@ Phase 0 ✅ committed → Phase 1 ✅ → **Phase 2 automation** (implementation
 - UPSC OWL Sociology content-generation providers: OpenAI API for writing and DeepSeek API for scoring/filtering; do not use Anthropic API. This is distinct from historical Claude Code UI/design role references.
 
 ## Completed
+- Task U01-notes (Stage 0 Notebook Engine + Paper 1 Unit 1): Built reusable Notion-style Hinglish study engine (`notebook-types`, `notebook-builder`, `resolve-blocks`, `ColorLegend`, `MindMap`, `InfographicGallery`, `PyqAnswerAccordion`, unit hub + chapter views with TOC & prev/next pager), `docs/tasks/25-units-notes-plan.md` (T01 ✅ Done, T02–T25 planned), C.W. Mills PYQ mapping fix, additive migration `20261122_005300_notebook_notes_visuals`, and uploaded Unit 1 (`sociology-the-discipline`: 3 chapters, 4 WebP infographics, 4 mind maps, all 25 solved 2013–2025 PYQs) idempotently to local Postgres.
 - SEO Control Center was added to `main` in commit `bea1997`. Codex follow-up clarifies editorial heuristics and avoids promising Google ranking or rich-result behavior; review PR is pending.
 - Rich-text tables enabled in Payload and Markdown ingestion; Python HTML-to-Markdown helper added with pinned `markdownify` dependency.
 - Phase 2 code: Tasks 05–08; Task 08 reactivated for C2 by D15. Quiz/digest UI source has no nested `<main>`; the shared frontend layout provides the single main landmark.

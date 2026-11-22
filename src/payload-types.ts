@@ -391,6 +391,48 @@ export interface Topic {
    */
   summary?: string | null;
   layout?: (HeroBlock | RichTextBlock | SummaryBlock | CalloutBlock | KeyTermsBlock | CtaBlock | PyqListBlock)[] | null;
+  notebookContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  mindMap?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  pyqAnswers?:
+    | {
+        year: number;
+        paper: 'P1' | 'P2';
+        marks: number;
+        question: string;
+        theme?: string | null;
+        intro: string;
+        points: {
+          text: string;
+          id?: string | null;
+        }[];
+        thinkers?: string | null;
+        example?: string | null;
+        conclusion: string;
+        id?: string | null;
+      }[]
+    | null;
   thinkers?: (number | Thinker)[] | null;
   relatedTopics?: (number | Topic)[] | null;
   updatedAt: string;
@@ -412,6 +454,36 @@ export interface Unit {
    * Khali chhodo to "title" se apne aap banega.
    */
   slug?: string | null;
+  /**
+   * Unit overview aur UPSC weightage (Hinglish)
+   */
+  overview?: string | null;
+  studySequence?:
+    | {
+        step: string;
+        detail?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  mindMap?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  infographics?:
+    | {
+        title: string;
+        caption?: string | null;
+        badge?: string | null;
+        image?: (number | null) | Media;
+        staticSrc?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -430,36 +502,6 @@ export interface Paper {
   description?: string | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "thinkers".
- */
-export interface Thinker {
-  id: number;
-  name: string;
-  /**
-   * Khali chhodo to "name" se apne aap banega.
-   */
-  slug?: string | null;
-  /**
-   * e.g. 1818–1883
-   */
-  era?: string | null;
-  /**
-   * Transparent WebP/AVIF cut-out (floating card ke liye)
-   */
-  portrait?: (number | null) | Media;
-  keyIdeas?:
-    | {
-        idea: string;
-        id?: string | null;
-      }[]
-    | null;
-  layout?: (HeroBlock | RichTextBlock | SummaryBlock | CalloutBlock | KeyTermsBlock | CtaBlock | PyqListBlock)[] | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -506,6 +548,36 @@ export interface Media {
       filename?: string | null;
     };
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "thinkers".
+ */
+export interface Thinker {
+  id: number;
+  name: string;
+  /**
+   * Khali chhodo to "name" se apne aap banega.
+   */
+  slug?: string | null;
+  /**
+   * e.g. 1818–1883
+   */
+  era?: string | null;
+  /**
+   * Transparent WebP/AVIF cut-out (floating card ke liye)
+   */
+  portrait?: (number | null) | Media;
+  keyIdeas?:
+    | {
+        idea: string;
+        id?: string | null;
+      }[]
+    | null;
+  layout?: (HeroBlock | RichTextBlock | SummaryBlock | CalloutBlock | KeyTermsBlock | CtaBlock | PyqListBlock)[] | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1218,6 +1290,28 @@ export interface TopicsSelect<T extends boolean = true> {
         cta?: T | CtaBlockSelect<T>;
         pyqList?: T | PyqListBlockSelect<T>;
       };
+  notebookContent?: T;
+  mindMap?: T;
+  pyqAnswers?:
+    | T
+    | {
+        year?: T;
+        paper?: T;
+        marks?: T;
+        question?: T;
+        theme?: T;
+        intro?: T;
+        points?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        thinkers?: T;
+        example?: T;
+        conclusion?: T;
+        id?: T;
+      };
   thinkers?: T;
   relatedTopics?: T;
   updatedAt?: T;
@@ -1235,6 +1329,25 @@ export interface UnitsSelect<T extends boolean = true> {
   order?: T;
   section?: T;
   slug?: T;
+  overview?: T;
+  studySequence?:
+    | T
+    | {
+        step?: T;
+        detail?: T;
+        id?: T;
+      };
+  mindMap?: T;
+  infographics?:
+    | T
+    | {
+        title?: T;
+        caption?: T;
+        badge?: T;
+        image?: T;
+        staticSrc?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }

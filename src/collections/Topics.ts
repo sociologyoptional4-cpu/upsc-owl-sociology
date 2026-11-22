@@ -5,6 +5,7 @@ import { LAYOUT_BLOCKS } from '@/blocks'
 import { slugField } from '@/fields/slug'
 import { forceBotDrafts } from '@/hooks/payload/forceBotDrafts'
 import { revalidateAfterChange, revalidateAfterDelete, topicPaths } from '@/hooks/payload/revalidate'
+import { blogEditor } from '@/lib/lexical/blogEditor'
 
 // Topic routes ship in Phase 1; revalidation hooks are added with them.
 export const Topics: CollectionConfig = {
@@ -32,6 +33,32 @@ export const Topics: CollectionConfig = {
     ] },
     { name: 'summary', type: 'textarea', admin: { description: '2-3 line overview (cards aur SEO mein)' } },
     { name: 'layout', type: 'blocks', blocks: LAYOUT_BLOCKS },
+    { name: 'notebookContent', type: 'richText', editor: blogEditor() },
+    { name: 'mindMap', type: 'json' },
+    {
+      name: 'pyqAnswers',
+      type: 'array',
+      maxRows: 30,
+      fields: [
+        { name: 'year', type: 'number', required: true },
+        { name: 'paper', type: 'select', required: true, defaultValue: 'P1', options: ['P1', 'P2'] },
+        { name: 'marks', type: 'number', required: true, defaultValue: 10 },
+        { name: 'question', type: 'textarea', required: true },
+        { name: 'theme', type: 'text' },
+        { name: 'intro', type: 'textarea', required: true },
+        {
+          name: 'points',
+          type: 'array',
+          required: true,
+          minRows: 1,
+          maxRows: 10,
+          fields: [{ name: 'text', type: 'textarea', required: true }],
+        },
+        { name: 'thinkers', type: 'text' },
+        { name: 'example', type: 'textarea' },
+        { name: 'conclusion', type: 'textarea', required: true },
+      ],
+    },
     { name: 'thinkers', type: 'relationship', relationTo: 'thinkers', hasMany: true },
     { name: 'relatedTopics', type: 'relationship', relationTo: 'topics', hasMany: true },
   ],
