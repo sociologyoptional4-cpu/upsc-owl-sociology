@@ -200,7 +200,7 @@
 
 ## 2026-11-21 17:53 · Codex (GPT-6) · Task 16-lite production deploy
 - Did: Added startup env validation, production migrations, Supabase S3 media, basic security headers, seed guard, deploy/runbook, `dry_run` workflow input, and a safe skip until the production bot key exists. Production is live at https://upsc-owl-sociology.vercel.app; migrations applied; `/`, `/current-affairs`, and `/admin` returned 200. Added all available pipeline Actions secrets except `AI_BOT_API_KEY`.
-- Files: `src/lib/env.ts`, `src/payload.config.ts`, `src/migrations/**`, `src/collections/Media.ts`, `src/seed/index.ts`, `next.config.ts`, `package.json`, `.env.example`, `.github/workflows/daily-ca.yml`, `vercel.json`, `docs/ops/runbook.md`, `docs/tasks/MASTER-PLAN.md`, `docs/memory/STATE.md`.
+- Files: `src/lib/env.ts`, `src/collections/Media.ts`, `src/migrations/**`, `src/collections/Media.ts`, `src/seed/index.ts`, `next.config.ts`, `package.json`, `.env.example`, `.github/workflows/daily-ca.yml`, `vercel.json`, `docs/ops/runbook.md`, `docs/tasks/MASTER-PLAN.md`, `docs/memory/STATE.md`.
 - Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-06, memory, Task 16-lite / U2)
 - Checks: tsc ✓ eslint ✓ (0 errors, 7 warnings) unit ✓ (71/71) build ✓; production migrations ✓; HTTP smoke ✓.
 - Contract changes: env requires database URL and Payload secret; Vercel requires Supabase root CA and complete S3 env; pipeline dispatch now accepts `dry_run`.
@@ -302,6 +302,14 @@
 - Checks: see commit message / final reply (tsc, eslint, unit, build run before commit).
 - Contract changes: `posts.quiz[]`, `posts.series`, `posts.seriesOrder`, new collection `blog-series`; `BlogPostDetail.quiz`, `.series`; `BlogListData.kind` + `'series'`; import JSON source `template`; new endpoint `POST /api/blog/quiz`.
 - Open issues / proposals: AI quiz not yet proven against real models (same client as smart paste, which was proven); no browser check of the editor sidebar (no local login).
+
+## 2026-11-22 11:27 IST · Codex · Production media schema
+- Did: Confirmed production deployment `47caebd` Ready. Traced the media API/admin 500 to the S3 plugin selecting a missing `media._objectkey` column. Added the nullable column, kept local and S3-enabled schema fields aligned, and preserved upload keys on rollback.
+- Files: `src/collections/Media.ts`, `src/migrations/**`, `docs/memory/LOG.md`.
+- Read-first: ✓ (AGENTS, MASTER-PLAN, docs 01-06, memory, deployment runbook)
+- Checks: Postgres-compatible DDL apply/reapply and existing-row/rollback preservation ✓.
+- Contract changes: Additive nullable column for Payload S3 object keys.
+- Open issues: Verify media on the deployment after migration. Local-only CMS content still needs a reviewed export.
 
 ## 2026-11-22 11:30 IST · Codex · Production review recovery
 - Did: Mapped the code with Graphify. PR #1 diverged from main, including review AI and unrelated overlapping commits. Reapplied the staff preview and pending-review corrections and the SEO wording edits on a clean branch. Fixed note presence checks to recognize bilingual notebook content in the syllabus, note automation, and SEO.

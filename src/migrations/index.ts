@@ -8,6 +8,8 @@ import * as migration_20261122_012313_smart_paste from './20261122_012313_smart_
 import * as migration_20261122_012816_blog_attachments from './20261122_012816_blog_attachments';
 import * as migration_20261122_040919_blog_extras from './20261122_040919_blog_extras';
 
+import * as migration_20261122_055900_media_object_key from './20261122_055900_media_object_key';
+
 export const migrations = [
   {
     up: migration_20261121_103619.up,
@@ -53,5 +55,10 @@ export const migrations = [
     up: migration_20261122_040919_blog_extras.up,
     down: migration_20261122_040919_blog_extras.down,
     name: '20261122_040919_blog_extras'
+  },
+  {
+    up: migration_20261122_055900_media_object_key.up,
+    down: migration_20261122_055900_media_object_key.down,
+    name: '20261122_055900_media_object_key',
   },
 ];
