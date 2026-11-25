@@ -3,8 +3,10 @@
 import Link from 'next/link'
 
 import { ContentGuard } from '../ContentGuard'
+import { OwlStudyMascot } from '../mascots/OwlMascot'
 import { Reveal } from '../motion/Reveal'
 import { ProvenanceBadge, SyllabusDmcaFooter } from '../syllabus/SyllabusProvenance'
+import { SpotlightCard } from '../ui/AuroraBackground'
 import { EmptyState } from '../ui/Badges'
 import { paperTone } from '../ui/paper'
 import { LanguageSwitch } from './LanguageSwitch'
@@ -53,40 +55,45 @@ function UnitTopicCard({ topic, unitNumber, index, toneBg, showHi }: UnitTopicCa
 
   return (
     <Reveal as="li" index={index}>
-      <article className="group relative flex h-full min-w-0 flex-col justify-between rounded-card border-2 border-ink bg-paper-raised p-6 shadow-paper transition-[transform,box-shadow] duration-500 ease-out-expo hover:-translate-y-1 hover:shadow-float">
-        <div>
-          <div className="flex items-center justify-between gap-2">
-            <span aria-hidden className={`block h-1 w-10 rounded-full ${toneBg}`} />
-            <span className="font-display text-xs font-extrabold text-ink-mute">
-              Chapter {unitNumber}.{index + 1}
-            </span>
-          </div>
-          <h3 className="mt-4 font-display text-xl font-bold leading-snug">
-            <Link href={topic.href} className="link-draw after:absolute after:inset-0 after:content-['']">
-              {topic.title}
-            </Link>
-          </h3>
-          {summary ? <p className="mt-2.5 line-clamp-3 text-sm leading-relaxed text-ink-soft">{summary}</p> : null}
-        </div>
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-2 border-t border-rule pt-4 text-xs">
-          <div className="flex flex-wrap gap-1.5">
-            {topic.hasNotes ? (
-              <span className="rounded-chip border border-ink bg-pastel-mint px-2 py-0.5 font-bold text-ink">
-                Notes Ready
+      <SpotlightCard
+        glowColor="rgba(16, 185, 129, 0.22)"
+        className="group relative h-full min-w-0 rounded-card border-2 border-ink bg-paper-raised p-6 shadow-paper transition-[transform,box-shadow] duration-500 ease-out-expo hover:-translate-y-1 hover:shadow-float"
+      >
+        <article className="flex h-full flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between gap-2">
+              <span aria-hidden className={`block h-1 w-10 rounded-full ${toneBg}`} />
+              <span className="font-display text-xs font-extrabold text-ink-mute">
+                Chapter {unitNumber}.{index + 1}
               </span>
-            ) : null}
-            {(topic.pyqCount ?? 0) > 0 ? (
-              <span className="rounded-chip border border-ink/25 bg-pastel-lavender px-2 py-0.5 font-bold text-ink">
-                {topic.pyqCount} PYQs
-              </span>
-            ) : null}
-            <span className="rounded-chip border border-rule px-2 py-0.5 text-ink-mute">
-              {topic.caCount} {topic.caCount === 1 ? 'story' : 'stories'}
-            </span>
+            </div>
+            <h3 className="mt-4 font-display text-xl font-bold leading-snug">
+              <Link href={topic.href} className="link-draw after:absolute after:inset-0 after:content-['']">
+                {topic.title}
+              </Link>
+            </h3>
+            {summary ? <p className="mt-2.5 line-clamp-3 text-sm leading-relaxed text-ink-soft">{summary}</p> : null}
           </div>
-          <span className="font-semibold text-saffron-deep">{cta}</span>
-        </div>
-      </article>
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-2 border-t border-rule pt-4 text-xs">
+            <div className="flex flex-wrap gap-1.5">
+              {topic.hasNotes ? (
+                <span className="rounded-chip border border-ink bg-pastel-mint px-2 py-0.5 font-bold text-ink">
+                  Notes Ready
+                </span>
+              ) : null}
+              {(topic.pyqCount ?? 0) > 0 ? (
+                <span className="rounded-chip border border-ink/25 bg-pastel-lavender px-2 py-0.5 font-bold text-ink">
+                  {topic.pyqCount} PYQs
+                </span>
+              ) : null}
+              <span className="rounded-chip border border-rule px-2 py-0.5 text-ink-mute">
+                {topic.caCount} {topic.caCount === 1 ? 'story' : 'stories'}
+              </span>
+            </div>
+            <span className="font-semibold text-saffron-deep">{cta}</span>
+          </div>
+        </article>
+      </SpotlightCard>
     </Reveal>
   )
 }
@@ -119,11 +126,14 @@ function UnitHeader({
         {String(unitNumber).padStart(2, '0')}
       </span>
       <div className="min-w-0">
-        <p className="tag-skew">
-          <span>
-            {tone.label} · Unit {unitNumber}
-          </span>
-        </p>
+        <div className="flex flex-wrap items-center gap-3">
+          <OwlStudyMascot state="idle" className="h-12 w-12 shrink-0" />
+          <p className="tag-skew">
+            <span>
+              {tone.label} · Unit {unitNumber}
+            </span>
+          </p>
+        </div>
         <h1 className="mt-4 text-[length:var(--text-h2)] font-extrabold">{unitTitle}</h1>
         {overview ? (
           <p className="mt-4 max-w-[68ch] text-base leading-relaxed text-ink-soft md:text-lg">{overview}</p>
@@ -186,30 +196,28 @@ function UnitShellInner(props: BilingualUnitShellProps) {
   const overview = showHi ? (props.overviewHi ?? props.overviewEn) : props.overviewEn
 
   return (
-    <div className="mx-auto max-w-7xl px-5 pt-10 md:px-8 md:pt-16">
-      {props.breadcrumbsNode}
-      <UnitHeader
-        paperCode={props.paper.code}
-        unitNumber={props.unitNumber}
-        unitTitle={props.unitTitle}
-        canonicalHref={props.canonicalHref}
-        createdAt={props.createdAt}
-        updatedAt={props.updatedAt}
-        overview={overview}
-        chaptersCount={props.topics.length}
-        totalPyqs={props.totalPyqs}
-      />
-      <LanguageSwitch variant="banner" className="mt-6" />
-      <ContentGuard canonicalPath={props.canonicalHref}>
+    <ContentGuard canonicalPath={props.canonicalHref}>
+      <div className="mx-auto max-w-7xl px-5 pt-10 md:px-8 md:pt-16">
+        {props.breadcrumbsNode}
+        <UnitHeader
+          paperCode={props.paper.code}
+          unitNumber={props.unitNumber}
+          unitTitle={props.unitTitle}
+          canonicalHref={props.canonicalHref}
+          createdAt={props.createdAt}
+          updatedAt={props.updatedAt}
+          overview={overview}
+          chaptersCount={props.topics.length}
+          totalPyqs={props.totalPyqs}
+        />
+        <LanguageSwitch variant="banner" className="mt-6" />
         {showHi ? (props.sequenceHiNode ?? props.sequenceEnNode) : props.sequenceEnNode}
-      </ContentGuard>
-      <UnitChaptersSection topics={props.topics} unitNumber={props.unitNumber} toneBg={tone.bg} showHi={showHi} />
-      <ContentGuard canonicalPath={props.canonicalHref}>
+        <UnitChaptersSection topics={props.topics} unitNumber={props.unitNumber} toneBg={tone.bg} showHi={showHi} />
         {showHi ? (props.mindMapHiNode ?? props.mindMapEnNode) : props.mindMapEnNode}
         {showHi ? (props.infographicsHiNode ?? props.infographicsEnNode) : props.infographicsEnNode}
-      </ContentGuard>
-      <SyllabusDmcaFooter canonicalHref={props.canonicalHref} title={props.unitTitle} />
-    </div>
+        <SyllabusDmcaFooter canonicalHref={props.canonicalHref} title={props.unitTitle} />
+      </div>
+    </ContentGuard>
   )
 }
 

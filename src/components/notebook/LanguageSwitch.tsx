@@ -1,5 +1,8 @@
 'use client'
 
+import { motion } from 'motion/react'
+
+import { recordStudyXp } from '../gamification/StudyStreakPill'
 import { useNoteLanguage } from './NoteLanguageContext'
 
 type LanguageSwitchProps = {
@@ -27,27 +30,46 @@ function CompactSwitch({ className }: { className: string }) {
   const isEn = lang === 'en'
   const baseBtn = 'whitespace-nowrap rounded-chip px-2.5 py-1 font-display text-xs transition-colors'
 
+  const switchLang = (next: 'en' | 'hi') => {
+    if (lang !== next) recordStudyXp('lang_switch')
+    setLang(next)
+  }
+
   return (
     <div
       role="group"
       aria-label="Choose notes language"
-      className={`inline-flex shrink-0 items-center rounded-chip border-2 border-ink bg-paper-raised p-0.5 text-ink shadow-paper ${className}`.trim()}
+      className={`relative inline-flex shrink-0 items-center rounded-chip border-2 border-ink bg-paper-raised p-0.5 text-ink shadow-paper ${className}`.trim()}
     >
       <button
         type="button"
         aria-pressed={isEn}
-        onClick={() => setLang('en')}
-        className={`${baseBtn} ${isEn ? 'bg-ink font-extrabold text-paper' : 'font-semibold text-ink-soft hover:text-ink'}`}
+        onClick={() => switchLang('en')}
+        className={`${baseBtn} relative ${isEn ? 'font-extrabold text-paper' : 'font-semibold text-ink-soft hover:text-ink'}`}
       >
-        EN · English
+        {isEn ? (
+          <motion.span
+            layoutId="notes-lang-compact"
+            transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+            className="absolute inset-0 rounded-chip bg-ink"
+          />
+        ) : null}
+        <span className="relative z-10">EN · English</span>
       </button>
       <button
         type="button"
         aria-pressed={!isEn}
-        onClick={() => setLang('hi')}
-        className={`${baseBtn} ${!isEn ? 'bg-saffron font-extrabold text-ink' : 'font-semibold text-ink-soft hover:text-ink'}`}
+        onClick={() => switchLang('hi')}
+        className={`${baseBtn} relative ${!isEn ? 'font-extrabold text-ink' : 'font-semibold text-ink-soft hover:text-ink'}`}
       >
-        HI · Hinglish
+        {!isEn ? (
+          <motion.span
+            layoutId="notes-lang-compact"
+            transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+            className="absolute inset-0 rounded-chip bg-saffron"
+          />
+        ) : null}
+        <span className="relative z-10">HI · Hinglish</span>
       </button>
     </div>
   )
@@ -63,6 +85,11 @@ function BannerSwitch({ className }: { className: string }) {
     'inline-flex min-h-10 items-center gap-2 rounded-chip px-4 py-2 font-display text-xs transition-colors sm:text-sm'
   const inactiveCls = 'bg-paper-raised text-ink border-2 border-ink/40 font-semibold hover:border-ink'
 
+  const switchLang = (next: 'en' | 'hi') => {
+    if (lang !== next) recordStudyXp('lang_switch')
+    setLang(next)
+  }
+
   return (
     <div
       className={`flex flex-col gap-3 rounded-card border-2 border-ink bg-pastel-yellow/45 px-4 py-3 text-ink shadow-paper sm:flex-row sm:items-center sm:justify-between ${className}`.trim()}
@@ -73,16 +100,23 @@ function BannerSwitch({ className }: { className: string }) {
         </p>
         <p className="mt-0.5 text-xs leading-relaxed text-ink-soft">{helper}</p>
       </div>
-      <div role="group" aria-label="Choose notes language" className="flex shrink-0 flex-wrap items-center gap-2">
+      <div role="group" aria-label="Choose notes language" className="relative flex shrink-0 flex-wrap items-center gap-2">
         <button
           type="button"
           aria-pressed={isEn}
-          onClick={() => setLang('en')}
-          className={`${btnBase} ${isEn ? 'bg-ink text-paper border-2 border-ink font-extrabold shadow-paper' : inactiveCls}`}
+          onClick={() => switchLang('en')}
+          className={`${btnBase} relative ${isEn ? 'border-2 border-ink font-extrabold text-paper shadow-paper' : inactiveCls}`}
         >
-          <span>English Notes</span>
+          {isEn ? (
+            <motion.span
+              layoutId="notes-lang-banner"
+              transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+              className="absolute inset-0 rounded-chip bg-ink"
+            />
+          ) : null}
+          <span className="relative z-10">English Notes</span>
           <span
-            className={`rounded-chip px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+            className={`relative z-10 rounded-chip px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
               isEn ? 'border border-paper/40 bg-paper/15 text-paper' : 'border border-ink/25 bg-paper-sunk text-ink-soft'
             }`}
           >
@@ -92,10 +126,17 @@ function BannerSwitch({ className }: { className: string }) {
         <button
           type="button"
           aria-pressed={!isEn}
-          onClick={() => setLang('hi')}
-          className={`${btnBase} ${!isEn ? 'bg-saffron text-ink border-2 border-ink font-extrabold shadow-paper' : inactiveCls}`}
+          onClick={() => switchLang('hi')}
+          className={`${btnBase} relative ${!isEn ? 'border-2 border-ink font-extrabold text-ink shadow-paper' : inactiveCls}`}
         >
-          Hinglish Notes
+          {!isEn ? (
+            <motion.span
+              layoutId="notes-lang-banner"
+              transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+              className="absolute inset-0 rounded-chip bg-saffron"
+            />
+          ) : null}
+          <span className="relative z-10">Hinglish Notes</span>
         </button>
       </div>
     </div>

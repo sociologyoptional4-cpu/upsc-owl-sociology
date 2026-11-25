@@ -3,6 +3,7 @@ import Link from 'next/link'
 import type { HomeData } from '@/lib/data/types'
 
 import { CaCard } from '../cards/CaCard'
+import { OwlStudyMascot } from '../mascots/OwlMascot'
 import { Portrait } from '../thinkers/Portrait'
 import { formatDay, formatWeekday, pluralize } from '../ui/format'
 
@@ -28,6 +29,12 @@ export function HomeHero({ data }: { data: HomeData }) {
 
       <section aria-labelledby="hero-heading" className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 pb-[var(--space-section)] pt-10 md:px-8 lg:grid-cols-[1.05fr_1fr] lg:pt-16">
         <div>
+          <div className="mb-5 inline-flex items-center gap-2.5 rounded-chip border-2 border-ink bg-paper-raised px-3.5 py-1.5 shadow-paper">
+            <OwlStudyMascot state="idle" className="h-10 w-10 shrink-0" />
+            <span className="font-display text-xs font-extrabold uppercase tracking-wider text-ink">
+              Aurora Notes · Bilingual UPSC Companion
+            </span>
+          </div>
           <h1 id="hero-heading" className="text-[length:var(--text-hero)] font-extrabold">
             Society ko samjho, <span className="text-saffron-deep">roz ki khabron</span> se!!
           </h1>

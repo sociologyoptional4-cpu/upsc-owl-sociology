@@ -10,6 +10,7 @@ import { JsonLd } from '@/components/ui/Breadcrumbs'
 import { SmoothScroll } from '@/components/layout/SmoothScroll'
 import { themeInitScript } from '@/components/layout/ThemeToggle'
 import { DuotoneDefs } from '@/components/thinkers/DuotoneDefs'
+import { AuroraBackground } from '@/components/ui/AuroraBackground'
 import { siteJsonLd } from '@/lib/seo/jsonld'
 import { getServerSideURL } from '@/lib/url'
 import { getNavigation } from '@/lib/data/navigation'
@@ -56,6 +57,7 @@ export default async function RootLayout({ children }: Props) {
         </noscript>
       </head>
       <body>
+        <AuroraBackground />
         <JsonLd data={siteJsonLd()} />
         <DuotoneDefs />
         <a

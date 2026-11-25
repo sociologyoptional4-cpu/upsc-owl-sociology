@@ -1,8 +1,13 @@
 'use client'
 
+import { motion } from 'motion/react'
 import { useEffect, useMemo, useState } from 'react'
 
 import type { NoteLang } from '@/lib/notes/notebook-types'
+import { MasteryRadialGauge } from '../gamification/MasteryRadialGauge'
+import { recordStudyXp } from '../gamification/StudyStreakPill'
+import { QuillNotesBuddy } from '../mascots/OwlMascot'
+import { SpotlightCard } from '../ui/AuroraBackground'
 
 export type TopicSelfCheckProps = {
   slug: string
@@ -15,12 +20,13 @@ export type TopicSelfCheckProps = {
 
 type RecallCardProps = {
   item: { year: number; question: string; thinkers?: string | null; example?: string | null }
+  index: number
   revealed: boolean
   lang: NoteLang
   onToggle: () => void
 }
 
-function RecallCard({ item, revealed, lang, onToggle }: RecallCardProps) {
+function RecallCard({ item, index, revealed, lang, onToggle }: RecallCardProps) {
   const btnLabel = revealed
     ? lang === 'hi'
       ? 'Thinker + Example chhupao'
@@ -30,36 +36,46 @@ function RecallCard({ item, revealed, lang, onToggle }: RecallCardProps) {
       : 'Reveal Thinker + Indian Example'
 
   return (
-    <li className="rounded-card border-2 border-ink bg-paper-raised p-4 shadow-paper">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="rounded-chip border border-ink bg-pastel-yellow px-2.5 py-0.5 font-display text-xs font-extrabold text-ink">
-          UPSC {item.year}
-        </span>
-        <button
-          type="button"
-          onClick={onToggle}
-          aria-expanded={revealed}
-          className="rounded-chip border-2 border-ink bg-paper-sunk px-3 py-1 font-display text-xs font-bold text-ink transition-colors hover:bg-pastel-mint"
-        >
-          {btnLabel}
-        </button>
-      </div>
-      <p className="mt-2.5 text-sm font-semibold leading-snug text-ink">{item.question}</p>
-      {revealed ? (
-        <div className="mt-3 space-y-2 border-t border-rule pt-3 text-xs leading-relaxed text-ink">
-          {item.thinkers ? (
-            <p>
-              <strong className="font-bold text-thinker">Thinkers:</strong> {item.thinkers}
-            </p>
-          ) : null}
-          {item.example ? (
-            <p className="rounded-card bg-pastel-mint/70 p-2.5">
-              <strong className="font-bold">Indian Example:</strong> {item.example}
-            </p>
-          ) : null}
+    <motion.li
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25, delay: index * 0.06 }}
+    >
+      <SpotlightCard glowColor="rgba(6, 182, 212, 0.22)" className="rounded-card border-2 border-ink bg-paper-raised p-4 shadow-paper">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="rounded-chip border border-ink bg-pastel-yellow px-2.5 py-0.5 font-display text-xs font-extrabold text-ink">
+            UPSC {item.year}
+          </span>
+          <button
+            type="button"
+            onClick={onToggle}
+            aria-expanded={revealed}
+            className="rounded-chip border-2 border-ink bg-paper-sunk px-3 py-1 font-display text-xs font-bold text-ink transition-colors hover:bg-pastel-mint"
+          >
+            {btnLabel}
+          </button>
         </div>
-      ) : null}
-    </li>
+        <p className="mt-2.5 text-sm font-semibold leading-snug text-ink">{item.question}</p>
+        {revealed ? (
+          <motion.div
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-3 space-y-2 border-t border-rule pt-3 text-xs leading-relaxed text-ink"
+          >
+            {item.thinkers ? (
+              <p>
+                <strong className="font-bold text-thinker">Thinkers:</strong> {item.thinkers}
+              </p>
+            ) : null}
+            {item.example ? (
+              <p className="rounded-card bg-pastel-mint/70 p-2.5">
+                <strong className="font-bold">Indian Example:</strong> {item.example}
+              </p>
+            ) : null}
+          </motion.div>
+        ) : null}
+      </SpotlightCard>
+    </motion.li>
   )
 }
 
@@ -92,7 +108,9 @@ export function TopicSelfCheck({ slug, title, pyqs, toc, lang }: TopicSelfCheckP
 
   const toggleSection = (id: string) => {
     setCheckedIds((prev) => {
-      const next = prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+      const isAdding = !prev.includes(id)
+      const next = isAdding ? [...prev, id] : prev.filter((item) => item !== id)
+      if (isAdding) recordStudyXp('section_mastered')
       try {
         window.localStorage.setItem(storageKey, JSON.stringify(next))
       } catch {
@@ -103,9 +121,11 @@ export function TopicSelfCheck({ slug, title, pyqs, toc, lang }: TopicSelfCheckP
   }
 
   const toggleRecall = (idx: number) => {
-    setRevealedIndices((prev) =>
-      prev.includes(idx) ? prev.filter((item) => item !== idx) : [...prev, idx],
-    )
+    setRevealedIndices((prev) => {
+      const isRevealing = !prev.includes(idx)
+      if (isRevealing) recordStudyXp('pyq_recall')
+      return isRevealing ? [...prev, idx] : prev.filter((item) => item !== idx)
+    })
   }
 
   const validDoneCount = sections.filter((s) => checkedIds.includes(s.id)).length
@@ -116,24 +136,28 @@ export function TopicSelfCheck({ slug, title, pyqs, toc, lang }: TopicSelfCheckP
       aria-labelledby="topic-self-check-h"
       className="mt-[var(--space-section)] rounded-sheet border-2 border-ink bg-paper-sunk p-5 shadow-paper md:p-6"
     >
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="tag-skew"><span>{lang === 'hi' ? 'Active Recall' : 'Active Recall & Self-Check'}</span></p>
-          <h2 id="topic-self-check-h" className="mt-3 font-display text-lg font-extrabold text-ink">
-            {lang === 'hi' ? `${title} — Apni Taiyaari Check Karo` : `${title} — Syllabus Mastery & Recall`}
-          </h2>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <QuillNotesBuddy state={pct >= 80 ? 'celebrate' : 'idle'} className="h-14 w-14 shrink-0" />
+          <div>
+            <p className="tag-skew"><span>{lang === 'hi' ? 'Active Recall' : 'Active Recall & Self-Check'}</span></p>
+            <h2 id="topic-self-check-h" className="mt-3 font-display text-lg font-extrabold text-ink">
+              {lang === 'hi' ? `${title} — Apni Taiyaari Check Karo` : `${title} — Syllabus Mastery & Recall`}
+            </h2>
+          </div>
         </div>
-        {sections.length > 0 ? (
-          <span className="rounded-chip border-2 border-ink bg-pastel-mint px-3 py-1 font-display text-xs font-extrabold text-ink">
-            {validDoneCount}/{sections.length} ({pct}%)
-          </span>
-        ) : null}
+        {sections.length > 0 ? <MasteryRadialGauge pct={pct} label="Chapter Mastery" /> : null}
       </div>
 
       {sections.length > 0 ? (
         <div className="mt-4">
           <div className="h-2.5 w-full overflow-hidden rounded-full border border-ink bg-paper-raised">
-            <div className="h-full bg-saffron transition-[width] duration-300" style={{ width: `${pct}%` }} />
+            <motion.div
+              className="h-full bg-gradient-to-r from-emerald-500 via-cyan-500 to-violet-500"
+              initial={false}
+              animate={{ width: `${pct}%` }}
+              transition={{ type: 'spring', stiffness: 240, damping: 24 }}
+            />
           </div>
           <ul className="mt-4 grid gap-2 sm:grid-cols-2">
             {sections.map((section) => {
@@ -166,6 +190,7 @@ export function TopicSelfCheck({ slug, title, pyqs, toc, lang }: TopicSelfCheckP
               <RecallCard
                 key={`${item.year}-${idx}`}
                 item={item}
+                index={idx}
                 revealed={revealedIndices.includes(idx)}
                 lang={lang}
                 onToggle={() => toggleRecall(idx)}

@@ -1,8 +1,10 @@
 'use client'
 
+import { AnimatePresence, motion } from 'motion/react'
 import { useId, useMemo, useState } from 'react'
 
 import type { NoteLang, PyqAnswerItem } from '@/lib/notes/notebook-types'
+import { recordStudyXp } from '../gamification/StudyStreakPill'
 
 function PyqCardMeta({ item }: { item: PyqAnswerItem }) {
   const paperDot = item.paper === 'P1' ? 'bg-paper-1' : 'bg-paper-2'
@@ -99,11 +101,22 @@ function PyqAnswerCard({ item, index, baseId, isOpen, onToggle }: CardProps) {
           </span>
         </button>
       </h3>
-      {isOpen ? (
-        <div id={panelId} role="region" aria-labelledby={buttonId}>
-          <PyqAnswerBody item={item} />
-        </div>
-      ) : null}
+      <AnimatePresence initial={false}>
+        {isOpen ? (
+          <motion.div
+            id={panelId}
+            role="region"
+            aria-labelledby={buttonId}
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.22, ease: 'easeInOut' }}
+            className="overflow-hidden"
+          >
+            <PyqAnswerBody item={item} />
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </article>
   )
 }
@@ -160,8 +173,12 @@ export function PyqAnswerAccordion({
   const toggleItem = (index: number) => {
     setOpenIndices((prev) => {
       const next = new Set(prev)
-      if (next.has(index)) next.delete(index)
-      else next.add(index)
+      if (next.has(index)) {
+        next.delete(index)
+      } else {
+        next.add(index)
+        recordStudyXp('pyq_recall')
+      }
       return next
     })
   }

@@ -1,8 +1,11 @@
 'use client'
 
 import Link from 'next/link'
+import { useEffect } from 'react'
 
 import { ContentGuard } from '../ContentGuard'
+import { recordStudyXp } from '../gamification/StudyStreakPill'
+import { QuillNotesBuddy } from '../mascots/OwlMascot'
 import { ProvenanceBadge, SyllabusDmcaFooter } from '../syllabus/SyllabusProvenance'
 import { LanguageSwitch } from './LanguageSwitch'
 import { NoteLanguageProvider, useNoteLanguage } from './NoteLanguageContext'
@@ -145,29 +148,27 @@ function TopicMainColumn({ props, showHi, hasMindMap }: { props: BilingualTopicS
   const selfCheckNode = showHi ? (props.selfCheckHiNode ?? props.selfCheckEnNode) : props.selfCheckEnNode
   return (
     <div className="min-w-0">
-      <ContentGuard canonicalPath={props.canonicalHref}>
-        {hasMindMap ? (
-          <section id="mind-map" aria-label="Chapter Mind Map" className="mb-10 scroll-mt-32">
-            {showHi ? (props.mindMapHiNode ?? props.mindMapEnNode) : props.mindMapEnNode}
-          </section>
-        ) : null}
-
-        <section id="notes" aria-label="Notes" className="scroll-mt-32">
-          {showHi ? (props.notesHiNode ?? props.notesEnNode) : props.notesEnNode}
+      {hasMindMap ? (
+        <section id="mind-map" aria-label="Chapter Mind Map" className="mb-10 scroll-mt-32">
+          {showHi ? (props.mindMapHiNode ?? props.mindMapEnNode) : props.mindMapEnNode}
         </section>
+      ) : null}
 
-        {selfCheckNode}
+      <section id="notes" aria-label="Notes" className="scroll-mt-32">
+        {showHi ? (props.notesHiNode ?? props.notesEnNode) : props.notesEnNode}
+      </section>
 
-        {props.pyqCount > 0 ? (
-          <section id="pyqs" aria-labelledby="topic-pyqs-h" className="mt-[var(--space-section)] scroll-mt-32">
-            <p className="tag-skew"><span>2013–2025 PYQ Bank</span></p>
-            <h2 id="topic-pyqs-h" className="mt-4 mb-6 text-[length:var(--text-h3)] font-extrabold">
-              Solved Previous Year Questions
-            </h2>
-            {showHi ? (props.pyqsHiNode ?? props.pyqsEnNode) : props.pyqsEnNode}
-          </section>
-        ) : null}
-      </ContentGuard>
+      {selfCheckNode}
+
+      {props.pyqCount > 0 ? (
+        <section id="pyqs" aria-labelledby="topic-pyqs-h" className="mt-[var(--space-section)] scroll-mt-32">
+          <p className="tag-skew"><span>2013–2025 PYQ Bank</span></p>
+          <h2 id="topic-pyqs-h" className="mt-4 mb-6 text-[length:var(--text-h3)] font-extrabold">
+            Solved Previous Year Questions
+          </h2>
+          {showHi ? (props.pyqsHiNode ?? props.pyqsEnNode) : props.pyqsEnNode}
+        </section>
+      ) : null}
 
       <section id="current-affairs" aria-labelledby="topic-ca-h" className="mt-[var(--space-section)] scroll-mt-32">
         <h2 id="topic-ca-h" className="mb-8 text-[length:var(--text-h3)] font-extrabold">
@@ -198,6 +199,10 @@ function TopicShellInner(props: BilingualTopicShellProps) {
   const hasMindMap = showHi ? props.hasMindMapHi || props.hasMindMapEn : props.hasMindMapEn
   const toc = showHi && props.tocHi.length > 0 ? props.tocHi : props.tocEn
 
+  useEffect(() => {
+    recordStudyXp('chapter_read')
+  }, [props.canonicalHref])
+
   const navSections: NavSection[] = [
     ...(hasMindMap ? [{ id: 'mind-map', label: 'Mind Map' }] : []),
     { id: 'notes', label: 'Notes' },
@@ -207,25 +212,30 @@ function TopicShellInner(props: BilingualTopicShellProps) {
   ]
 
   return (
-    <div data-paper={props.paperCode} className="mx-auto max-w-7xl px-5 pt-10 md:px-8 md:pt-16">
-      {props.breadcrumbsNode}
-      <header className="mt-8 max-w-4xl">
-        <p className="tag-skew"><span>{props.paperLabel} · Chapter Notes</span></p>
-        <h1 className="mt-6 text-[length:var(--text-h2)] font-extrabold">{props.title}</h1>
-        {summary ? <p className="mt-4 max-w-[60ch] text-[length:var(--text-lg)] text-ink-soft">{summary}</p> : null}
-        <ProvenanceBadge createdAt={props.createdAt} updatedAt={props.updatedAt} canonicalHref={props.canonicalHref} />
-      </header>
-      <LanguageSwitch variant="banner" className="mt-6" />
-      <TopicStickyNav sections={navSections} />
+    <ContentGuard canonicalPath={props.canonicalHref}>
+      <div data-paper={props.paperCode} className="mx-auto max-w-7xl px-5 pt-10 md:px-8 md:pt-16">
+        {props.breadcrumbsNode}
+        <header className="mt-8 max-w-4xl">
+          <div className="flex flex-wrap items-center gap-3">
+            <QuillNotesBuddy state="reading" className="h-12 w-12 shrink-0" />
+            <p className="tag-skew"><span>{props.paperLabel} · Chapter Notes</span></p>
+          </div>
+          <h1 className="mt-5 text-[length:var(--text-h2)] font-extrabold">{props.title}</h1>
+          {summary ? <p className="mt-4 max-w-[60ch] text-[length:var(--text-lg)] text-ink-soft">{summary}</p> : null}
+          <ProvenanceBadge createdAt={props.createdAt} updatedAt={props.updatedAt} canonicalHref={props.canonicalHref} />
+        </header>
+        <LanguageSwitch variant="banner" className="mt-6" />
+        <TopicStickyNav sections={navSections} />
 
-      <div className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,1fr)_17rem]">
-        <TopicMainColumn props={props} showHi={showHi} hasMindMap={hasMindMap} />
-        <aside className="space-y-6 lg:sticky lg:top-32 lg:self-start">
-          <TopicTocCard toc={toc} />
-          {props.asideExtraNode}
-        </aside>
+        <div className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,1fr)_17rem]">
+          <TopicMainColumn props={props} showHi={showHi} hasMindMap={hasMindMap} />
+          <aside className="space-y-6 lg:sticky lg:top-32 lg:self-start">
+            <TopicTocCard toc={toc} />
+            {props.asideExtraNode}
+          </aside>
+        </div>
       </div>
-    </div>
+    </ContentGuard>
   )
 }
 

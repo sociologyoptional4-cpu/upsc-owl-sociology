@@ -1,5 +1,6 @@
 import Link from 'next/link'
 
+import { StudyStreakPill } from '../gamification/StudyStreakPill'
 import { TELEGRAM_URL } from '../ui/links'
 
 import { ThemeToggle } from './ThemeToggle'
@@ -33,6 +34,7 @@ export function Header({ nav }: { nav: NavItem[] }) {
           </ul>
         </nav>
         <div className="flex items-center gap-2">
+          <StudyStreakPill />
           <Link
             href={TELEGRAM_URL}
             target="_blank"
