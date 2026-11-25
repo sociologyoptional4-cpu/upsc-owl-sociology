@@ -5,12 +5,26 @@ import { LAYOUT_BLOCKS } from '@/blocks'
 import { slugField } from '@/fields/slug'
 import { forceBotDrafts } from '@/hooks/payload/forceBotDrafts'
 import { revalidateAfterChange, revalidateAfterDelete, topicPaths } from '@/hooks/payload/revalidate'
+import { syncReviewStatus } from '@/hooks/payload/syncReviewStatus'
 import { blogEditor } from '@/lib/lexical/blogEditor'
 
 // Topic routes ship in Phase 1; revalidation hooks are added with them.
 export const Topics: CollectionConfig = {
   slug: 'topics',
-  admin: { useAsTitle: 'title', defaultColumns: ['title', 'unit', '_status'], group: 'Syllabus' },
+  admin: {
+    useAsTitle: 'title',
+    defaultColumns: ['title', 'unit', '_status'],
+    group: 'Syllabus',
+    preview: (doc) => `/api/preview?collection=topics&id=${String(doc.id)}`,
+  },
+  defaultPopulate: {
+    title: true,
+    slug: true,
+    unit: true,
+    order: true,
+    summary: true,
+    _status: true,
+  },
   access: {
     read: publishedOrLoggedIn,
     create: canCreateContent,
@@ -18,7 +32,7 @@ export const Topics: CollectionConfig = {
     delete: isAdmin,
   },
   versions: { drafts: true, maxPerDoc: 25 },
-  hooks: { beforeChange: [forceBotDrafts], afterChange: [revalidateAfterChange(topicPaths)], afterDelete: [revalidateAfterDelete(topicPaths)] },
+  hooks: { beforeChange: [forceBotDrafts, syncReviewStatus], afterChange: [revalidateAfterChange(topicPaths)], afterDelete: [revalidateAfterDelete(topicPaths)] },
   fields: [
     { name: 'title', type: 'text', required: true },
     slugField(),

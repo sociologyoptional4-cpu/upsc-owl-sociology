@@ -267,7 +267,7 @@ export const getRssPosts = cache(async (limit = 30): Promise<BlogCard[]> => {
 export const getBlogGaps = cache(async (limit = 6): Promise<BlogGapItem[]> => {
   const payload = await getPayloadClient()
   const [topics, pyqs, posts] = await Promise.all([
-    payload.find({ collection: 'topics', where: { _status: { equals: 'published' } }, limit: 1000, depth: 2, overrideAccess: true, draft: false }),
+    payload.find({ collection: 'topics', where: { _status: { equals: 'published' } }, limit: 1000, depth: 2, overrideAccess: true, draft: false, select: { title: true, slug: true, unit: true } }),
     payload.find({ collection: 'pyqs', limit: 2000, depth: 0, overrideAccess: true, select: { topics: true } }),
     payload.find({ collection: 'posts', where: { _status: { equals: 'published' } }, limit: 1000, depth: 0, overrideAccess: true, draft: false, select: { topics: true } }),
   ])

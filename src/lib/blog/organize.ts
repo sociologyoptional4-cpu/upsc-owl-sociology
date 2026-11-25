@@ -46,10 +46,13 @@ export function sanitizeOrganize(output: OrganizeOutput, allowed: Allowed, plain
 }
 
 export async function loadAllowed(payload: Payload, excludePostId?: number): Promise<Allowed> {
-  const find = <T extends 'topics' | 'units' | 'thinkers' | 'blog-tags' | 'blog-categories' | 'papers'>(collection: T, depth = 0) =>
-    payload.find({ collection, limit: 1000, depth, overrideAccess: true, pagination: false })
   const [topics, units, thinkers, tags, categories, papers, posts] = await Promise.all([
-    find('topics', 2), find('units'), find('thinkers'), find('blog-tags'), find('blog-categories'), find('papers'),
+    payload.find({ collection: 'topics', limit: 1000, depth: 2, overrideAccess: true, pagination: false, select: { title: true, slug: true, unit: true } }),
+    payload.find({ collection: 'units', limit: 1000, depth: 0, overrideAccess: true, pagination: false, select: { title: true, slug: true } }),
+    payload.find({ collection: 'thinkers', limit: 1000, depth: 0, overrideAccess: true, pagination: false, select: { name: true, slug: true } }),
+    payload.find({ collection: 'blog-tags', limit: 1000, depth: 0, overrideAccess: true, pagination: false, select: { title: true, slug: true } }),
+    payload.find({ collection: 'blog-categories', limit: 1000, depth: 0, overrideAccess: true, pagination: false, select: { title: true, slug: true } }),
+    payload.find({ collection: 'papers', limit: 1000, depth: 0, overrideAccess: true, pagination: false, select: { title: true, slug: true, code: true } }),
     payload.find({ collection: 'posts', where: { _status: { equals: 'published' } }, limit: 200, depth: 0, overrideAccess: true, draft: false, select: { title: true, slug: true } }),
   ])
   const topicRefs = topics.docs.flatMap((topic) => {
@@ -126,20 +129,34 @@ const cut = (value: unknown, max: number): unknown => {
   const head = value.slice(0, max)
   return head.slice(0, Math.max(head.lastIndexOf(' '), Math.floor(max * 0.6))).trimEnd()
 }
-const cutAll = (list: unknown, max: number): unknown => (Array.isArray(list) ? list.map((item) => cut(item, max)) : list)
+const cutAll = (list: unknown, maxLen: number, maxItems?: number): unknown => {
+  if (!Array.isArray(list)) return list
+  const sliced = typeof maxItems === 'number' ? list.slice(0, maxItems) : list
+  return sliced.map((item) => cut(item, maxLen))
+}
 
-/** Models overshoot length limits; trim instead of failing the whole run. Pure → unit tested. */
+/** Models overshoot length/array limits; trim instead of failing the whole run. Pure → unit tested. */
 export function clampOrganize(raw: unknown): unknown {
   if (typeof raw !== 'object' || raw === null) return raw
   const r = raw as Record<string, unknown>
   const social = (typeof r.social === 'object' && r.social !== null ? r.social : {}) as Record<string, unknown>
-  const slides = Array.isArray(social.instagramSlides) ? social.instagramSlides.map((x) => (typeof x === 'object' && x !== null ? { ...x, title: cut((x as Record<string, unknown>).title, 80), text: cut((x as Record<string, unknown>).text, 240) } : x)) : social.instagramSlides
-  const faq = Array.isArray(r.faq) ? r.faq.map((x) => (typeof x === 'object' && x !== null ? { ...x, question: cut((x as Record<string, unknown>).question, 200), answer: cut((x as Record<string, unknown>).answer, 800) } : x)) : r.faq
+  const slides = Array.isArray(social.instagramSlides)
+    ? social.instagramSlides.slice(0, 8).map((x) => (typeof x === 'object' && x !== null ? { ...x, title: cut((x as Record<string, unknown>).title, 80), text: cut((x as Record<string, unknown>).text, 240) } : x))
+    : social.instagramSlides
+  const faq = Array.isArray(r.faq)
+    ? r.faq.slice(0, 5).map((x) => (typeof x === 'object' && x !== null ? { ...x, question: cut((x as Record<string, unknown>).question, 200), answer: cut((x as Record<string, unknown>).answer, 800) } : x))
+    : r.faq
+  const internalLinks = Array.isArray(r.internalLinks)
+    ? r.internalLinks.slice(0, 8).map((x) => (typeof x === 'object' && x !== null ? { ...x, anchorText: cut((x as Record<string, unknown>).anchorText, 80), href: cut((x as Record<string, unknown>).href, 300) } : x))
+    : r.internalLinks
   return {
     ...r,
+    unitSlugs: Array.isArray(r.unitSlugs) ? r.unitSlugs.slice(0, 4) : r.unitSlugs,
+    topicSlugs: Array.isArray(r.topicSlugs) ? r.topicSlugs.slice(0, 3) : r.topicSlugs,
+    thinkerSlugs: Array.isArray(r.thinkerSlugs) ? r.thinkerSlugs.slice(0, 6) : r.thinkerSlugs,
     excerpt: cut(r.excerpt, 300), seoTitle: cut(r.seoTitle, 60), seoDescription: cut(r.seoDescription, 160), focusKeyword: cut(r.focusKeyword, 80), category: cut(r.category, 80),
-    tags: cutAll(r.tags, 40), faq,
-    social: { ...social, xThread: cutAll(social.xThread, 280), instagramSlides: slides, linkedin: cut(social.linkedin, 1500), telegram: cut(social.telegram, 900) },
+    tags: cutAll(r.tags, 40, 6), faq, internalLinks,
+    social: { ...social, xThread: cutAll(social.xThread, 280, 8), instagramSlides: slides, linkedin: cut(social.linkedin, 1500), telegram: cut(social.telegram, 900) },
   }
 }
 

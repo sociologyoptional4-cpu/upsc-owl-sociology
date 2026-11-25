@@ -3,7 +3,8 @@ import { z } from 'zod'
 
 import { hasTopicNotes } from '@/lib/notes/has-topic-notes'
 import { hasRole } from '@/access/roles'
-import { ingestBatchSchema, reviewActionSchema } from '@/lib/ingest/schema'
+import { countPendingReview, countQueuedBlogJobs } from '@/lib/admin/review-helpers'
+import { bulkReviewSchema, ingestBatchSchema, reviewActionSchema } from '@/lib/ingest/schema'
 import { sourceHash } from '@/lib/ingest/hash'
 import { markdownToLexical } from '@/lib/ingest/markdownToLexical'
 import { createCurrentAffairDraft } from '@/lib/ingest/createDraft'
@@ -54,6 +55,39 @@ async function ingest(req: PayloadRequest): Promise<Response> {
   return response(true, { created, skipped }, null)
 }
 
+type ReviewInput = z.infer<typeof reviewActionSchema>
+
+async function applyReviewAction(req: PayloadRequest, id: number, input: ReviewInput): Promise<{ doc?: unknown; error?: string; status?: number }> {
+  if (input.kind === 'topic') {
+    const existing = await req.payload.findByID({ collection: 'topics', id, overrideAccess: true, draft: true, depth: 0 })
+    if (input.action === 'reopen') {
+      if (existing.reviewStatus !== 'rejected' || !existing.layout?.length) return { error: 'Rejected topic note ka layout clear ho chuka hai; pipeline dubara draft banayega', status: 409 }
+      const doc = await req.payload.update({ collection: 'topics', id, draft: true, data: { reviewStatus: 'pending', rejectReason: null }, overrideAccess: true })
+      return { doc }
+    }
+    if (existing.reviewStatus !== 'pending' || existing._status !== 'draft' || !existing.layout?.length) return { error: 'No pending topic draft found', status: 409 }
+    const data = input.action === 'approve'
+      ? { reviewStatus: 'approved' as const, rejectReason: null, _status: 'published' as const }
+      : { layout: [], reviewStatus: 'rejected' as const, rejectReason: input.reason, _status: 'published' as const }
+    const doc = await req.payload.update({ collection: 'topics', id, draft: false, data, overrideAccess: true })
+    return { doc }
+  }
+  const existing = await req.payload.findByID({ collection: 'current-affairs', id, overrideAccess: true, draft: true })
+  if (input.action === 'reopen') {
+    if (existing._status !== 'draft' || existing.reviewStatus !== 'rejected') return { error: 'No rejected current-affairs draft found', status: 409 }
+    const doc = await req.payload.update({ collection: 'current-affairs', id, draft: true, data: { reviewStatus: 'pending', rejectReason: null, _status: 'draft' }, overrideAccess: true })
+    return { doc }
+  }
+  const canApprove = existing._status === 'draft' && (existing.reviewStatus === 'pending' || existing.reviewStatus === 'rejected')
+  const canReject = existing._status === 'draft' && existing.reviewStatus === 'pending'
+  if (input.action === 'approve' && !canApprove) return { error: 'No pending current-affairs draft found', status: 409 }
+  if (input.action === 'reject' && !canReject) return { error: 'No pending current-affairs draft found', status: 409 }
+  const doc = input.action === 'approve'
+    ? await req.payload.update({ collection: 'current-affairs', id, draft: false, data: { reviewStatus: 'approved', rejectReason: null, _status: 'published' }, overrideAccess: true })
+    : await req.payload.update({ collection: 'current-affairs', id, draft: true, data: { reviewStatus: 'rejected', rejectReason: input.reason, _status: 'draft' }, overrideAccess: true })
+  return { doc }
+}
+
 async function review(req: PayloadRequest): Promise<Response> {
   if (!allowed(req, 'admin', 'editor')) return fail('Unauthorized', 401)
   const id = Number(req.routeParams?.id)
@@ -63,52 +97,122 @@ async function review(req: PayloadRequest): Promise<Response> {
   const parsed = reviewActionSchema.safeParse(body)
   if (!parsed.success) return fail(parsed.error.issues.map((issue) => issue.message).join('; '))
   try {
-    if (parsed.data.kind === 'topic') {
-      const existing = await req.payload.findByID({ collection: 'topics', id, overrideAccess: true, draft: true, depth: 0 })
-      if (existing.reviewStatus !== 'pending' || existing._status !== 'draft' || !existing.layout?.length) return fail('No pending topic draft found', 409)
-      if (parsed.data.action === 'approve') {
-        const doc = await req.payload.update({ collection: 'topics', id, draft: false, data: { reviewStatus: 'approved', rejectReason: null, _status: 'published' }, overrideAccess: true })
-        return response(true, doc, null)
-      }
-      const doc = await req.payload.update({ collection: 'topics', id, draft: false, data: { layout: [], reviewStatus: 'rejected', rejectReason: parsed.data.reason, _status: 'published' }, overrideAccess: true })
-      return response(true, doc, null)
-    }
-    const existing = await req.payload.findByID({ collection: 'current-affairs', id, overrideAccess: true, draft: true })
-    if (existing.reviewStatus !== 'pending' || existing._status !== 'draft') return fail('No pending current-affairs draft found', 409)
-    if (parsed.data.action === 'approve') {
-      const doc = await req.payload.update({ collection: 'current-affairs', id, draft: false, data: { reviewStatus: 'approved', rejectReason: null, _status: 'published' }, overrideAccess: true })
-      return response(true, doc, null)
-    }
-    const doc = await req.payload.update({ collection: 'current-affairs', id, draft: true, data: { reviewStatus: 'rejected', rejectReason: parsed.data.reason, _status: 'draft' }, overrideAccess: true })
-    return response(true, doc, null)
+    const result = await applyReviewAction(req, id, parsed.data)
+    if (result.error) return fail(result.error, result.status ?? 409)
+    return response(true, result.doc, null)
   } catch (error) {
-    req.payload.logger.error(`Review action failed for item ${id}: ${error instanceof Error ? error.message : 'unknown error'}`)
+    req.payload.logger?.error(`Review action failed for item ${id}: ${error instanceof Error ? error.message : 'unknown error'}`)
     return fail('Publish nahi ho paya. Dobara try karo; agar phir bhi error aaye to admin ko batayein.', 500)
+  }
+}
+
+async function bulkReview(req: PayloadRequest): Promise<Response> {
+  if (!allowed(req, 'admin', 'editor')) return fail('Unauthorized', 401)
+  let body: unknown
+  try { body = req.json ? await req.json() : null } catch { return fail('Invalid JSON') }
+  const parsed = bulkReviewSchema.safeParse(body)
+  if (!parsed.success) return fail(parsed.error.issues.map((issue) => issue.message).join('; '))
+  const approved: { id: number; kind: 'ca' | 'topic' }[] = []
+  const failed: { id: number; kind: 'ca' | 'topic'; error: string }[] = []
+  for (const item of parsed.data.items) {
+    try {
+      const res = await applyReviewAction(req, item.id, { action: parsed.data.action, kind: item.kind })
+      if (res.error) failed.push({ ...item, error: res.error })
+      else approved.push(item)
+    } catch (error) {
+      failed.push({ ...item, error: error instanceof Error ? error.message : 'Action failed' })
+    }
+  }
+  return response(true, { approved, failed }, null)
+}
+
+type QueueStatus = 'pending' | 'rejected' | 'approved'
+
+function parseQueueStatus(url: string | undefined): QueueStatus {
+  const status = url ? new URL(url, 'http://localhost').searchParams.get('status') : null
+  return status === 'rejected' || status === 'approved' ? status : 'pending'
+}
+
+function mapCaQueueDoc(doc: Record<string, unknown>, status: QueueStatus) {
+  const date = formatDateIST(String(doc.date))
+  const topics = Array.isArray(doc.topics) ? doc.topics : []
+  const thinkers = Array.isArray(doc.thinkers) ? doc.thinkers : []
+  const sources = Array.isArray(doc.sources) ? doc.sources : []
+  const aiMeta = (typeof doc.aiMeta === 'object' && doc.aiMeta ? doc.aiMeta : {}) as Record<string, unknown>
+  return {
+    kind: 'ca' as const,
+    id: Number(doc.id),
+    headline: String(doc.headline ?? ''),
+    date,
+    relevance: typeof aiMeta.relevance === 'number' ? aiMeta.relevance : null,
+    summary: typeof doc.summary === 'string' ? doc.summary : null,
+    sources: sources.map((s) => ({ name: String((s as { name?: string }).name ?? ''), url: String((s as { url?: string }).url ?? '') })),
+    topics: topics.flatMap((value) => {
+      if (typeof value !== 'object' || !value) return []
+      const t = value as { title?: string; slug?: string; unit?: unknown }
+      const unit = typeof t.unit === 'object' && t.unit ? (t.unit as { slug?: string; paper?: unknown }) : null
+      const paper = unit && typeof unit.paper === 'object' && unit.paper ? (unit.paper as { slug?: string; code?: string }) : null
+      if (!unit || !paper || (paper.code !== 'P1' && paper.code !== 'P2')) return []
+      return [{ title: t.title ?? '', slug: t.slug ?? '', href: `/syllabus/${paper.slug}/${unit.slug}/${t.slug}`, paper: paper.code }]
+    }),
+    thinkers: thinkers.flatMap((value) => {
+      if (typeof value !== 'object' || !value) return []
+      const th = value as { name?: string; slug?: string }
+      return [{ name: th.name ?? '', slug: th.slug ?? '', href: `/thinkers/${th.slug}` }]
+    }),
+    model: typeof aiMeta.model === 'string' ? aiMeta.model : null,
+    promptVersion: typeof aiMeta.promptVersion === 'string' ? aiMeta.promptVersion : null,
+    createdAt: String(doc.createdAt ?? ''),
+    previewHref: `/api/preview?collection=current-affairs&id=${doc.id}`,
+    reviewStatus: (doc.reviewStatus as QueueStatus | undefined) ?? status,
+    rejectReason: typeof doc.rejectReason === 'string' ? doc.rejectReason : null,
+    liveHref: status === 'approved' && doc.slug ? `/current-affairs/${date}/${String(doc.slug)}` : null,
   }
 }
 
 async function reviewQueue(req: PayloadRequest): Promise<Response> {
   if (!allowed(req, 'admin', 'editor')) return fail('Unauthorized', 401)
+  const status = parseQueueStatus(req.url)
+  const caWhere: Where = status === 'pending'
+    ? { and: [{ reviewStatus: { equals: 'pending' } }, { _status: { equals: 'draft' } }] }
+    : status === 'rejected'
+      ? { reviewStatus: { equals: 'rejected' } }
+      : { and: [{ reviewStatus: { equals: 'approved' } }, { _status: { equals: 'published' } }] }
+  const topicWhere: Where = status === 'pending'
+    ? { and: [{ reviewStatus: { equals: 'pending' } }, { _status: { equals: 'draft' } }] }
+    : { reviewStatus: { equals: 'rejected' } }
+
   const [result, topicResult] = await Promise.all([
-    req.payload.find({ collection: 'current-affairs', where: { and: [{ reviewStatus: { equals: 'pending' } }, { _status: { equals: 'draft' } }] }, limit: 50, sort: '-aiMeta.relevance,-date', depth: 2, overrideAccess: true, draft: true }),
-    req.payload.find({ collection: 'topics', where: { and: [{ reviewStatus: { equals: 'pending' } }, { _status: { equals: 'draft' } }] }, limit: 100, sort: 'order', depth: 2, overrideAccess: true, draft: true }),
+    req.payload.find({
+      collection: 'current-affairs',
+      where: caWhere,
+      limit: status === 'approved' ? 25 : 50,
+      sort: status === 'approved' ? '-updatedAt' : '-aiMeta.relevance,-date',
+      depth: 2,
+      overrideAccess: true,
+      draft: status !== 'approved',
+    }),
+    status === 'approved'
+      ? Promise.resolve({ docs: [] })
+      : req.payload.find({ collection: 'topics', where: topicWhere, limit: 100, sort: 'order', depth: 2, overrideAccess: true, draft: true }),
   ])
-  const currentAffairs = result.docs.map((doc) => ({
-    kind: 'ca' as const, id: Number(doc.id), headline: doc.headline, date: formatDateIST(String(doc.date)), relevance: doc.aiMeta?.relevance ?? null, summary: doc.summary ?? null,
-    sources: doc.sources.map(({ name, url }) => ({ name, url })), topics: (doc.topics ?? []).flatMap((value) => {
-      if (typeof value !== 'object') return []
-      const unit = typeof value.unit === 'object' ? value.unit : null
-      const paper = unit && typeof unit.paper === 'object' ? unit.paper : null
-      if (!unit || !paper || (paper.code !== 'P1' && paper.code !== 'P2')) return []
-      return [{ title: value.title, slug: value.slug ?? '', href: `/syllabus/${paper.slug}/${unit.slug}/${value.slug}`, paper: paper.code }]
-    }), thinkers: (doc.thinkers ?? []).flatMap((value) => typeof value === 'object' ? [{ name: value.name, slug: value.slug ?? '', href: `/thinkers/${value.slug}` }] : []), model: doc.aiMeta?.model ?? null,
-    promptVersion: doc.aiMeta?.promptVersion ?? null, createdAt: String(doc.createdAt), previewHref: `/api/preview?collection=current-affairs&id=${doc.id}`,
-  }))
-  const topicDrafts = topicResult.docs.filter((doc) => doc.reviewStatus === 'pending' && Boolean(doc.layout?.length)).map((doc) => {
-    const unit = typeof doc.unit === 'object' && doc.unit ? doc.unit : null
-    const paper = unit && typeof unit.paper === 'object' && unit.paper ? unit.paper : null
-    return { kind: 'topic' as const, id: Number(doc.id), headline: doc.title, date: String(doc.updatedAt ?? doc.createdAt).slice(0, 10), relevance: null, summary: doc.summary ?? null, sources: [], topics: [], thinkers: [], model: doc.aiMeta?.model ?? null, promptVersion: doc.aiMeta?.promptVersion ?? null, createdAt: String(doc.createdAt), previewHref: paper && unit ? `/api/preview?collection=topics&id=${doc.id}` : '/syllabus' }
-  })
+
+  const currentAffairs = result.docs.map((doc) => mapCaQueueDoc(doc as unknown as Record<string, unknown>, status))
+  const topicDrafts = topicResult.docs
+    .filter((doc) => (status === 'pending' ? doc.reviewStatus === 'pending' && Boolean(doc.layout?.length) : doc.reviewStatus === 'rejected'))
+    .map((doc) => {
+      const unit = typeof doc.unit === 'object' && doc.unit ? doc.unit : null
+      const paper = unit && typeof unit.paper === 'object' && unit.paper ? unit.paper : null
+      return {
+        kind: 'topic' as const, id: Number(doc.id), headline: doc.title, date: String(doc.updatedAt ?? doc.createdAt).slice(0, 10),
+        relevance: null, summary: doc.summary ?? null, sources: [], topics: [], thinkers: [],
+        model: doc.aiMeta?.model ?? null, promptVersion: doc.aiMeta?.promptVersion ?? null, createdAt: String(doc.createdAt),
+        previewHref: paper && unit ? `/api/preview?collection=topics&id=${doc.id}` : '/syllabus',
+        reviewStatus: (doc.reviewStatus as QueueStatus | undefined) ?? status,
+        rejectReason: doc.rejectReason ?? null,
+        liveHref: null,
+      }
+    })
   return response(true, [...currentAffairs, ...topicDrafts].sort((a, b) => b.date.localeCompare(a.date)), null)
 }
 
@@ -184,10 +288,11 @@ async function today(req: PayloadRequest): Promise<Response> {
   const nextDate = new Date(`${date}T00:00:00+05:30`)
   nextDate.setDate(nextDate.getDate() + 1)
   const since = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
-  const [runs, pending, published] = await Promise.all([
+  const [runs, pending, published, queuedBlogJobs] = await Promise.all([
     req.payload.find({ collection: 'pipeline-runs', where: { startedAt: { greater_than_equal: since } }, limit: 100, sort: '-startedAt', overrideAccess: true }),
-    req.payload.count({ collection: 'current-affairs', where: { reviewStatus: { equals: 'pending' } }, overrideAccess: true }),
-    req.payload.count({ collection: 'current-affairs', where: { and: [{ _status: { equals: 'published' } }, { date: { greater_than_equal: `${date}T00:00:00.000Z` } }, { date: { less_than: nextDate.toISOString() } }] }, overrideAccess: true }),
+    countPendingReview(req.payload),
+    req.payload.count({ collection: 'current-affairs', where: { and: [{ _status: { equals: 'published' } }, { date: { greater_than_equal: `${date}T00:00:00+05:30` } }, { date: { less_than: nextDate.toISOString() } }] }, overrideAccess: true }),
+    countQueuedBlogJobs(req.payload),
   ])
   const last = runs.docs[0]
   const daily = new Map<string, number>()
@@ -195,24 +300,55 @@ async function today(req: PayloadRequest): Promise<Response> {
     const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(run.startedAt))
     daily.set(day, (daily.get(day) ?? 0) + (run.costUsd ?? 0))
   }
-  return response(true, { lastRun: last ? { startedAt: last.startedAt, finishedAt: last.finishedAt ?? null, status: last.status, counts: last.counts ?? {}, costUsd: last.costUsd ?? 0, errors: last.errors ?? [] } : null, pendingReview: pending.totalDocs, publishedToday: published.totalDocs, costLast7Days: [...daily].sort(([a], [b]) => a.localeCompare(b)).map(([day, usd]) => ({ date: day, usd })) }, null)
+  return response(true, { lastRun: last ? { startedAt: last.startedAt, finishedAt: last.finishedAt ?? null, status: last.status, counts: last.counts ?? {}, costUsd: last.costUsd ?? 0, errors: last.errors ?? [] } : null, pendingReview: pending.total, publishedToday: published.totalDocs, queuedBlogJobs, costLast7Days: [...daily].sort(([a], [b]) => a.localeCompare(b)).map(([day, usd]) => ({ date: day, usd })) }, null)
 }
 
 async function coverage(req: PayloadRequest): Promise<Response> {
   if (!allowed(req, 'admin', 'editor')) return fail('Unauthorized', 401)
-  const topics = await req.payload.find({ collection: 'topics', limit: 1000, depth: 2, overrideAccess: true })
-  const rows = await Promise.all(topics.docs.map(async (topic) => {
+  const [topics, caDocs] = await Promise.all([
+    req.payload.find({
+      collection: 'topics',
+      limit: 1000,
+      depth: 2,
+      select: { title: true, slug: true, unit: true, layout: true, notebookContent: true, notebookContentHinglish: true },
+      overrideAccess: true,
+    }),
+    req.payload.find({
+      collection: 'current-affairs',
+      where: { _status: { equals: 'published' } },
+      limit: 2000,
+      sort: '-date',
+      depth: 0,
+      select: { topics: true, date: true },
+      overrideAccess: true,
+    }),
+  ])
+  const caStats = new Map<number, { count: number; lastDate: string | null }>()
+  for (const doc of caDocs.docs) {
+    const day = doc.date ? formatDateIST(String(doc.date)) : null
+    for (const rel of doc.topics ?? []) {
+      const id = typeof rel === 'number' ? rel : rel.id
+      const prev = caStats.get(id)
+      if (!prev) caStats.set(id, { count: 1, lastDate: day })
+      else caStats.set(id, { count: prev.count + 1, lastDate: prev.lastDate ?? day })
+    }
+  }
+  const rows = topics.docs.flatMap((topic) => {
     const unit = typeof topic.unit === 'object' ? topic.unit : null
     const paper = unit && typeof unit.paper === 'object' ? unit.paper : null
-    if (!unit || !paper || (paper.slug !== 'paper-1' && paper.slug !== 'paper-2')) return null
-    const where: Where = { and: [{ topics: { contains: topic.id } }, { _status: { equals: 'published' } }] }
-    const [count, latest] = await Promise.all([
-      req.payload.count({ collection: 'current-affairs', where, overrideAccess: true }),
-      req.payload.find({ collection: 'current-affairs', where, limit: 1, sort: '-date', depth: 0, overrideAccess: true }),
-    ])
-    return { paper: paper.slug === 'paper-1' ? 'P1' : 'P2', unitTitle: unit.title, topicTitle: topic.title, topicHref: `/syllabus/${paper.slug}/${unit.slug}/${topic.slug}`, caCount: count.totalDocs, hasNotes: hasTopicNotes(topic), lastCaDate: latest.docs[0]?.date ? String(latest.docs[0].date).slice(0, 10) : null }
-  }))
-  return response(true, rows.filter((row): row is NonNullable<typeof row> => row !== null), null)
+    if (!unit || !paper || (paper.slug !== 'paper-1' && paper.slug !== 'paper-2')) return []
+    const stat = caStats.get(topic.id) ?? { count: 0, lastDate: null }
+    return [{
+      paper: paper.slug === 'paper-1' ? 'P1' : 'P2',
+      unitTitle: unit.title,
+      topicTitle: topic.title,
+      topicHref: `/syllabus/${paper.slug}/${unit.slug}/${topic.slug}`,
+      caCount: stat.count,
+      hasNotes: hasTopicNotes(topic),
+      lastCaDate: stat.lastDate,
+    }]
+  })
+  return response(true, rows, null)
 }
 
 async function pipelineSources(req: PayloadRequest): Promise<Response> {
@@ -245,6 +381,6 @@ export const endpoints: Endpoint[] = [
   ...smartEndpoints,
   ...importEndpoints,
   endpoint('/ingest/batch', 'post', ingest), endpoint('/ingest/notes/next', 'get', nextNoteTopics), endpoint('/ingest/notes', 'post', ingestNote), endpoint('/admin/review-queue', 'get', reviewQueue),
-  endpoint('/admin/review/:id', 'post', review), endpoint('/admin/today', 'get', today), endpoint('/admin/coverage', 'get', coverage),
+  endpoint('/admin/review/bulk', 'post', bulkReview), endpoint('/admin/review/:id', 'post', review), endpoint('/admin/today', 'get', today), endpoint('/admin/coverage', 'get', coverage),
   endpoint('/pipeline/sources', 'get', pipelineSources), endpoint('/pipeline/sources/:id', 'patch', pipelineSources), endpoint('/pipeline/spend', 'get', pipelineSpend),
 ]

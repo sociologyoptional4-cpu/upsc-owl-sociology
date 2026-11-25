@@ -46,9 +46,52 @@ describe('topic review actions', () => {
     expect(response.status).toBe(409)
     expect(update).not.toHaveBeenCalled()
   })
+
+  it('reopens a rejected current-affairs draft back to pending', async () => {
+    const { handler, req, update } = reviewRequest({ action: 'reopen', kind: 'ca' }, [], 'rejected', 'draft')
+    const response = await handler(req)
+    expect(response.status).toBe(200)
+    expect(update).toHaveBeenCalledWith(expect.objectContaining({
+      collection: 'current-affairs',
+      id: 7,
+      draft: true,
+      data: expect.objectContaining({ reviewStatus: 'pending', rejectReason: null, _status: 'draft' }),
+    }))
+  })
+
+  it('approves a rejected current-affairs draft directly', async () => {
+    const { handler, req, update } = reviewRequest({ action: 'approve', kind: 'ca' }, [], 'rejected', 'draft')
+    const response = await handler(req)
+    expect(response.status).toBe(200)
+    expect(update).toHaveBeenCalledWith(expect.objectContaining({
+      collection: 'current-affairs',
+      id: 7,
+      draft: false,
+      data: expect.objectContaining({ reviewStatus: 'approved', _status: 'published' }),
+    }))
+  })
+
+  it('bulk-approves multiple items sequentially and reports partial failures', async () => {
+    const update = vi.fn(async (args: Record<string, unknown>) => ({ id: args.id, ...(args.data as object) }))
+    const findByID = vi.fn(async ({ id }: { id: number }) =>
+      id === 7
+        ? { id: 7, layout: [], reviewStatus: 'pending', _status: 'draft' }
+        : { id, layout: [], reviewStatus: 'approved', _status: 'published' })
+    const endpoint = endpoints.find(({ path }) => path === '/admin/review/bulk')!
+    const response = await endpoint.handler({
+      user: { id: 1, role: 'admin' },
+      json: async () => ({ action: 'approve', items: [{ id: 7, kind: 'ca' }, { id: 8, kind: 'ca' }] }),
+      payload: { findByID, update },
+    } as never)
+    expect(response.status).toBe(200)
+    const body = await response.json() as { data: { approved: { id: number }[]; failed: { id: number }[] } }
+    expect(body.data.approved).toEqual([{ id: 7, kind: 'ca' }])
+    expect(body.data.failed).toHaveLength(1)
+    expect(body.data.failed[0]?.id).toBe(8)
+  })
 })
 
-describe('review queue preview links', () => {
+describe('review queue preview links and status filters', () => {
   it('returns session-authenticated preview links without embedding PREVIEW_SECRET', async () => {
     const payload = {
       find: vi.fn(async ({ collection, where }: { collection: string; where: { and: { _status?: { equals: string } }[] } }) => {
@@ -65,5 +108,26 @@ describe('review queue preview links', () => {
     expect(body.data.find(({ id }) => id === 7)?.previewHref).toBe('/api/preview?collection=current-affairs&id=7')
     expect(body.data.find(({ id }) => id === 8)?.previewHref).toBe('/api/preview?collection=topics&id=8')
     expect(JSON.stringify(body)).not.toContain('PREVIEW_SECRET')
+  })
+
+  it('supports status=rejected and status=approved queries', async () => {
+    const payload = {
+      find: vi.fn(async ({ collection }: { collection: string }) => {
+        if (collection === 'current-affairs') {
+          return { docs: [{ id: 12, headline: 'Approved CA', slug: 'approved-ca', date: '2026-11-21', reviewStatus: 'approved', rejectReason: 'Not enough sociology depth', _status: 'published', aiMeta: {}, sources: [], topics: [], thinkers: [], createdAt: '2026-11-21T00:00:00Z' }] }
+        }
+        return { docs: [] }
+      }),
+    }
+    const endpoint = endpoints.find(({ path }) => path === '/admin/review-queue')!
+    const rejectedRes = await endpoint.handler({ user: { role: 'admin' }, url: 'http://localhost/api/admin/review-queue?status=rejected', payload } as never)
+    const rejectedBody = await rejectedRes.json() as { data: { id: number; rejectReason: string }[] }
+    expect(rejectedRes.status).toBe(200)
+    expect(rejectedBody.data[0]?.rejectReason).toBe('Not enough sociology depth')
+
+    const approvedRes = await endpoint.handler({ user: { role: 'admin' }, url: 'http://localhost/api/admin/review-queue?status=approved', payload } as never)
+    const approvedBody = await approvedRes.json() as { data: { id: number; liveHref: string | null }[] }
+    expect(approvedRes.status).toBe(200)
+    expect(approvedBody.data[0]?.liveHref).toBe('/current-affairs/2026-11-21/approved-ca')
   })
 })

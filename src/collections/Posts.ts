@@ -5,7 +5,6 @@ import { slugField } from '@/fields/slug'
 import { announcePost, postPaths, prepareBlogPost, queueOrganize, revalidatePost } from '@/lib/blog/hooks'
 import { blogEditor } from '@/lib/lexical/blogEditor'
 import { revalidateAfterDelete } from '@/hooks/payload/revalidate'
-import { getServerSideURL } from '@/lib/url'
 
 const hidden = { hidden: true } as const
 
@@ -18,7 +17,7 @@ export const Posts: CollectionConfig = {
     defaultColumns: ['title', 'category', '_status', 'publishedAt', 'aiStatus'],
     listSearchableFields: ['title', 'slug', 'excerpt'],
     description: 'Blog likho ya ChatGPT se paste karo. Kisi coaching/book ka text copy mat karo.',
-    preview: (doc) => `${getServerSideURL()}/api/preview?collection=posts&id=${String(doc.id)}`,
+    preview: (doc) => `/api/preview?collection=posts&id=${String(doc.id)}`,
   },
   defaultSort: '-publishedAt',
   access: {

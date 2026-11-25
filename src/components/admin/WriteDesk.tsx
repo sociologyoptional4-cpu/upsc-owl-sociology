@@ -20,6 +20,9 @@ export async function WriteDesk({ initPageResult, params, searchParams }: AdminV
     ? (await req.payload.find({ collection: 'posts', where: { _status: { equals: 'draft' } }, sort: '-updatedAt', limit: 10, depth: 0, draft: true, overrideAccess: true, select: { title: true, updatedAt: true, aiStatus: true } })).docs
     : []
 
+  const rawTopic = searchParams?.topicTitle
+  const initialTopicTitle = typeof rawTopic === 'string' ? rawTopic.trim().slice(0, 200) : ''
+
   return (
     <DefaultTemplate i18n={req.i18n} locale={locale} params={params} payload={req.payload} permissions={permissions} searchParams={searchParams} user={req.user ?? undefined} visibleEntities={visibleEntities}>
       <Gutter className={styles.page}>
@@ -30,7 +33,7 @@ export async function WriteDesk({ initPageResult, params, searchParams }: AdminV
         </header>
         {!allowed ? <p className={styles.errorLine}>Ye page sirf admin aur editor ke liye hai.</p> : (
           <>
-            <WriteDeskClient />
+            <WriteDeskClient initialTopicTitle={initialTopicTitle} />
             <section aria-labelledby="desk-drafts">
               <h2 id="desk-drafts" className={styles.sectionTitle}>Aaj ke drafts</h2>
               {drafts.length === 0 ? <p className={styles.empty}>Koi draft nahi. Upar se ek shuru karo.</p> : (

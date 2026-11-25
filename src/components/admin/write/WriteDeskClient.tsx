@@ -40,10 +40,10 @@ const TEMPLATE_OPTIONS = [
   { value: 'answer', label: 'Answer-writing guide', hint: 'Structure, flow, yaad rakho, common galtiyan' },
 ] as const
 
-function TemplateCard() {
+function TemplateCard({ initialTopicTitle = '' }: { initialTopicTitle?: string }) {
   const { state, run } = useRun()
   const [template, setTemplate] = useState<(typeof TEMPLATE_OPTIONS)[number]['value']>('concept')
-  const [title, setTitle] = useState('')
+  const [title, setTitle] = useState(initialTopicTitle)
   const busy = state.status === 'busy'
   const picked = TEMPLATE_OPTIONS.find((option) => option.value === template)
   const submit = async () => { if (await run('Template draft ban raha hai...', () => importJson({ source: 'template', template, title: title.trim() }))) setTitle('') }
@@ -169,11 +169,11 @@ function SmartCard({ index, tone, title, hint, placeholder, withUrl, send }: { i
   )
 }
 
-export function WriteDeskClient() {
+export function WriteDeskClient({ initialTopicTitle = '' }: { initialTopicTitle?: string }) {
   return (
     <div className={styles.grid}>
       <NewBlogCard />
-      <TemplateCard />
+      <TemplateCard initialTopicTitle={initialTopicTitle} />
       <PasteCard />
       <NotesCard />
       <ImagesCard index="04" tone="pink" title="Infographic paste" hint="Screenshot ya infographic copy karo, zone mein click karke Ctrl/Cmd+V." layout="infographic" multiple={false} />

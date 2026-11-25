@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
 
 import { hasRole } from '@/access/roles'
+import { formatDateIST } from '@/lib/data/issue'
 import config from '@/payload.config'
 
 export async function GET(request: Request): Promise<Response> {
@@ -30,7 +31,7 @@ export async function GET(request: Request): Promise<Response> {
   }
   const doc = await payload.findByID({ collection: 'current-affairs', id, draft: true, overrideAccess: true })
   if (!doc.slug) return new Response('Article has no slug', { status: 404 })
-  const date = new Date(doc.date).toISOString().slice(0, 10)
+  const date = formatDateIST(String(doc.date))
   ;(await draftMode()).enable()
   redirect(`/current-affairs/${date}/${doc.slug}`)
 }

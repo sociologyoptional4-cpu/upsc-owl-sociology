@@ -3,7 +3,7 @@
 export type CheckLevel = 'error' | 'warn' | 'info'
 export type Check = { id: string; ok: boolean; level: CheckLevel; label: string; hint: string }
 export type ChecklistInput = {
-  title: string; seoTitle: string; seoDescription: string; focusKeyword: string; excerpt: string
+  title: string; slug?: string; seoTitle: string; seoDescription: string; focusKeyword: string; excerpt: string
   hasCover: boolean; hasCategory: boolean; topicCount: number; tagCount: number; faqCount: number
   content: unknown
 }
@@ -25,13 +25,22 @@ export function contentStats(content: unknown): { words: number; headings: numbe
 }
 
 const between = (n: number, min: number, max: number) => n >= min && n <= max
+const BAD_SLUGS = new Set(['new', 'untitled', 'draft', 'post', 'test'])
 
 export function runChecklist(input: ChecklistInput): Check[] {
   const { words, headings } = contentStats(input.content)
   const title = input.seoTitle.trim() || input.title.trim()
   const keyword = input.focusKeyword.trim().toLowerCase()
   const desc = input.seoDescription.trim() || input.excerpt.trim()
+  const slug = input.slug?.trim().toLowerCase()
   return [
+    ...(input.slug !== undefined ? [{
+      id: 'slug',
+      ok: Boolean(slug) && !BAD_SLUGS.has(slug ?? '') && (slug?.length ?? 0) >= 4,
+      level: 'warn' as const,
+      label: slug ? `Slug: ${slug}` : 'Slug missing',
+      hint: 'Generic ("new", "untitled") ke bajay descriptive English URL slug rakho.',
+    }] : []),
     { id: 'words-min', ok: words >= 100, level: 'error', label: `Content: ${words} words`, hint: 'Kam se kam 100 words chahiye, 300+ behtar.' },
     { id: 'words-good', ok: words >= 300, level: 'warn', label: 'Content 300+ words', hint: 'Google patle posts ko kam dikhata hai. Thoda aur samjhao.' },
     { id: 'title-len', ok: between(title.length, 20, 60), level: 'warn', label: `Title ${title.length}/60`, hint: '20-60 characters rakho (SEO title alag de sakte ho).' },

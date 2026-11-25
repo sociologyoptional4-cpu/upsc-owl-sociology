@@ -22,7 +22,7 @@ import { Pyqs } from './collections/Pyqs'
 import { Users } from './collections/Users'
 import { SiteSettings } from './globals/SiteSettings'
 import { Navigation } from './globals/Navigation'
-import { getServerSideURL } from './lib/url'
+import { getAllowedOrigins, getServerSideURL } from './lib/url'
 import { endpoints } from './endpoints'
 import { richTextEditor } from './lib/lexical/richTextEditor'
 import { env } from './lib/env'
@@ -30,10 +30,12 @@ import { blogJobs } from './lib/blog/jobs'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
-const IS_BUILD = process.env.NEXT_PHASE === 'phase-production-build'
+const allowedOrigins = getAllowedOrigins()
 
 export default buildConfig({
   serverURL: getServerSideURL(),
+  csrf: allowedOrigins,
+  cors: allowedOrigins,
   admin: {
     user: Users.slug,
     importMap: { baseDir: path.resolve(dirname) },
@@ -62,11 +64,10 @@ export default buildConfig({
     push: env.NODE_ENV !== 'production',
     pool: {
       connectionString: env.DATABASE_URL,
-      // `next build` prerenders hundreds of pages in parallel workers; one connection with a 10 s wait
-      // timed out on Vercel. Build gets a slightly larger pool and longer wait; runtime stays lean.
-      max: IS_BUILD ? 3 : 1,
+      // Allow at least 3 connections so parallel admin queries and afterChange hooks do not self-deadlock.
+      max: 3,
       idleTimeoutMillis: 10_000,
-      connectionTimeoutMillis: IS_BUILD ? 60_000 : 10_000,
+      connectionTimeoutMillis: 30_000,
       ssl: env.DATABASE_SSL_CA ? { ca: env.DATABASE_SSL_CA } : undefined,
     },
   }),

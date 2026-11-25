@@ -66,11 +66,22 @@ describe('studio helpers', () => {
   it('clamps over-long organizer fields instead of failing', async () => {
     const { clampOrganize } = await import('@/lib/blog/organize')
     const { organizeOutputSchema } = await import('@/blocks/blog/schema')
-    const raw = { seoDescription: 'word '.repeat(60), social: { telegram: 'x '.repeat(600), linkedin: 'y '.repeat(900) }, excerpt: 'e '.repeat(200) }
+    const raw = {
+      seoDescription: 'word '.repeat(60),
+      tags: Array.from({ length: 12 }, (_, i) => `tag-${i}`),
+      faq: Array.from({ length: 9 }, (_, i) => ({ question: `Q${i}?`, answer: `A${i}` })),
+      topicSlugs: ['a', 'b', 'c', 'd', 'e'],
+      social: { telegram: 'x '.repeat(600), linkedin: 'y '.repeat(900), xThread: Array.from({ length: 12 }, (_, i) => `tweet ${i}`) },
+      excerpt: 'e '.repeat(200),
+    }
     const out = organizeOutputSchema.parse(clampOrganize(raw))
     expect(out.seoDescription.length).toBeLessThanOrEqual(160)
     expect(out.social.telegram.length).toBeLessThanOrEqual(900)
     expect(out.social.linkedin.length).toBeLessThanOrEqual(1500)
+    expect(out.tags.length).toBeLessThanOrEqual(6)
+    expect(out.faq.length).toBeLessThanOrEqual(5)
+    expect(out.topicSlugs.length).toBeLessThanOrEqual(3)
+    expect(out.social.xThread.length).toBeLessThanOrEqual(8)
   })
 
   it('inserts an image at the end of the heading section it belongs to', async () => {

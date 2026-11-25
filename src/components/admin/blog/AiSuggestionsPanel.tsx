@@ -50,9 +50,9 @@ export function AiSuggestionsPanel() {
     if (!postId) { setMsg('Pehle post ko Save karo.'); return }
     setBusy(label); setMsg(null)
     try {
-      const res = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ postId, ...body }) })
-      const json = (await res.json()) as { success?: boolean; error?: string }
-      if (!res.ok || !json.success) throw new Error(json.error ?? `HTTP ${res.status}`)
+      const res = await fetch(url, { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ postId, ...body }) })
+      const json = (await res.json().catch(() => null)) as { success?: boolean; error?: string } | null
+      if (!res.ok || !json?.success) throw new Error(json?.error ?? `HTTP ${res.status}`)
       setMsg(`${label} ho gaya — page refresh ho raha hai...`)
       window.location.reload()
     } catch (e) {
@@ -75,9 +75,9 @@ export function AiSuggestionsPanel() {
     try {
       for (const [url, label] of STEPS) {
         setMsg(label)
-        const res = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ postId }) })
-        const json = (await res.json()) as { success?: boolean; error?: string }
-        if (!res.ok || !json.success) throw new Error(`${label.slice(0, 3)} ${json.error ?? `HTTP ${res.status}`}`)
+        const res = await fetch(url, { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ postId }) })
+        const json = (await res.json().catch(() => null)) as { success?: boolean; error?: string } | null
+        if (!res.ok || !json?.success) throw new Error(`${label.slice(0, 3)} ${json?.error ?? `HTTP ${res.status}`}`)
         done += 1
       }
       setMsg('Ho gaya — page refresh ho raha hai...')
@@ -98,9 +98,9 @@ export function AiSuggestionsPanel() {
     try {
       const mediaIds: number[] = []
       for (const file of files) mediaIds.push(await uploadImage(file))
-      const res = await fetch('/api/blog/attach-media', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ postId, mediaIds }) })
-      const json = (await res.json()) as { success?: boolean; error?: string }
-      if (!res.ok || !json.success) throw new Error(json.error ?? `HTTP ${res.status}`)
+      const res = await fetch('/api/blog/attach-media', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ postId, mediaIds }) })
+      const json = (await res.json().catch(() => null)) as { success?: boolean; error?: string } | null
+      if (!res.ok || !json?.success) throw new Error(json?.error ?? `HTTP ${res.status}`)
       setMsg('Image lag gayi — page refresh ho raha hai...')
       window.location.reload()
     } catch (e) {
@@ -114,9 +114,9 @@ export function AiSuggestionsPanel() {
     if (!postId) { setMsg('Pehle post ko Save karo.'); return }
     setBusy('Sab accept'); setMsg(null)
     try {
-      const res = await fetch('/api/blog/suggestions/apply-all', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ postId }) })
-      const json = (await res.json()) as { success?: boolean; error?: string; data?: { links?: number; faq?: number; tags?: number } }
-      if (!res.ok || !json.success) throw new Error(json.error ?? `HTTP ${res.status}`)
+      const res = await fetch('/api/blog/suggestions/apply-all', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ postId }) })
+      const json = (await res.json().catch(() => null)) as { success?: boolean; error?: string; data?: { links?: number; faq?: number; tags?: number } } | null
+      if (!res.ok || !json?.success) throw new Error(json?.error ?? `HTTP ${res.status}`)
       const d = json.data ?? {}
       sessionStorage.setItem('owl-studio-msg', `✓ Lag gaya: ${d.tags ?? 0} tags, ${d.faq ?? 0} FAQ (neeche FAQ section me), ${d.links ?? 0} internal links. Ab Publish karo.`)
       window.location.reload()
@@ -153,6 +153,25 @@ export function AiSuggestionsPanel() {
       <button type="button" style={{ ...btn, padding: '10px 14px', fontSize: 14 }} disabled={Boolean(busy)} onClick={() => void runStudio()}>
         {busy === 'Studio' ? 'Kaam chal raha hai…' : '✨ AI se poora banao'}
       </button>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+        <button type="button" style={btnGhost} disabled={Boolean(busy)} onClick={() => void callApi('/api/blog/organize', {}, '1. Organize')}>
+          {busy === '1. Organize' ? 'Organizing…' : '1. Organize (SEO/Topics)'}
+        </button>
+        <button type="button" style={btnGhost} disabled={Boolean(busy)} onClick={() => void callApi('/api/blog/enrich', {}, '2. Enrich')}>
+          {busy === '2. Enrich' ? 'Enriching…' : '2. Enrich (Notes/PYQ)'}
+        </button>
+        <button type="button" style={btnGhost} disabled={Boolean(busy)} onClick={() => void callApi('/api/blog/images', {}, '3. Images')}>
+          {busy === '3. Images' ? 'Generating…' : '3. Images'}
+        </button>
+        <button type="button" style={btnGhost} disabled={Boolean(busy)} onClick={() => void callApi('/api/blog/beautify', {}, '4. Beautify')}>
+          {busy === '4. Beautify' ? 'Formatting…' : '4. Beautify'}
+        </button>
+      </div>
+      {aiStatus === 'queued' && (
+        <p style={{ margin: '6px 0 0', fontSize: 11, color: '#b45309', fontWeight: 600 }}>
+          Background job queue mein hai — upar <strong>1. Organize</strong> dabakar abhi chala sakte ho.
+        </p>
+      )}
       <p style={{ margin: '6px 0 0', fontSize: 11, color: '#52525b' }}>
         Ek click: topics/thinkers/SEO, khabar ka explain + simple language + colours, notes + PYQs ka linkage, Mains/Prelims angle, aur photo / infographic / mind map. Naya draft version banta hai; wapas jaane ke liye <strong>Versions</strong> tab. ~1-2 minute lagta hai.
       </p>

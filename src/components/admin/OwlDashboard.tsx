@@ -4,6 +4,7 @@ import type { AdminViewServerProps, CollectionSlug, Payload } from 'payload'
 
 import styles from './admin.module.css'
 import { TodayWidget } from './TodayWidget'
+import { countPendingReview } from '@/lib/admin/review-helpers'
 import { getBlogGaps } from '@/lib/data/blog'
 
 type Action = { title: string; body: string; href: string; badge?: number; isHot?: boolean }
@@ -20,12 +21,8 @@ async function countBy(payload: Payload, slug: string, status?: 'published' | 'd
 }
 
 async function pendingReviewCount(payload: Payload): Promise<number> {
-  const { totalDocs } = await payload.count({
-    collection: 'current-affairs',
-    where: { and: [{ _status: { equals: 'draft' } }, { isAiGenerated: { equals: true } }] },
-    overrideAccess: true,
-  })
-  return totalDocs
+  const counts = await countPendingReview(payload)
+  return counts.total
 }
 
 const RECENT_SOURCES = [
@@ -174,11 +171,14 @@ export async function OwlDashboard({ initPageResult }: AdminViewServerProps) {
               <strong>Is hafte ye likho (High-PYQ topics without a blog)</strong>
               <ul style={{ marginTop: '0.5rem', paddingLeft: '1.1rem' }}>
                 {blogGaps.map((g) => (
-                  <li key={g.topicId} style={{ marginBottom: '0.25rem' }}>
-                    <Link href={`/admin/collections/posts/create`} style={{ fontWeight: 600 }}>
+                  <li key={g.topicId} style={{ marginBottom: '0.35rem' }}>
+                    <Link href={`/admin/write?topicTitle=${encodeURIComponent(g.topicTitle)}`} style={{ fontWeight: 600 }}>
                       {g.paper} · {g.topicTitle}
                     </Link>{' '}
-                    <span style={{ fontSize: '0.8rem', opacity: 0.75 }}>({g.pyqCount} PYQs)</span>
+                    <span style={{ fontSize: '0.8rem', opacity: 0.75 }}>({g.pyqCount} PYQs)</span>{' '}
+                    <Link href={g.topicHref} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.78rem' }}>
+                      Notes ↗
+                    </Link>
                   </li>
                 ))}
               </ul>

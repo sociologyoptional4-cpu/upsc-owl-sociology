@@ -7,6 +7,13 @@ import { revalidateAfterDelete, revalidateAlwaysAfterChange, unitPaths } from '@
 export const Units: CollectionConfig = {
   slug: 'units',
   admin: { useAsTitle: 'title', defaultColumns: ['number', 'title', 'paper'], group: 'Syllabus' },
+  defaultPopulate: {
+    title: true,
+    slug: true,
+    number: true,
+    order: true,
+    paper: true,
+  },
   access: { read: () => true, create: isStaff, update: isStaff, delete: isAdmin },
   hooks: { afterChange: [revalidateAlwaysAfterChange(unitPaths)], afterDelete: [revalidateAfterDelete(unitPaths)] },
   fields: [

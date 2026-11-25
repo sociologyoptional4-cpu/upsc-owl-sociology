@@ -7,10 +7,12 @@ import { forceBotDrafts } from '@/hooks/payload/forceBotDrafts'
 import { pingCurrentAffair } from '@/hooks/payload/indexnowCa'
 import { postCurrentAffair } from '@/lib/telegram/postCurrentAffair'
 import { revalidateAfterChange, revalidateAfterDelete } from '@/hooks/payload/revalidate'
+import { syncReviewStatus } from '@/hooks/payload/syncReviewStatus'
+import { formatDateIST } from '@/lib/data/issue'
 import { validateHref } from '@/lib/href'
 
 const caPaths = async (doc: Record<string, unknown>, req: import('payload').PayloadRequest) => {
-  const date = typeof doc.date === 'string' ? doc.date.slice(0, 10) : ''
+  const date = doc.date ? formatDateIST(String(doc.date)) : ''
   const slug = typeof doc.slug === 'string' ? doc.slug : ''
   const article = date && slug ? [`/current-affairs/${date}/${slug}`] : []
   const topicIds = Array.isArray(doc.topics) ? doc.topics.map((item) => typeof item === 'number' ? item : typeof item === 'object' && item ? (item as { id: number }).id : null).filter((id): id is number => typeof id === 'number') : []
@@ -32,6 +34,7 @@ export const CurrentAffairs: CollectionConfig = {
     listSearchableFields: ['headline', 'summary'],
     description: 'Roz ki khabrein. AI drafts pehle Review Queue mein aate hain (/admin/review).',
     group: 'Content',
+    preview: (doc) => `/api/preview?collection=current-affairs&id=${String(doc.id)}`,
   },
   defaultSort: '-date',
   access: {
@@ -42,7 +45,7 @@ export const CurrentAffairs: CollectionConfig = {
   },
   versions: { drafts: true, maxPerDoc: 15 },
   hooks: {
-    beforeChange: [forceBotDrafts],
+    beforeChange: [forceBotDrafts, syncReviewStatus],
     afterChange: [revalidateAfterChange(caPaths), postCurrentAffair, pingCurrentAffair],
     afterDelete: [revalidateAfterDelete(caPaths)],
   },

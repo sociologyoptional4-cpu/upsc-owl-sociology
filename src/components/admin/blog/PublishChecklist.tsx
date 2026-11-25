@@ -23,7 +23,8 @@ type QuizState = { busy: boolean; msg: string | null }
 export function PublishChecklist() {
   const { id } = useDocumentInfo()
   const values = useFormFields(([f]) => ({
-    title: str(f.title?.value), seoTitle: str(f['seo.title']?.value), seoDescription: str(f['seo.description']?.value),
+    title: str(f.title?.value), slug: str(f.slug?.value), status: str(f._status?.value),
+    seoTitle: str(f['seo.title']?.value), seoDescription: str(f['seo.description']?.value),
     focusKeyword: str(f['seo.focusKeyword']?.value), excerpt: str(f.excerpt?.value), hasCover: has(f.cover?.value),
     hasCategory: has(f.category?.value), topicCount: count(f.topics?.value), tagCount: count(f.tags?.value), faqCount: count(f.faq?.value),
     content: f.content?.value, quizCount: count(f.quiz?.value),
@@ -49,6 +50,18 @@ export function PublishChecklist() {
   return (
     <div style={{ border: '1px solid #d4d4d8', borderRadius: 8, padding: 12, marginBottom: 16, background: '#fff', color: '#0a0a0a', fontSize: 13 }}>
       <p style={{ margin: 0, padding: '6px 8px', borderRadius: 6, background: state.bg, fontWeight: 700 }}>{state.text}</p>
+      {Boolean(id) && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+          <a href={`/api/preview?collection=posts&id=${String(id)}`} target="_blank" rel="noopener noreferrer" style={{ padding: '4px 8px', borderRadius: 5, border: '1px solid #18181b', background: '#f4f4f5', color: '#18181b', fontWeight: 600, fontSize: 11, textDecoration: 'none' }}>
+            👁 Preview Draft ↗
+          </a>
+          {values.status === 'published' && values.slug ? (
+            <a href={`/blog/${values.slug}`} target="_blank" rel="noopener noreferrer" style={{ padding: '4px 8px', borderRadius: 5, border: '1px solid #15803d', background: '#dcfce7', color: '#166534', fontWeight: 600, fontSize: 11, textDecoration: 'none' }}>
+              🌐 Live Post ↗
+            </a>
+          ) : null}
+        </div>
+      )}
       <ul style={{ listStyle: 'none', margin: '10px 0 0', padding: 0, display: 'grid', gap: 6 }}>
         {checks.map((check) => (
           <li key={check.id} title={check.hint} style={{ display: 'grid', gridTemplateColumns: '18px 1fr', gap: 6 }}>
