@@ -24,7 +24,7 @@ function handleSyllabusApi(request: NextRequest, pathname: string, ua: string | 
   if (request.cookies.has('payload-token')) return NextResponse.next()
   if (isBlockedScraperUa(ua) || isBulkSyllabusApiRequest(pathname, request.nextUrl.searchParams)) {
     return NextResponse.json(
-      { error: 'Bulk syllabus export is restricted. Read individual topics at https://owlupsc.com/syllabus.' },
+      { error: 'Bulk syllabus export is restricted. Read individual topics at https://sociology4upsc.com/syllabus.' },
       { status: 403, headers: { 'Cache-Control': 'no-store' } },
     )
   }

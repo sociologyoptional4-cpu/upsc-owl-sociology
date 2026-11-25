@@ -46,7 +46,7 @@ export function ProvenanceBadge({
         </span>
       ) : null}
       <span className="rounded-chip border border-ink/30 bg-paper-sunk px-3 py-1 text-ink-soft">
-        Canonical: owlupsc.com{canonicalHref}
+        Canonical: sociology4upsc.com{canonicalHref}
       </span>
     </div>
   )
@@ -61,7 +61,7 @@ export function SyllabusDmcaFooter({
   title?: string
 }) {
   const subject = encodeURIComponent(`DMCA / Content Mirror Report: ${title || canonicalHref}`)
-  const mailtoHref = `mailto:dmca@owlupsc.com?subject=${subject}`
+  const mailtoHref = `mailto:dmca@sociology4upsc.com?subject=${subject}`
 
   return (
     <footer
@@ -69,11 +69,11 @@ export function SyllabusDmcaFooter({
       className="mt-14 rounded-card border-2 border-ink bg-paper-sunk p-5 text-xs leading-relaxed text-ink-soft shadow-paper"
     >
       <p className="font-display font-extrabold text-ink">
-        © 2026 Upscowl (owlupsc.com) · Original UPSC Sociology Optional Notes &amp; Visual Frameworks
+        © 2026 Upscowl (sociology4upsc.com) · Original UPSC Sociology Optional Notes &amp; Visual Frameworks
       </p>
       <p className="mt-1.5">
         Protected syllabus study material published at canonical URL{' '}
-        <span className="font-semibold text-ink">https://owlupsc.com{canonicalHref}</span>. Automated scraping, bulk
+        <span className="font-semibold text-ink">https://sociology4upsc.com{canonicalHref}</span>. Automated scraping, bulk
         harvesting, mirroring, or commercial redistribution without written permission is prohibited and subject to
         DMCA takedown.
       </p>

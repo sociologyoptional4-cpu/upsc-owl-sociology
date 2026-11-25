@@ -75,7 +75,7 @@ export function ContentGuard({ canonicalPath, readerLabel, className, children }
   const handleCopyOrCut = (e: ClipboardEvent<HTMLDivElement>) => {
     if (isInteractiveTarget(e.target)) return
     e.preventDefault()
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://owlupsc.com'
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://sociology4upsc.com'
     const attribution = `Protected UPSC Sociology Optional study notes — read online at Upscowl: ${origin}${canonicalPath}`
     e.clipboardData?.setData('text/plain', attribution)
   }
@@ -86,8 +86,8 @@ export function ContentGuard({ canonicalPath, readerLabel, className, children }
   }
 
   const watermarkText = sessionStamp
-    ? `${sessionIdentity} · ${sessionStamp} · owlupsc.com`
-    : `${sessionIdentity} · owlupsc.com`
+    ? `${sessionIdentity} · ${sessionStamp} · sociology4upsc.com`
+    : `${sessionIdentity} · sociology4upsc.com`
 
   return (
     <div className="relative">
@@ -117,7 +117,7 @@ export function ContentGuard({ canonicalPath, readerLabel, className, children }
         <p className="font-display text-lg font-extrabold text-ink">
           Protected Study Material — Read online at Upscowl
         </p>
-        <p className="mt-2 text-sm text-ink-soft">https://owlupsc.com{canonicalPath}</p>
+        <p className="mt-2 text-sm text-ink-soft">https://sociology4upsc.com{canonicalPath}</p>
       </div>
     </div>
   )
