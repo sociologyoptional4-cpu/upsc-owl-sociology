@@ -11,6 +11,7 @@ import { BlogCard } from '@/components/cards/BlogCard'
 import { Breadcrumbs, JsonLd } from '@/components/ui/Breadcrumbs'
 import { ThinkerChipLink, TopicChipLink } from '@/components/ui/Chips'
 import { formatDay } from '@/components/ui/format'
+import { TELEGRAM_MENTORSHIP_URL, TELEGRAM_URL } from '@/components/ui/links'
 import { blogPostingJsonLd, faqPageJsonLd } from '@/lib/seo/jsonld'
 import { getServerSideURL } from '@/lib/url'
 
@@ -141,10 +142,13 @@ export function BlogPostView({ post }: { post: BlogPostDetail }) {
           {/* Telegram CTA */}
           <section aria-label="Telegram channel" className="mt-12 rounded-sheet border-2 border-ink bg-pastel-yellow p-6 text-ink shadow-paper">
             <h2 className="font-display text-xl font-extrabold">Roz ke Sociology notes Telegram pe paao</h2>
-            <p className="mt-1 text-sm text-ink-soft">Daily current affairs, PYQ linkages aur naye blog articles seedha channel mein.</p>
-            <div className="mt-4 flex flex-wrap items-center gap-4">
-              <a href="https://t.me/sociologyoptional4" target="_blank" rel="noopener noreferrer" className="btn-cta rounded-chip border-2 border-ink px-5 py-2 text-sm shadow-paper">
+            <p className="mt-1 text-sm text-ink-soft">Daily current affairs, PYQ linkages aur direct mentorship support Telegram par.</p>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <a href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer" className="btn-cta rounded-chip border-2 border-ink px-5 py-2 text-sm shadow-paper">
                 Telegram join karo ↗
+              </a>
+              <a href={TELEGRAM_MENTORSHIP_URL} target="_blank" rel="noopener noreferrer" className="rounded-chip border-2 border-ink bg-paper-raised px-4 py-2 text-sm font-bold text-ink hover:bg-pastel-mint">
+                Direct Contact / Mentorship ↗
               </a>
               <BlogShareBar title={post.title} url={fullUrl} />
             </div>

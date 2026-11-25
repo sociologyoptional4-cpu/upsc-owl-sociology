@@ -114,7 +114,7 @@ export function siteJsonLd() {
   return {
     '@context': 'https://schema.org',
     '@graph': [
-      { '@type': 'Organization', '@id': `${base}/#org`, name: SITE_NAME, url: base, sameAs: ['https://t.me/sociologyoptional4'] },
+      { '@type': 'Organization', '@id': `${base}/#org`, name: SITE_NAME, url: base, sameAs: ['https://t.me/sociologyoptional4', 'https://t.me/ur8884'] },
       { '@type': 'WebSite', '@id': `${base}/#site`, url: base, name: SITE_NAME, inLanguage: 'hi-Latn', publisher: { '@id': `${base}/#org` }, potentialAction: { '@type': 'SearchAction', target: `${base}/search?q={search_term_string}`, 'query-input': 'required name=search_term_string' } },
     ],
   }

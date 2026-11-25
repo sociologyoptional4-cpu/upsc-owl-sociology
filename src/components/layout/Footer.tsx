@@ -2,11 +2,18 @@ import Link from 'next/link'
 
 import { isExternalHref } from '@/lib/href'
 
-import { TELEGRAM_URL } from '../ui/links'
+import { TELEGRAM_MENTORSHIP_URL, TELEGRAM_URL } from '../ui/links'
 
 const COLUMNS = [
   { title: 'Quick links', links: [{ label: 'Current Affairs', href: '/current-affairs' }, { label: 'Syllabus', href: '/syllabus' }, { label: 'Thinkers', href: '/thinkers' }, { label: 'Glossary (A-Z)', href: '/glossary' }, { label: 'Search', href: '/search' }] },
-  { title: 'Connect', links: [{ label: 'Telegram', href: TELEGRAM_URL }, { label: 'About', href: '/about' }] },
+  {
+    title: 'Connect',
+    links: [
+      { label: 'Telegram Channel (Notes)', href: TELEGRAM_URL },
+      { label: 'Direct Contact / Mentorship', href: TELEGRAM_MENTORSHIP_URL },
+      { label: 'About', href: '/about' },
+    ],
+  },
 ]
 
 export function Footer() {

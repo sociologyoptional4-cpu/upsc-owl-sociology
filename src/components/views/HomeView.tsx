@@ -7,7 +7,7 @@ import { SyllabusBento } from '../home/SyllabusBento'
 import { ThinkerBanter } from '../home/ThinkerBanter'
 import { ThinkerSpotlight } from '../home/ThinkerSpotlight'
 import { CtaBlockComponent } from '@/blocks/cta/Component'
-import { TELEGRAM_URL } from '../ui/links'
+import { TELEGRAM_MENTORSHIP_URL, TELEGRAM_URL } from '../ui/links'
 import { SectionHeading } from '../ui/SectionHeading'
 
 export function HomeView({ data }: { data: HomeData }) {
@@ -49,11 +49,12 @@ export function HomeView({ data }: { data: HomeData }) {
           block={{
             blockType: 'cta',
             heading: 'Roz ka issue, Telegram pe bhi.',
-            body: 'Hamara Telegram channel join karo, updates aur discussion wahan bhi milte hain.',
+            body: 'Channel pe daily updates aur discussion milte hain — aur direct contact ya mentorship ke liye seedha DM karo.',
             label: 'Telegram join karo',
             href: TELEGRAM_URL,
             style: 'telegram',
           }}
+          secondaryAction={{ label: 'Direct Contact / Mentorship', href: TELEGRAM_MENTORSHIP_URL }}
         />
       </div>
     </>

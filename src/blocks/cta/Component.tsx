@@ -3,12 +3,14 @@ import Link from 'next/link'
 import type { CtaBlock as CtaBlockData } from '@/payload-types'
 import { isExternalHref, safeHref } from '@/lib/href'
 
-type Props = { block: CtaBlockData }
+type Props = { block: CtaBlockData; secondaryAction?: { label: string; href: string } }
 
-export function CtaBlockComponent({ block }: Props) {
+export function CtaBlockComponent({ block, secondaryAction }: Props) {
   const href = safeHref(block.href)
+  const secondaryHref = secondaryAction ? safeHref(secondaryAction.href) : null
   const isTelegram = block.style === 'telegram'
   const external = href ? isExternalHref(href) : false
+  const secondaryExternal = secondaryHref ? isExternalHref(secondaryHref) : false
 
   return (
     <section className="mx-auto max-w-7xl px-5 py-10 md:px-8">
@@ -21,14 +23,27 @@ export function CtaBlockComponent({ block }: Props) {
         <div aria-hidden className="absolute -right-4 top-10 size-40 rounded-full border border-current opacity-10" />
         <h2 className="relative max-w-[20ch] text-[length:var(--text-h2)]">{block.heading}</h2>
         {block.body && <p className="relative mt-4 max-w-[50ch] opacity-80">{block.body}</p>}
-        {href && (
-          <Link
-            href={href}
-            {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-            className="btn-cta relative mt-8 inline-flex items-center gap-2 rounded-md px-6 py-3 text-sm transition-transform duration-300 ease-out-expo hover:-translate-y-0.5 active:scale-[0.98]"
-          >
-            {block.label} <span aria-hidden>→</span>
-          </Link>
+        {(href || secondaryHref) && (
+          <div className="relative mt-8 flex flex-wrap items-center gap-3">
+            {href && (
+              <Link
+                href={href}
+                {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                className="btn-cta inline-flex items-center gap-2 rounded-md px-6 py-3 text-sm transition-transform duration-300 ease-out-expo hover:-translate-y-0.5 active:scale-[0.98]"
+              >
+                {block.label} <span aria-hidden>→</span>
+              </Link>
+            )}
+            {secondaryHref && secondaryAction && (
+              <Link
+                href={secondaryHref}
+                {...(secondaryExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                className="inline-flex items-center gap-2 rounded-md border border-white/30 bg-white/10 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/20"
+              >
+                {secondaryAction.label} <span aria-hidden>↗</span>
+              </Link>
+            )}
+          </div>
         )}
       </div>
     </section>

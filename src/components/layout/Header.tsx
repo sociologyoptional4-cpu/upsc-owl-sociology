@@ -1,7 +1,7 @@
 import Link from 'next/link'
 
 import { StudyStreakPill } from '../gamification/StudyStreakPill'
-import { TELEGRAM_URL } from '../ui/links'
+import { TELEGRAM_MENTORSHIP_URL, TELEGRAM_URL } from '../ui/links'
 
 import { ThemeToggle } from './ThemeToggle'
 
@@ -43,6 +43,15 @@ export function Header({ nav }: { nav: NavItem[] }) {
           >
             Telegram join
           </Link>
+          <Link
+            href={TELEGRAM_MENTORSHIP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Direct contact & mentorship on Telegram"
+            className="hidden rounded-md border border-ink bg-paper-raised px-3 py-2 text-xs font-bold text-ink transition-colors hover:bg-pastel-yellow lg:inline-flex"
+          >
+            Mentorship
+          </Link>
           <Link href="/search" aria-label="Site mein search karo" className="grid h-9 w-9 place-items-center rounded-md border border-rule text-ink-soft transition-colors hover:border-ink hover:text-ink">
             <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
           </Link>
@@ -61,6 +70,16 @@ export function Header({ nav }: { nav: NavItem[] }) {
               </Link>
             </li>
           ))}
+          <li className="shrink-0">
+            <Link
+              href={TELEGRAM_MENTORSHIP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block rounded-chip border border-ink bg-pastel-yellow px-3 py-1 text-xs font-bold text-ink"
+            >
+              Mentorship ↗
+            </Link>
+          </li>
         </ul>
       </nav>
     </header>

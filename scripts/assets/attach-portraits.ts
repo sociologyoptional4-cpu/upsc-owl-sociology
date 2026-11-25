@@ -13,7 +13,7 @@ interface ThinkerAsset {
   fileSm: string | null
   width: number | null
   height: number | null
-  license: 'public-domain' | 'cc0' | 'cc-by' | 'cc-by-sa' | null
+  license: 'own' | 'public-domain' | 'cc0' | 'cc-by' | 'cc-by-sa' | null
   licenseName: string | null
   author: string | null
   sourceUrl: string | null

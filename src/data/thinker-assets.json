@@ -167,17 +167,17 @@
   {
     "slug": "mn-srinivas",
     "name": "M. N. Srinivas",
-    "status": "none",
-    "file": null,
-    "fileSm": null,
-    "width": null,
-    "height": null,
-    "license": null,
-    "licenseName": null,
-    "author": null,
+    "status": "ok",
+    "file": "/assets/thinkers/mn-srinivas.webp",
+    "fileSm": "/assets/thinkers/mn-srinivas-sm.webp",
+    "width": 1000,
+    "height": 1250,
+    "license": "own",
+    "licenseName": "Own / generated",
+    "author": "UPSC OWL Sociology",
     "sourceUrl": null,
-    "year": null,
-    "attribution": null
+    "year": "2026",
+    "attribution": "Portrait illustration: UPSC OWL Sociology (Own)"
   },
   {
     "slug": "robert-k-merton",
