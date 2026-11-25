@@ -163,6 +163,8 @@ export const getUnitPageData = cache(async (paperSlug: string, unitSlug: string)
     mindMapHinglish: parseMindMap(unitDoc?.mindMapHinglish),
     infographics: mapUnitInfographics(unitDoc?.infographics),
     totalPyqs,
+    createdAt: unitDoc?.createdAt ?? null,
+    updatedAt: unitDoc?.updatedAt ?? null,
   }
 })
 
@@ -223,6 +225,8 @@ export const getTopicDetail = cache(async (paperSlug: string, unitSlug: string, 
     pyqAnswersHinglish: parsePyqAnswers(topic.pyqAnswersHinglish),
     prevTopic,
     nextTopic,
+    createdAt: topic.createdAt ?? null,
+    updatedAt: topic.updatedAt ?? null,
   }
 })
 

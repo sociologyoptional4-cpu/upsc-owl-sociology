@@ -20,10 +20,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (path.length === 1) {
     const unitData = await getUnitPageData(paperSlug, path[0]!)
     if (!unitData) return {}
+    const description = unitData.overview ?? 'UPSC Sociology Optional unit guide, mind map and chapter notes.'
     return {
       title: unitData.unit.title,
-      description: unitData.overview ?? 'UPSC Sociology Optional unit guide, mind map and chapter notes.',
+      description,
       alternates: { canonical: unitData.unit.href },
+      openGraph: {
+        title: unitData.unit.title,
+        description,
+        url: unitData.unit.href,
+        type: 'article',
+        ...(unitData.createdAt ? { publishedTime: unitData.createdAt } : {}),
+        ...(unitData.updatedAt ? { modifiedTime: unitData.updatedAt } : {}),
+      },
     }
   }
   const tree = await getSyllabusTree()
@@ -34,7 +43,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
   const unit = paper.units.find((item) => item.slug === path[0])
   const topic = unit?.topics.find((item) => item.slug === path[1])
-  return topic ? { title: topic.title, description: topic.summary ?? 'UPSC Sociology Optional syllabus and study notes.', alternates: { canonical: topic.href } } : {}
+  if (!topic) return {}
+  const description = topic.summary ?? 'UPSC Sociology Optional syllabus and study notes.'
+  return {
+    title: topic.title,
+    description,
+    alternates: { canonical: topic.href },
+    openGraph: {
+      title: topic.title,
+      description,
+      url: topic.href,
+      type: 'article',
+    },
+  }
 }
 
 export default async function PaperRoute({ params }: Props) {

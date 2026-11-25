@@ -1,5 +1,6 @@
 import type { PaperPageData } from '@/lib/data/types'
 
+import { SyllabusDmcaFooter } from '../syllabus/SyllabusProvenance'
 import { UnitList } from '../syllabus/UnitList'
 import { Breadcrumbs } from '../ui/Breadcrumbs'
 import { paperTone } from '../ui/paper'
@@ -19,6 +20,7 @@ export function PaperView({ data }: { data: PaperPageData }) {
       <div className="mt-12">
         <UnitList units={data.units} accent={tone.text} />
       </div>
+      <SyllabusDmcaFooter canonicalHref={data.href} title={data.title} />
     </div>
   )
 }

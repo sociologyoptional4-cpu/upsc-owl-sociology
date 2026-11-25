@@ -1,9 +1,10 @@
 import type { MindMapData, NoteLang, UnitInfographic, UnitPageData, UnitStudyStep } from '@/lib/data/types'
+import { syllabusUnitJsonLd } from '@/lib/seo/jsonld'
 
 import { BilingualUnitShell } from '../notebook/BilingualUnitShell'
 import { InfographicGallery } from '../notebook/InfographicGallery'
 import { MindMap } from '../notebook/MindMap'
-import { Breadcrumbs } from '../ui/Breadcrumbs'
+import { Breadcrumbs, JsonLd } from '../ui/Breadcrumbs'
 import { paperTone } from '../ui/paper'
 
 function StudySequenceRibbon({ steps, lang }: { steps: UnitStudyStep[]; lang: NoteLang }) {
@@ -79,11 +80,16 @@ export function UnitView({ data }: { data: UnitPageData }) {
   )
 
   return (
-    <BilingualUnitShell
-      paper={{ code: paper.code, title: paper.title, href: paper.href }}
-      unitNumber={unit.number}
-      unitTitle={unit.title}
-      overviewEn={data.overview ?? null}
+    <>
+      <JsonLd data={syllabusUnitJsonLd(data)} />
+      <BilingualUnitShell
+        paper={{ code: paper.code, title: paper.title, href: paper.href }}
+        unitNumber={unit.number}
+        unitTitle={unit.title}
+        canonicalHref={unit.href}
+        createdAt={data.createdAt ?? null}
+        updatedAt={data.updatedAt ?? null}
+        overviewEn={data.overview ?? null}
       overviewHi={data.overviewHinglish ?? null}
       topics={unit.topics.map((t) => ({
         title: t.title,
@@ -106,5 +112,6 @@ export function UnitView({ data }: { data: UnitPageData }) {
       infographicsHiNode={hasHiInfo ? <UnitInfographicsSection items={localizeInfographics(infographicsEn)} lang="hi" /> : null}
       hasHinglish={hasHinglish}
     />
+    </>
   )
 }

@@ -2,6 +2,8 @@
 
 import Link from 'next/link'
 
+import { ContentGuard } from '../ContentGuard'
+import { ProvenanceBadge, SyllabusDmcaFooter } from '../syllabus/SyllabusProvenance'
 import { LanguageSwitch } from './LanguageSwitch'
 import { NoteLanguageProvider, useNoteLanguage } from './NoteLanguageContext'
 
@@ -9,6 +11,9 @@ export type BilingualTopicShellProps = {
   paperCode: 'P1' | 'P2'
   paperLabel: string
   title: string
+  canonicalHref: string
+  createdAt?: string | null
+  updatedAt?: string | null
   summaryEn: string | null
   summaryHi: string | null
   breadcrumbsNode: React.ReactNode
@@ -18,6 +23,8 @@ export type BilingualTopicShellProps = {
   mindMapHiNode: React.ReactNode | null
   notesEnNode: React.ReactNode
   notesHiNode: React.ReactNode | null
+  selfCheckEnNode?: React.ReactNode
+  selfCheckHiNode?: React.ReactNode | null
   pyqCount: number
   pyqsEnNode: React.ReactNode
   pyqsHiNode: React.ReactNode | null
@@ -135,27 +142,32 @@ function TopicPager({ unitBreadcrumb, prevTopic, nextTopic, showHi }: TopicPager
 }
 
 function TopicMainColumn({ props, showHi, hasMindMap }: { props: BilingualTopicShellProps; showHi: boolean; hasMindMap: boolean }) {
+  const selfCheckNode = showHi ? (props.selfCheckHiNode ?? props.selfCheckEnNode) : props.selfCheckEnNode
   return (
     <div className="min-w-0">
-      {hasMindMap ? (
-        <section id="mind-map" aria-label="Chapter Mind Map" className="mb-10 scroll-mt-32">
-          {showHi ? (props.mindMapHiNode ?? props.mindMapEnNode) : props.mindMapEnNode}
-        </section>
-      ) : null}
+      <ContentGuard canonicalPath={props.canonicalHref}>
+        {hasMindMap ? (
+          <section id="mind-map" aria-label="Chapter Mind Map" className="mb-10 scroll-mt-32">
+            {showHi ? (props.mindMapHiNode ?? props.mindMapEnNode) : props.mindMapEnNode}
+          </section>
+        ) : null}
 
-      <section id="notes" aria-label="Notes" className="scroll-mt-32">
-        {showHi ? (props.notesHiNode ?? props.notesEnNode) : props.notesEnNode}
-      </section>
-
-      {props.pyqCount > 0 ? (
-        <section id="pyqs" aria-labelledby="topic-pyqs-h" className="mt-[var(--space-section)] scroll-mt-32">
-          <p className="tag-skew"><span>2013–2025 PYQ Bank</span></p>
-          <h2 id="topic-pyqs-h" className="mt-4 mb-6 text-[length:var(--text-h3)] font-extrabold">
-            Solved Previous Year Questions
-          </h2>
-          {showHi ? (props.pyqsHiNode ?? props.pyqsEnNode) : props.pyqsEnNode}
+        <section id="notes" aria-label="Notes" className="scroll-mt-32">
+          {showHi ? (props.notesHiNode ?? props.notesEnNode) : props.notesEnNode}
         </section>
-      ) : null}
+
+        {selfCheckNode}
+
+        {props.pyqCount > 0 ? (
+          <section id="pyqs" aria-labelledby="topic-pyqs-h" className="mt-[var(--space-section)] scroll-mt-32">
+            <p className="tag-skew"><span>2013–2025 PYQ Bank</span></p>
+            <h2 id="topic-pyqs-h" className="mt-4 mb-6 text-[length:var(--text-h3)] font-extrabold">
+              Solved Previous Year Questions
+            </h2>
+            {showHi ? (props.pyqsHiNode ?? props.pyqsEnNode) : props.pyqsEnNode}
+          </section>
+        ) : null}
+      </ContentGuard>
 
       <section id="current-affairs" aria-labelledby="topic-ca-h" className="mt-[var(--space-section)] scroll-mt-32">
         <h2 id="topic-ca-h" className="mb-8 text-[length:var(--text-h3)] font-extrabold">
@@ -174,6 +186,7 @@ function TopicMainColumn({ props, showHi, hasMindMap }: { props: BilingualTopicS
       ) : null}
 
       <TopicPager unitBreadcrumb={props.unitBreadcrumb} prevTopic={props.prevTopic} nextTopic={props.nextTopic} showHi={showHi} />
+      <SyllabusDmcaFooter canonicalHref={props.canonicalHref} title={props.title} />
     </div>
   )
 }
@@ -200,6 +213,7 @@ function TopicShellInner(props: BilingualTopicShellProps) {
         <p className="tag-skew"><span>{props.paperLabel} · Chapter Notes</span></p>
         <h1 className="mt-6 text-[length:var(--text-h2)] font-extrabold">{props.title}</h1>
         {summary ? <p className="mt-4 max-w-[60ch] text-[length:var(--text-lg)] text-ink-soft">{summary}</p> : null}
+        <ProvenanceBadge createdAt={props.createdAt} updatedAt={props.updatedAt} canonicalHref={props.canonicalHref} />
       </header>
       <LanguageSwitch variant="banner" className="mt-6" />
       <TopicStickyNav sections={navSections} />

@@ -2,6 +2,7 @@ import Link from 'next/link'
 
 import type { SyllabusPaper } from '@/lib/data/types'
 
+import { SyllabusDmcaFooter } from '../syllabus/SyllabusProvenance'
 import { UnitList } from '../syllabus/UnitList'
 import { PageHeader } from '../ui/PageHeader'
 import { paperTone } from '../ui/paper'
@@ -39,6 +40,7 @@ export function SyllabusView({ data }: { data: SyllabusPaper[] }) {
           </section>
         )
       })}
+      <SyllabusDmcaFooter canonicalHref="/syllabus" title="UPSC Sociology Optional Syllabus" />
     </div>
   )
 }

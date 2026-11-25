@@ -2,7 +2,9 @@
 
 import Link from 'next/link'
 
+import { ContentGuard } from '../ContentGuard'
 import { Reveal } from '../motion/Reveal'
+import { ProvenanceBadge, SyllabusDmcaFooter } from '../syllabus/SyllabusProvenance'
 import { EmptyState } from '../ui/Badges'
 import { paperTone } from '../ui/paper'
 import { LanguageSwitch } from './LanguageSwitch'
@@ -12,6 +14,9 @@ export type BilingualUnitShellProps = {
   paper: { code: 'P1' | 'P2'; title: string; href: string }
   unitNumber: number
   unitTitle: string
+  canonicalHref: string
+  createdAt?: string | null
+  updatedAt?: string | null
   overviewEn: string | null
   overviewHi: string | null
   topics: {
@@ -90,6 +95,9 @@ function UnitHeader({
   paperCode,
   unitNumber,
   unitTitle,
+  canonicalHref,
+  createdAt,
+  updatedAt,
   overview,
   chaptersCount,
   totalPyqs,
@@ -97,6 +105,9 @@ function UnitHeader({
   paperCode: 'P1' | 'P2'
   unitNumber: number
   unitTitle: string
+  canonicalHref: string
+  createdAt?: string | null
+  updatedAt?: string | null
   overview: string | null
   chaptersCount: number
   totalPyqs: number
@@ -127,6 +138,7 @@ function UnitHeader({
             </span>
           ) : null}
         </div>
+        <ProvenanceBadge createdAt={createdAt} updatedAt={updatedAt} canonicalHref={canonicalHref} />
       </div>
     </header>
   )
@@ -180,15 +192,23 @@ function UnitShellInner(props: BilingualUnitShellProps) {
         paperCode={props.paper.code}
         unitNumber={props.unitNumber}
         unitTitle={props.unitTitle}
+        canonicalHref={props.canonicalHref}
+        createdAt={props.createdAt}
+        updatedAt={props.updatedAt}
         overview={overview}
         chaptersCount={props.topics.length}
         totalPyqs={props.totalPyqs}
       />
       <LanguageSwitch variant="banner" className="mt-6" />
-      {showHi ? (props.sequenceHiNode ?? props.sequenceEnNode) : props.sequenceEnNode}
+      <ContentGuard canonicalPath={props.canonicalHref}>
+        {showHi ? (props.sequenceHiNode ?? props.sequenceEnNode) : props.sequenceEnNode}
+      </ContentGuard>
       <UnitChaptersSection topics={props.topics} unitNumber={props.unitNumber} toneBg={tone.bg} showHi={showHi} />
-      {showHi ? (props.mindMapHiNode ?? props.mindMapEnNode) : props.mindMapEnNode}
-      {showHi ? (props.infographicsHiNode ?? props.infographicsEnNode) : props.infographicsEnNode}
+      <ContentGuard canonicalPath={props.canonicalHref}>
+        {showHi ? (props.mindMapHiNode ?? props.mindMapEnNode) : props.mindMapEnNode}
+        {showHi ? (props.infographicsHiNode ?? props.infographicsEnNode) : props.infographicsEnNode}
+      </ContentGuard>
+      <SyllabusDmcaFooter canonicalHref={props.canonicalHref} title={props.unitTitle} />
     </div>
   )
 }

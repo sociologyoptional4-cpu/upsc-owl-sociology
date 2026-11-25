@@ -1,4 +1,5 @@
 import type { NoteLang, ResolvedBlogBlocks, TopicDetail } from '@/lib/data/types'
+import { syllabusTopicJsonLd } from '@/lib/seo/jsonld'
 
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 
@@ -10,8 +11,9 @@ import { BilingualTopicShell } from '../notebook/BilingualTopicShell'
 import { ColorLegend } from '../notebook/ColorLegend'
 import { MindMap } from '../notebook/MindMap'
 import { PyqAnswerAccordion } from '../notebook/PyqAnswerAccordion'
+import { TopicSelfCheck } from '../notebook/TopicSelfCheck'
 import { EmptyState } from '../ui/Badges'
-import { Breadcrumbs } from '../ui/Breadcrumbs'
+import { Breadcrumbs, JsonLd } from '../ui/Breadcrumbs'
 import { ThinkerChipLink, TopicChipLink } from '../ui/Chips'
 import { paperTone } from '../ui/paper'
 
@@ -112,37 +114,65 @@ export function TopicView({ data }: { data: TopicDetail }) {
   )
 
   return (
-    <BilingualTopicShell
-      paperCode={data.paper}
-      paperLabel={tone.label}
-      title={data.title}
-      summaryEn={data.summary}
-      summaryHi={data.summaryHinglish ?? null}
-      breadcrumbsNode={<Breadcrumbs items={data.breadcrumbs} />}
-      hasMindMapEn={Boolean(data.mindMap)}
-      hasMindMapHi={Boolean(data.mindMapHinglish)}
-      mindMapEnNode={data.mindMap ? <MindMap data={data.mindMap} eyebrow="Chapter Mind Map" /> : null}
-      mindMapHiNode={data.mindMapHinglish ? <MindMap data={data.mindMapHinglish} eyebrow="Chapter Mind Map" /> : null}
-      notesEnNode={<NotesBody content={data.notebookContent} resolved={data.resolvedBlocks} layout={data.layout} lang="en" />}
-      notesHiNode={
-        data.notebookContentHinglish ? (
-          <NotesBody content={data.notebookContentHinglish} resolved={data.resolvedBlocksHinglish} layout={[]} lang="hi" />
-        ) : null
-      }
-      pyqCount={pyqCount}
-      pyqsEnNode={pyqsEn.length > 0 ? <PyqAnswerAccordion items={pyqsEn} lang="en" /> : null}
-      pyqsHiNode={pyqsHi.length > 0 ? <PyqAnswerAccordion items={pyqsHi} lang="hi" /> : null}
-      caCount={data.caCount}
-      caNode={caNode}
-      blogsCount={blogsCount}
-      blogsNode={blogsNode}
-      tocEn={data.toc ?? []}
-      tocHi={data.tocHinglish ?? []}
-      asideExtraNode={asideExtraNode}
-      prevTopic={data.prevTopic ?? null}
-      nextTopic={data.nextTopic ?? null}
-      unitBreadcrumb={data.breadcrumbs[2]}
-      hasHinglish={hasHinglish}
-    />
+    <>
+      <JsonLd data={syllabusTopicJsonLd(data)} />
+      <BilingualTopicShell
+        paperCode={data.paper}
+        paperLabel={tone.label}
+        title={data.title}
+        canonicalHref={data.href}
+        createdAt={data.createdAt ?? null}
+        updatedAt={data.updatedAt ?? null}
+        summaryEn={data.summary}
+        summaryHi={data.summaryHinglish ?? null}
+        breadcrumbsNode={<Breadcrumbs items={data.breadcrumbs} />}
+        hasMindMapEn={Boolean(data.mindMap)}
+        hasMindMapHi={Boolean(data.mindMapHinglish)}
+        mindMapEnNode={data.mindMap ? <MindMap data={data.mindMap} eyebrow="Chapter Mind Map" /> : null}
+        mindMapHiNode={data.mindMapHinglish ? <MindMap data={data.mindMapHinglish} eyebrow="Chapter Mind Map" /> : null}
+        notesEnNode={<NotesBody content={data.notebookContent} resolved={data.resolvedBlocks} layout={data.layout} lang="en" />}
+        notesHiNode={
+          data.notebookContentHinglish ? (
+            <NotesBody content={data.notebookContentHinglish} resolved={data.resolvedBlocksHinglish} layout={[]} lang="hi" />
+          ) : null
+        }
+        selfCheckEnNode={
+          <TopicSelfCheck
+            slug={data.slug}
+            title={data.title}
+            thinkers={data.thinkers}
+            pyqs={pyqsEn}
+            toc={data.toc ?? []}
+            lang="en"
+          />
+        }
+        selfCheckHiNode={
+          hasHinglish ? (
+            <TopicSelfCheck
+              slug={data.slug}
+              title={data.title}
+              thinkers={data.thinkers}
+              pyqs={pyqsHi.length > 0 ? pyqsHi : pyqsEn}
+              toc={(data.tocHinglish?.length ? data.tocHinglish : data.toc) ?? []}
+              lang="hi"
+            />
+          ) : null
+        }
+        pyqCount={pyqCount}
+        pyqsEnNode={pyqsEn.length > 0 ? <PyqAnswerAccordion items={pyqsEn} lang="en" /> : null}
+        pyqsHiNode={pyqsHi.length > 0 ? <PyqAnswerAccordion items={pyqsHi} lang="hi" /> : null}
+        caCount={data.caCount}
+        caNode={caNode}
+        blogsCount={blogsCount}
+        blogsNode={blogsNode}
+        tocEn={data.toc ?? []}
+        tocHi={data.tocHinglish ?? []}
+        asideExtraNode={asideExtraNode}
+        prevTopic={data.prevTopic ?? null}
+        nextTopic={data.nextTopic ?? null}
+        unitBreadcrumb={data.breadcrumbs[2]}
+        hasHinglish={hasHinglish}
+      />
+    </>
   )
 }
