@@ -19,6 +19,7 @@ import { Thinkers } from './collections/Thinkers'
 import { Topics } from './collections/Topics'
 import { Units } from './collections/Units'
 import { Pyqs } from './collections/Pyqs'
+import { Subscriptions } from './collections/Subscriptions'
 import { Users } from './collections/Users'
 import { SiteSettings } from './globals/SiteSettings'
 import { Navigation } from './globals/Navigation'
@@ -55,7 +56,7 @@ export default buildConfig({
       },
     },
   },
-  collections: [Pages, CurrentAffairs, Topics, Units, Papers, Pyqs, Thinkers, Media, Users, Sources, PipelineRuns, Digests, Quizzes, Posts, BlogCategories, BlogTags, BlogSeries],
+  collections: [Pages, CurrentAffairs, Topics, Units, Papers, Pyqs, Thinkers, Media, Users, Subscriptions, Sources, PipelineRuns, Digests, Quizzes, Posts, BlogCategories, BlogTags, BlogSeries],
   globals: [SiteSettings, Navigation],
   editor: richTextEditor(),
   secret: env.PAYLOAD_SECRET,

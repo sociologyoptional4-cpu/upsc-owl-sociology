@@ -14,9 +14,9 @@ function isSyllabusApiPath(pathname: string): boolean {
 
 function handleSyllabusApi(request: NextRequest, pathname: string, ua: string | null): NextResponse {
   if (request.cookies.has('payload-token')) return NextResponse.next()
-  if (isBlockedScraperUa(ua) || isBulkSyllabusApiRequest(pathname, request.nextUrl.searchParams)) {
+  if (pathname.startsWith('/api/topics') || isBlockedScraperUa(ua) || isBulkSyllabusApiRequest(pathname, request.nextUrl.searchParams)) {
     return NextResponse.json(
-      { error: 'Bulk syllabus export is restricted. Read individual topics at https://sociology4upsc.com/syllabus.' },
+      { error: 'Syllabus notes API requires admin or Pro access at https://sociology4upsc.com/pro.' },
       { status: 403, headers: { 'Cache-Control': 'no-store' } },
     )
   }

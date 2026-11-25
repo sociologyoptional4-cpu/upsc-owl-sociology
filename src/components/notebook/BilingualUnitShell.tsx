@@ -16,6 +16,7 @@ export type BilingualUnitShellProps = {
   paper: { code: 'P1' | 'P2'; title: string; href: string }
   unitNumber: number
   unitTitle: string
+  unitLocked?: boolean
   canonicalHref: string
   createdAt?: string | null
   updatedAt?: string | null
@@ -27,6 +28,7 @@ export type BilingualUnitShellProps = {
     caCount: number
     pyqCount?: number
     hasNotes?: boolean
+    isLocked?: boolean
     summaryEn?: string | null
     summaryHi?: string | null
   }[]
@@ -51,7 +53,7 @@ type UnitTopicCardProps = {
 
 function UnitTopicCard({ topic, unitNumber, index, toneBg, showHi }: UnitTopicCardProps) {
   const summary = showHi ? (topic.summaryHi ?? topic.summaryEn) : topic.summaryEn
-  const cta = showHi ? 'Padho →' : 'Read Chapter →'
+  const cta = topic.isLocked ? (showHi ? 'Unlock Pro →' : 'Unlock Chapter →') : showHi ? 'Padho →' : 'Read Chapter →'
 
   return (
     <Reveal as="li" index={index}>
@@ -63,9 +65,16 @@ function UnitTopicCard({ topic, unitNumber, index, toneBg, showHi }: UnitTopicCa
           <div>
             <div className="flex items-center justify-between gap-2">
               <span aria-hidden className={`block h-1 w-10 rounded-full ${toneBg}`} />
-              <span className="font-display text-xs font-extrabold text-ink-mute">
-                Chapter {unitNumber}.{index + 1}
-              </span>
+              <div className="flex items-center gap-1.5">
+                {topic.isLocked ? (
+                  <span className="rounded-chip border border-ink bg-pastel-yellow px-2 py-0.5 text-[10px] font-extrabold text-ink">
+                    🔒 Pro
+                  </span>
+                ) : null}
+                <span className="font-display text-xs font-extrabold text-ink-mute">
+                  Chapter {unitNumber}.{index + 1}
+                </span>
+              </div>
             </div>
             <h3 className="mt-4 font-display text-xl font-bold leading-snug">
               <Link href={topic.href} className="link-draw after:absolute after:inset-0 after:content-['']">
@@ -157,11 +166,13 @@ function UnitHeader({
 function UnitChaptersSection({
   topics,
   unitNumber,
+  unitLocked,
   toneBg,
   showHi,
 }: {
   topics: BilingualUnitShellProps['topics']
   unitNumber: number
+  unitLocked?: boolean
   toneBg: string
   showHi: boolean
 }) {
@@ -177,9 +188,19 @@ function UnitChaptersSection({
   }
   return (
     <section aria-labelledby="unit-chapters-h" className="mt-12">
-      <h2 id="unit-chapters-h" className="text-[length:var(--text-h3)] font-extrabold">
-        {showHi ? 'Is Unit ke Chapters' : 'Chapters in this Unit'}
-      </h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 id="unit-chapters-h" className="text-[length:var(--text-h3)] font-extrabold">
+          {showHi ? 'Is Unit ke Chapters' : 'Chapters in this Unit'}
+        </h2>
+        {unitLocked ? (
+          <Link
+            href="/pro"
+            className="inline-flex items-center gap-2 rounded-chip border-2 border-ink bg-pastel-yellow px-3.5 py-1.5 text-xs font-extrabold text-ink shadow-paper transition-colors hover:bg-saffron"
+          >
+            <span>🔒 Pro Unit · Unlock all chapters ₹399/yr (60% OFF ₹999)</span>
+          </Link>
+        ) : null}
+      </div>
       <ul className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         {topics.map((topic, index) => (
           <UnitTopicCard key={topic.href} topic={topic} unitNumber={unitNumber} index={index} toneBg={toneBg} showHi={showHi} />
@@ -212,7 +233,7 @@ function UnitShellInner(props: BilingualUnitShellProps) {
         />
         <LanguageSwitch variant="banner" className="mt-6" />
         {showHi ? (props.sequenceHiNode ?? props.sequenceEnNode) : props.sequenceEnNode}
-        <UnitChaptersSection topics={props.topics} unitNumber={props.unitNumber} toneBg={tone.bg} showHi={showHi} />
+        <UnitChaptersSection topics={props.topics} unitNumber={props.unitNumber} unitLocked={props.unitLocked} toneBg={tone.bg} showHi={showHi} />
         {showHi ? (props.mindMapHiNode ?? props.mindMapEnNode) : props.mindMapEnNode}
         {showHi ? (props.infographicsHiNode ?? props.infographicsEnNode) : props.infographicsEnNode}
         <SyllabusDmcaFooter canonicalHref={props.canonicalHref} title={props.unitTitle} />

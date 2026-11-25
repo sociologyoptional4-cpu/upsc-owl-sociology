@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useEffect } from 'react'
 
+import { PaywallGate } from '../billing/PaywallGate'
 import { ContentGuard } from '../ContentGuard'
 import { recordStudyXp } from '../gamification/StudyStreakPill'
 import { QuillNotesBuddy } from '../mascots/OwlMascot'
@@ -11,6 +12,7 @@ import { LanguageSwitch } from './LanguageSwitch'
 import { NoteLanguageProvider, useNoteLanguage } from './NoteLanguageContext'
 
 export type BilingualTopicShellProps = {
+  isPaywalled?: boolean
   paperCode: 'P1' | 'P2'
   paperLabel: string
   title: string
@@ -144,31 +146,55 @@ function TopicPager({ unitBreadcrumb, prevTopic, nextTopic, showHi }: TopicPager
   )
 }
 
-function TopicMainColumn({ props, showHi, hasMindMap }: { props: BilingualTopicShellProps; showHi: boolean; hasMindMap: boolean }) {
+function TopicMainColumn({
+  props,
+  showHi,
+  hasMindMap,
+  tocCount,
+}: {
+  props: BilingualTopicShellProps
+  showHi: boolean
+  hasMindMap: boolean
+  tocCount: number
+}) {
   const selfCheckNode = showHi ? (props.selfCheckHiNode ?? props.selfCheckEnNode) : props.selfCheckEnNode
   return (
     <div className="min-w-0">
-      {hasMindMap ? (
-        <section id="mind-map" aria-label="Chapter Mind Map" className="mb-10 scroll-mt-32">
-          {showHi ? (props.mindMapHiNode ?? props.mindMapEnNode) : props.mindMapEnNode}
+      {props.isPaywalled ? (
+        <section id="notes" aria-label="Pro Pass Required" className="scroll-mt-32">
+          <PaywallGate
+            mode="chapter"
+            chapterTitle={props.title}
+            paperLabel={props.paperLabel}
+            tocCount={tocCount}
+            pyqCount={props.pyqCount}
+          />
         </section>
-      ) : null}
+      ) : (
+        <>
+          {hasMindMap ? (
+            <section id="mind-map" aria-label="Chapter Mind Map" className="mb-10 scroll-mt-32">
+              {showHi ? (props.mindMapHiNode ?? props.mindMapEnNode) : props.mindMapEnNode}
+            </section>
+          ) : null}
 
-      <section id="notes" aria-label="Notes" className="scroll-mt-32">
-        {showHi ? (props.notesHiNode ?? props.notesEnNode) : props.notesEnNode}
-      </section>
+          <section id="notes" aria-label="Notes" className="scroll-mt-32">
+            {showHi ? (props.notesHiNode ?? props.notesEnNode) : props.notesEnNode}
+          </section>
 
-      {selfCheckNode}
+          {selfCheckNode}
 
-      {props.pyqCount > 0 ? (
-        <section id="pyqs" aria-labelledby="topic-pyqs-h" className="mt-[var(--space-section)] scroll-mt-32">
-          <p className="tag-skew"><span>2013–2025 PYQ Bank</span></p>
-          <h2 id="topic-pyqs-h" className="mt-4 mb-6 text-[length:var(--text-h3)] font-extrabold">
-            Solved Previous Year Questions
-          </h2>
-          {showHi ? (props.pyqsHiNode ?? props.pyqsEnNode) : props.pyqsEnNode}
-        </section>
-      ) : null}
+          {props.pyqCount > 0 ? (
+            <section id="pyqs" aria-labelledby="topic-pyqs-h" className="mt-[var(--space-section)] scroll-mt-32">
+              <p className="tag-skew"><span>2013–2025 PYQ Bank</span></p>
+              <h2 id="topic-pyqs-h" className="mt-4 mb-6 text-[length:var(--text-h3)] font-extrabold">
+                Solved Previous Year Questions
+              </h2>
+              {showHi ? (props.pyqsHiNode ?? props.pyqsEnNode) : props.pyqsEnNode}
+            </section>
+          ) : null}
+        </>
+      )}
 
       <section id="current-affairs" aria-labelledby="topic-ca-h" className="mt-[var(--space-section)] scroll-mt-32">
         <h2 id="topic-ca-h" className="mb-8 text-[length:var(--text-h3)] font-extrabold">
@@ -204,9 +230,9 @@ function TopicShellInner(props: BilingualTopicShellProps) {
   }, [props.canonicalHref])
 
   const navSections: NavSection[] = [
-    ...(hasMindMap ? [{ id: 'mind-map', label: 'Mind Map' }] : []),
-    { id: 'notes', label: 'Notes' },
-    ...(props.pyqCount > 0 ? [{ id: 'pyqs', label: 'PYQs & Answers', badge: props.pyqCount, badgeClass: 'bg-pyq' }] : []),
+    ...(!props.isPaywalled && hasMindMap ? [{ id: 'mind-map', label: 'Mind Map' }] : []),
+    { id: 'notes', label: props.isPaywalled ? 'Unlock Notes 🔒' : 'Notes' },
+    ...(!props.isPaywalled && props.pyqCount > 0 ? [{ id: 'pyqs', label: 'PYQs & Answers', badge: props.pyqCount, badgeClass: 'bg-pyq' }] : []),
     { id: 'current-affairs', label: 'Current Affairs', badge: props.caCount, badgeClass: 'bg-red-600' },
     ...(props.blogsCount > 0 && props.blogsNode ? [{ id: 'blogs', label: 'Blogs' }] : []),
   ]
@@ -228,7 +254,7 @@ function TopicShellInner(props: BilingualTopicShellProps) {
         <TopicStickyNav sections={navSections} />
 
         <div className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,1fr)_17rem]">
-          <TopicMainColumn props={props} showHi={showHi} hasMindMap={hasMindMap} />
+          <TopicMainColumn props={props} showHi={showHi} hasMindMap={hasMindMap} tocCount={toc.length} />
           <aside className="space-y-6 lg:sticky lg:top-32 lg:self-start">
             <TopicTocCard toc={toc} />
             {props.asideExtraNode}

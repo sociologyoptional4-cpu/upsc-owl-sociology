@@ -53,11 +53,11 @@ function NotesBody({
   )
 }
 
-export function TopicView({ data }: { data: TopicDetail }) {
+export function TopicView({ data, isPaywalled = false }: { data: TopicDetail; isPaywalled?: boolean }) {
   const tone = paperTone(data.paper)
   const pyqsEn = data.pyqAnswers ?? []
   const pyqsHi = data.pyqAnswersHinglish ?? []
-  const pyqCount = Math.max(pyqsEn.length, pyqsHi.length)
+  const pyqCount = Math.max(pyqsEn.length, pyqsHi.length, data.pyqTotalCount ?? 0)
   const blogsCount = data.posts?.length ?? 0
 
   const caNode =
@@ -117,6 +117,7 @@ export function TopicView({ data }: { data: TopicDetail }) {
     <>
       <JsonLd data={syllabusTopicJsonLd(data)} />
       <BilingualTopicShell
+        isPaywalled={isPaywalled}
         paperCode={data.paper}
         paperLabel={tone.label}
         title={data.title}

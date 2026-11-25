@@ -26,9 +26,24 @@ export function UnitList({ units, accent }: { units: SyllabusUnit[]; accent: str
           <Reveal as="li" key={unit.href} index={index % 5} className="grid gap-4 py-6 md:grid-cols-[4rem_1fr_1.3fr]">
             <span className={`font-display text-4xl font-extrabold ${accent}`}>{String(unit.number).padStart(2, '0')}</span>
             <div>
-              <h3 className="text-xl font-bold leading-snug">
-                <Link href={unit.href} className="link-draw">{unit.title}</Link>
-              </h3>
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="text-xl font-bold leading-snug">
+                  <Link href={unit.href} className="link-draw">{unit.title}</Link>
+                </h3>
+                {unit.isLocked ? (
+                  <Link
+                    href="/pro"
+                    className="rounded-chip border border-ink bg-pastel-yellow px-2 py-0.5 text-[11px] font-extrabold text-ink hover:bg-saffron"
+                    title="Chapters in this unit require UPSC OWL Pro (₹399/yr)"
+                  >
+                    🔒 Pro
+                  </Link>
+                ) : (
+                  <span className="rounded-chip border border-ink/40 bg-pastel-mint px-2 py-0.5 text-[11px] font-bold text-ink">
+                    Free
+                  </span>
+                )}
+              </div>
               {hasUnitNotes ? (
                 <Link
                   href={unit.href}
@@ -44,6 +59,11 @@ export function UnitList({ units, accent }: { units: SyllabusUnit[]; accent: str
                 <li key={topic.href} className="flex flex-wrap items-center justify-between gap-2">
                   <Link href={topic.href} className="group flex flex-wrap items-center gap-2 text-sm text-ink-soft hover:text-ink">
                     <span className="link-draw">{topic.title}</span>
+                    {topic.isLocked ? (
+                      <span className="rounded-chip border border-ink/50 bg-pastel-yellow px-2 py-0.5 text-[10px] font-extrabold text-ink">
+                        🔒 Pro
+                      </span>
+                    ) : null}
                     {topic.hasNotes ? (
                       <span className="rounded-chip border border-ink/40 bg-pastel-mint px-2 py-0.5 text-[11px] font-bold text-ink">
                         Notes

@@ -76,6 +76,7 @@ export interface Config {
     thinkers: Thinker;
     media: Media;
     users: User;
+    subscriptions: Subscription;
     sources: Source;
     'pipeline-runs': PipelineRun;
     digests: Digest;
@@ -101,6 +102,7 @@ export interface Config {
     thinkers: ThinkersSelect<false> | ThinkersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    subscriptions: SubscriptionsSelect<false> | SubscriptionsSelect<true>;
     sources: SourcesSelect<false> | SourcesSelect<true>;
     'pipeline-runs': PipelineRunsSelect<false> | PipelineRunsSelect<true>;
     digests: DigestsSelect<false> | DigestsSelect<true>;
@@ -580,6 +582,7 @@ export interface Paper {
  */
 export interface Media {
   id: number;
+  _objectKey?: string | null;
   /**
    * Khaali chhodo to file ke naam se bharega. SEO ke liye behtar likho.
    */
@@ -713,6 +716,31 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscriptions".
+ */
+export interface Subscription {
+  id: number;
+  email: string;
+  phone?: string | null;
+  name?: string | null;
+  accessCode: string;
+  status: 'active' | 'pending' | 'expired' | 'revoked';
+  planCode: string;
+  amountInr: number;
+  originalPriceInr?: number | null;
+  currency?: string | null;
+  paymentMethod?: ('razorpay_checkout' | 'razorpay_qr' | 'manual_admin') | null;
+  razorpayOrderId?: string | null;
+  razorpayPaymentId?: string | null;
+  razorpayQrId?: string | null;
+  startsAt: string;
+  expiresAt: string;
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1143,6 +1171,10 @@ export interface PayloadLockedDocument {
         value: number | User;
       } | null)
     | ({
+        relationTo: 'subscriptions';
+        value: number | Subscription;
+      } | null)
+    | ({
         relationTo: 'sources';
         value: number | Source;
       } | null)
@@ -1568,6 +1600,7 @@ export interface ThinkersSelect<T extends boolean = true> {
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
+  _objectKey?: T;
   alt?: T;
   license?: T;
   credit?: T;
@@ -1639,6 +1672,30 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscriptions_select".
+ */
+export interface SubscriptionsSelect<T extends boolean = true> {
+  email?: T;
+  phone?: T;
+  name?: T;
+  accessCode?: T;
+  status?: T;
+  planCode?: T;
+  amountInr?: T;
+  originalPriceInr?: T;
+  currency?: T;
+  paymentMethod?: T;
+  razorpayOrderId?: T;
+  razorpayPaymentId?: T;
+  razorpayQrId?: T;
+  startsAt?: T;
+  expiresAt?: T;
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -86,6 +86,7 @@ export function UnitView({ data }: { data: UnitPageData }) {
         paper={{ code: paper.code, title: paper.title, href: paper.href }}
         unitNumber={unit.number}
         unitTitle={unit.title}
+        unitLocked={Boolean(unit.isLocked)}
         canonicalHref={unit.href}
         createdAt={data.createdAt ?? null}
         updatedAt={data.updatedAt ?? null}
@@ -97,6 +98,7 @@ export function UnitView({ data }: { data: UnitPageData }) {
         caCount: t.caCount,
         pyqCount: t.pyqCount,
         hasNotes: t.hasNotes,
+        isLocked: Boolean(t.isLocked),
         summaryEn: t.summary ?? null,
         summaryHi: t.summaryHinglish ?? null,
       }))}

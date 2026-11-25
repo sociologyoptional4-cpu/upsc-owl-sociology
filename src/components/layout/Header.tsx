@@ -1,5 +1,6 @@
 import Link from 'next/link'
 
+import { ProStatusPill } from '../billing/ProStatusPill'
 import { StudyStreakPill } from '../gamification/StudyStreakPill'
 import { TELEGRAM_MENTORSHIP_URL, TELEGRAM_URL } from '../ui/links'
 
@@ -34,6 +35,7 @@ export function Header({ nav }: { nav: NavItem[] }) {
           </ul>
         </nav>
         <div className="flex items-center gap-2">
+          <ProStatusPill />
           <StudyStreakPill />
           <Link
             href={TELEGRAM_URL}

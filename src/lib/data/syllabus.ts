@@ -6,6 +6,7 @@ import { z } from 'zod'
 import type { Media, Paper, Topic, Unit } from '@/payload-types'
 import { extractToc } from '@/lib/blog/text'
 import { getPayloadClient } from '@/lib/queries'
+import { isChapterLocked } from '@/lib/billing/plans'
 import {
   mindMapDataSchema,
   pyqAnswerItemSchema,
@@ -171,12 +172,15 @@ export const getSyllabusTree = cache(async (): Promise<SyllabusPaper[]> => {
       slug: paperSlug,
       href: urls.paper(paperSlug),
       units: paperUnits.map((unit) => {
+        const paperCode = paper.code as PaperCode
+        const locked = isChapterLocked(paperCode, unit.number)
         const unitTopics = topics.docs.filter((topic) => refId(topic.unit as number | { id: number } | null) === unit.id).sort(compareOrder)
         return {
           number: unit.number,
           title: unit.title,
           slug: unit.slug ?? '',
           href: urls.unit(paperSlug, unit.slug ?? ''),
+          isLocked: locked,
           topics: unitTopics.map((topic) => ({
             title: topic.title,
             slug: topic.slug ?? '',
@@ -186,6 +190,7 @@ export const getSyllabusTree = cache(async (): Promise<SyllabusPaper[]> => {
             summaryHinglish: topic.summaryHinglish ?? null,
             pyqCount: pyqCounts.get(topic.id) ?? 0,
             hasNotes: notedIds.has(topic.id),
+            isLocked: locked,
           })),
         }
       }),
@@ -227,7 +232,7 @@ export const getUnitPageData = cache(async (paperSlug: string, unitSlug: string)
   }
 })
 
-export const getTopicDetail = cache(async (paperSlug: string, unitSlug: string, topicSlug: string): Promise<TopicDetail | null> => {
+export const getTopicDetail = cache(async (paperSlug: string, unitSlug: string, topicSlug: string, stripLockedContent = false): Promise<TopicDetail | null> => {
   const payload = await getPayloadClient()
   const isPreview = (await draftMode()).isEnabled
   const found = await payload.find({
@@ -242,11 +247,16 @@ export const getTopicDetail = cache(async (paperSlug: string, unitSlug: string, 
   const topic = found.docs[0]
   if (!topic || !isDoc(topic.unit) || !isDoc(topic.unit.paper) || topic.unit.slug !== unitSlug || topic.unit.paper.slug !== paperSlug) return null
 
+  const paper = topic.unit.paper.code as PaperCode
+  const unitNumber = topic.unit.number
+  const isLocked = isChapterLocked(paper, unitNumber)
+  const shouldStrip = stripLockedContent && isLocked
+
   const [affairs, posts, resolvedBlocks, resolvedBlocksHinglish, tree] = await Promise.all([
     payload.find({ collection: 'current-affairs', where: { and: [{ topics: { contains: topic.id } }, { _status: { equals: 'published' } }] }, limit: 6, sort: '-date', depth: 3, populate: LIGHT_POPULATE, draft: false, overrideAccess: false }),
     getTopicPosts(topic.id, 4),
-    topic.notebookContent ? resolveNotebookBlocks(topic.notebookContent) : Promise.resolve(undefined),
-    topic.notebookContentHinglish ? resolveNotebookBlocks(topic.notebookContentHinglish) : Promise.resolve(undefined),
+    !shouldStrip && topic.notebookContent ? resolveNotebookBlocks(topic.notebookContent) : Promise.resolve(undefined),
+    !shouldStrip && topic.notebookContentHinglish ? resolveNotebookBlocks(topic.notebookContentHinglish) : Promise.resolve(undefined),
     getSyllabusTree(),
   ])
 
@@ -255,7 +265,10 @@ export const getTopicDetail = cache(async (paperSlug: string, unitSlug: string, 
   const prevTopic = idx > 0 ? { title: unitTopics[idx - 1]!.title, href: unitTopics[idx - 1]!.href } : null
   const nextTopic = idx >= 0 && idx < unitTopics.length - 1 ? { title: unitTopics[idx + 1]!.title, href: unitTopics[idx + 1]!.href } : null
 
-  const paper = topic.unit.paper.code as PaperCode
+  const pyqsEn = parsePyqAnswers(topic.pyqAnswers)
+  const pyqsHi = parsePyqAnswers(topic.pyqAnswersHinglish)
+  const pyqTotalCount = Math.max(pyqsEn.length, pyqsHi.length)
+
   const topicChip: TopicChip = { title: topic.title, slug: topic.slug ?? '', href: urls.topic(paperSlug, unitSlug, topic.slug ?? ''), paper }
   const crumbs = [{ label: 'Syllabus', href: '/syllabus' }, { label: topic.unit.paper.title, href: urls.paper(paperSlug) }, { label: topic.unit.title, href: urls.unit(paperSlug, unitSlug) }, { label: topic.title, href: topicChip.href }]
 
@@ -263,26 +276,29 @@ export const getTopicDetail = cache(async (paperSlug: string, unitSlug: string, 
     title: topic.title,
     slug: topic.slug ?? '',
     href: topicChip.href,
+    unitNumber,
+    isLocked,
+    pyqTotalCount,
     summary: topic.summary ?? null,
     summaryHinglish: topic.summaryHinglish ?? null,
     paper,
     breadcrumbs: crumbs,
-    layout: topic.layout ?? [],
+    layout: shouldStrip ? [] : (topic.layout ?? []),
     thinkers: relationDocs(topic.thinkers).map(mapThinkerChip).filter((item): item is NonNullable<typeof item> => item !== null),
     relatedTopics: relationDocs(topic.relatedTopics).map((item) => mapTopicChip(item as Topic & { unit: UnitWithPaper })).filter((item): item is TopicChip => item !== null),
     latestCA: affairs.docs.map(mapCACard),
     caCount: affairs.totalDocs,
     posts,
-    notebookContent: topic.notebookContent ?? undefined,
-    notebookContentHinglish: topic.notebookContentHinglish ?? undefined,
+    notebookContent: shouldStrip ? undefined : (topic.notebookContent ?? undefined),
+    notebookContentHinglish: shouldStrip ? undefined : (topic.notebookContentHinglish ?? undefined),
     resolvedBlocks,
     resolvedBlocksHinglish,
     toc: topic.notebookContent ? extractToc(topic.notebookContent) : [],
     tocHinglish: topic.notebookContentHinglish ? extractToc(topic.notebookContentHinglish) : [],
-    mindMap: parseMindMap(topic.mindMap),
-    mindMapHinglish: parseMindMap(topic.mindMapHinglish),
-    pyqAnswers: parsePyqAnswers(topic.pyqAnswers),
-    pyqAnswersHinglish: parsePyqAnswers(topic.pyqAnswersHinglish),
+    mindMap: shouldStrip ? null : parseMindMap(topic.mindMap),
+    mindMapHinglish: shouldStrip ? null : parseMindMap(topic.mindMapHinglish),
+    pyqAnswers: shouldStrip ? [] : pyqsEn,
+    pyqAnswersHinglish: shouldStrip ? [] : pyqsHi,
     prevTopic,
     nextTopic,
     createdAt: topic.createdAt ?? null,
@@ -294,6 +310,6 @@ export const getTopicStaticParams = cache(async (): Promise<{ paper: string; pat
   const tree = await getSyllabusTree()
   return tree.flatMap((paper) => [
     ...paper.units.map((unit) => ({ paper: paper.slug, path: [unit.slug] })),
-    ...paper.units.flatMap((unit) => unit.topics.map((topic) => ({ paper: paper.slug, path: [unit.slug, topic.slug] }))),
+    ...paper.units.filter((unit) => !unit.isLocked).flatMap((unit) => unit.topics.map((topic) => ({ paper: paper.slug, path: [unit.slug, topic.slug] }))),
   ])
 })

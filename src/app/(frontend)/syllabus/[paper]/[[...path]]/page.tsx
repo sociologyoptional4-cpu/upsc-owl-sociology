@@ -1,17 +1,14 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getSyllabusTree, getTopicDetail, getTopicStaticParams, getUnitPageData } from '@/lib/data/syllabus'
+import { getProAccessStatus } from '@/lib/billing/subscriptions'
+import { getSyllabusTree, getTopicDetail, getUnitPageData } from '@/lib/data/syllabus'
 import { PaperView } from '@/components/views/PaperView'
 import { UnitView } from '@/components/views/UnitView'
 import { TopicView } from '@/components/views/TopicView'
 import { paperRouteSchema } from '@/lib/data/route-schemas'
 
-export const revalidate = 3600
+export const dynamic = 'force-dynamic'
 type Props = { params: Promise<{ paper: string; path?: string[] }> }
-
-export async function generateStaticParams() {
-  return getTopicStaticParams()
-}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const parsed = paperRouteSchema.safeParse(await params)
@@ -74,7 +71,15 @@ export default async function PaperRoute({ params }: Props) {
     if (!unitData) notFound()
     return <UnitView data={unitData} />
   }
-  const topic = await getTopicDetail(paperSlug, path[0]!, path[1]!)
+  const tree = await getSyllabusTree()
+  const unit = tree.find((item) => item.slug === paperSlug)?.units.find((item) => item.slug === path[0])
+  if (!unit?.isLocked) {
+    const topic = await getTopicDetail(paperSlug, path[0]!, path[1]!)
+    if (!topic) notFound()
+    return <TopicView data={topic} />
+  }
+  const access = await getProAccessStatus()
+  const topic = await getTopicDetail(paperSlug, path[0]!, path[1]!, !access.unlocked)
   if (!topic) notFound()
-  return <TopicView data={topic} />
+  return <TopicView data={topic} isPaywalled={!access.unlocked} />
 }
