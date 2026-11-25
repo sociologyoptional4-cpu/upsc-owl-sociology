@@ -5,6 +5,7 @@ import path from 'node:path'
 // Set --prod DB env before Payload initializes config/pool.
 const isProd = process.argv.includes('--prod')
 if (isProd) {
+  ;(process.env as Record<string, string>).NODE_ENV = 'production'
   const prodUrl = process.env.PROD_DATABASE_URL
   if (!prodUrl) throw new Error('PROD_DATABASE_URL missing in .env')
   process.env.DATABASE_URL = prodUrl

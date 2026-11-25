@@ -61,7 +61,7 @@ export default buildConfig({
   secret: env.PAYLOAD_SECRET,
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },
   db: postgresAdapter({
-    push: env.NODE_ENV !== 'production',
+    push: env.NODE_ENV !== 'production' && !env.DATABASE_URL.includes('supabase.com'),
     pool: {
       connectionString: env.DATABASE_URL,
       // Allow at least 3 connections so parallel admin queries and afterChange hooks do not self-deadlock.
