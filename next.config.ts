@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
   experimental: { staticGenerationMaxConcurrency: 2, staticGenerationRetryCount: 3 },
   outputFileTracingIncludes: { '/api/**': ['./src/pipeline/llm/prompts/**/*'] },
   images: {
+    unoptimized: true,
     remotePatterns: [
       ...(env.S3_PUBLIC_URL ? [{ protocol: 'https' as const, hostname: new URL(env.S3_PUBLIC_URL).hostname, pathname: '/storage/v1/object/public/**' }] : []),
       { protocol: 'http' as const, hostname: 'localhost', pathname: '/api/media/file/**' },

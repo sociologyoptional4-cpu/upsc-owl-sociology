@@ -1,7 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
 import {
-  checkSyllabusRateLimit,
   isBlockedScraperUa,
   isBulkSyllabusApiRequest,
   isVerifiedSearchBot,
@@ -11,13 +10,6 @@ const SYLLABUS_API_PREFIXES = ['/api/topics', '/api/units', '/api/papers'] as co
 
 function isSyllabusApiPath(pathname: string): boolean {
   return SYLLABUS_API_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))
-}
-
-function resolveClientKey(request: NextRequest): string {
-  const forwarded = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-  const ip = forwarded || request.headers.get('x-real-ip') || 'anon'
-  const sid = request.cookies.get('upscowl_sid')?.value
-  return sid ? `${ip}:${sid}` : ip
 }
 
 function handleSyllabusApi(request: NextRequest, pathname: string, ua: string | null): NextResponse {
@@ -48,31 +40,8 @@ export function middleware(request: NextRequest): NextResponse {
     })
   }
 
-  const { allowed, retryAfterSeconds } = checkSyllabusRateLimit(resolveClientKey(request), pathname)
-  if (!allowed) {
-    return new NextResponse(
-      'Too Many Requests — You have accessed too many syllabus pages in 60 seconds. Please wait a moment and continue reading on Upscowl.',
-      {
-        status: 429,
-        headers: {
-          'Content-Type': 'text/plain; charset=utf-8',
-          'Retry-After': String(retryAfterSeconds),
-          'Cache-Control': 'no-store',
-        },
-      },
-    )
-  }
-
   const response = NextResponse.next()
   response.headers.set('X-Content-Protection', 'upscowl-shield')
-  if (!request.cookies.has('upscowl_sid')) {
-    response.cookies.set('upscowl_sid', crypto.randomUUID(), {
-      httpOnly: true,
-      sameSite: 'lax',
-      path: '/syllabus',
-      maxAge: 60 * 60 * 24,
-    })
-  }
   return response
 }
 
