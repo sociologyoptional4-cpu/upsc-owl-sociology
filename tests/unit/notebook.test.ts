@@ -119,7 +119,6 @@ describe('Unit 1 bilingual notebook spec and PYQ mapping', () => {
   })
 })
 
-<<<<<<< HEAD
 describe('All 25 UPSC Sociology Units Notebook Suite', () => {
   it('validates that all 25 units (98 topics) are authored, schema-valid, bilingual, and resolve static infographic URLs', () => {
     expect(ALL_UNIT_NOTEBOOKS).toHaveLength(25)
