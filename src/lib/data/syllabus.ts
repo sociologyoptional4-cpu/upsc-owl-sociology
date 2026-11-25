@@ -23,8 +23,19 @@ import { urls } from './urls'
 import { compareOrder } from './syllabus-order'
 import { getTopicPosts } from './blog'
 
+export const LIGHT_POPULATE = {
+  topics: { title: true, slug: true, unit: true },
+  units: { title: true, slug: true, paper: true, number: true },
+  papers: { code: true, title: true, slug: true },
+  thinkers: { name: true, slug: true },
+} as const
+
 type UnitWithPaper = Unit & { paper: number | Paper }
 const isDoc = <T extends { id: number }>(value: number | T | null | undefined): value is T => typeof value === 'object' && value !== null
+const refId = (value: number | { id: number } | null | undefined): number | null => (typeof value === 'number' ? value : value?.id ?? null)
+
+const TREE_TTL_MS = 60_000
+let cachedTree: { data: SyllabusPaper[]; expiresAt: number } | null = null
 
 function countByTopicId(docs: { topics?: (number | { id: number })[] | null }[]): Map<number, number> {
   const counts = new Map<number, number>()
@@ -95,27 +106,72 @@ function mapUnitInfographics(raw: Unit['infographics']): UnitInfographic[] {
 }
 
 export const getSyllabusTree = cache(async (): Promise<SyllabusPaper[]> => {
+  const now = Date.now()
+  if (cachedTree && cachedTree.expiresAt > now) {
+    return cachedTree.data
+  }
+
   const payload = await getPayloadClient()
-  const [papers, units, topics, affairs, pyqs] = await Promise.all([
-    payload.find({ collection: 'papers', limit: 100, depth: 0, sort: 'code', overrideAccess: false, draft: false }),
-    payload.find({ collection: 'units', limit: 500, depth: 1, sort: 'order', overrideAccess: false, draft: false }),
-    payload.find({ collection: 'topics', where: { _status: { equals: 'published' } }, limit: 1000, depth: 2, sort: 'order', overrideAccess: false, draft: false }),
+  const [papers, units, topics, notedTopics, affairs, pyqs] = await Promise.all([
+    payload.find({
+      collection: 'papers',
+      limit: 100,
+      depth: 0,
+      sort: 'code',
+      select: { code: true, title: true, slug: true },
+      overrideAccess: false,
+      draft: false,
+    }),
+    payload.find({
+      collection: 'units',
+      limit: 500,
+      depth: 0,
+      sort: 'order',
+      select: { paper: true, number: true, title: true, slug: true, order: true },
+      overrideAccess: false,
+      draft: false,
+    }),
+    payload.find({
+      collection: 'topics',
+      where: { _status: { equals: 'published' } },
+      limit: 1000,
+      depth: 0,
+      sort: 'order',
+      select: { title: true, slug: true, order: true, unit: true, summary: true, summaryHinglish: true },
+      overrideAccess: false,
+      draft: false,
+    }),
+    payload.find({
+      collection: 'topics',
+      where: {
+        and: [
+          { _status: { equals: 'published' } },
+          { or: [{ notebookContent: { exists: true } }, { notebookContentHinglish: { exists: true } }] },
+        ],
+      },
+      limit: 1000,
+      depth: 0,
+      select: { slug: true },
+      overrideAccess: false,
+      draft: false,
+    }),
     payload.find({ collection: 'current-affairs', where: { _status: { equals: 'published' } }, limit: 1000, depth: 0, select: { topics: true }, overrideAccess: false, draft: false }),
     payload.find({ collection: 'pyqs', where: { _status: { equals: 'published' } }, limit: 2000, depth: 0, select: { topics: true }, overrideAccess: false, draft: false }),
   ])
   const caCounts = countByTopicId(affairs.docs)
   const pyqCounts = countByTopicId(pyqs.docs)
+  const notedIds = new Set(notedTopics.docs.map((doc) => doc.id))
 
-  return papers.docs.map((paper) => {
+  const result: SyllabusPaper[] = papers.docs.map((paper) => {
     const paperSlug = paper.slug ?? ''
-    const paperUnits = units.docs.filter((unit) => isDoc(unit.paper) && unit.paper.id === paper.id).sort(compareOrder)
+    const paperUnits = units.docs.filter((unit) => refId(unit.paper as number | { id: number } | null) === paper.id).sort(compareOrder)
     return {
       code: paper.code as PaperCode,
       title: paper.title,
       slug: paperSlug,
       href: urls.paper(paperSlug),
       units: paperUnits.map((unit) => {
-        const unitTopics = topics.docs.filter((topic) => isDoc(topic.unit) && topic.unit.id === unit.id).sort(compareOrder)
+        const unitTopics = topics.docs.filter((topic) => refId(topic.unit as number | { id: number } | null) === unit.id).sort(compareOrder)
         return {
           number: unit.number,
           title: unit.title,
@@ -129,12 +185,15 @@ export const getSyllabusTree = cache(async (): Promise<SyllabusPaper[]> => {
             summary: topic.summary ?? null,
             summaryHinglish: topic.summaryHinglish ?? null,
             pyqCount: pyqCounts.get(topic.id) ?? 0,
-            hasNotes: Boolean(topic.notebookContent || topic.notebookContentHinglish) || (topic.layout?.length ?? 0) > 0,
+            hasNotes: notedIds.has(topic.id),
           })),
         }
       }),
     }
   })
+
+  cachedTree = { data: result, expiresAt: now + TREE_TTL_MS }
+  return result
 })
 
 export const getUnitPageData = cache(async (paperSlug: string, unitSlug: string): Promise<UnitPageData | null> => {
@@ -144,7 +203,7 @@ export const getUnitPageData = cache(async (paperSlug: string, unitSlug: string)
   if (!paper || !unit) return null
 
   const payload = await getPayloadClient()
-  const found = await payload.find({ collection: 'units', where: { slug: { equals: unitSlug } }, limit: 20, depth: 1, overrideAccess: false })
+  const found = await payload.find({ collection: 'units', where: { slug: { equals: unitSlug } }, limit: 20, depth: 1, populate: LIGHT_POPULATE, overrideAccess: false })
   const unitDoc = found.docs.find((doc) => isDoc(doc.paper) && doc.paper.slug === paperSlug)
   const studySequence: UnitStudyStep[] = (unitDoc?.studySequence ?? []).map((item) => ({
     step: item.step,
@@ -176,6 +235,7 @@ export const getTopicDetail = cache(async (paperSlug: string, unitSlug: string, 
     where: { and: [{ slug: { equals: topicSlug } }, ...(!isPreview ? [{ _status: { equals: 'published' } }] : [])] },
     limit: 1,
     depth: 3,
+    populate: LIGHT_POPULATE,
     draft: isPreview,
     overrideAccess: isPreview,
   })
@@ -183,7 +243,7 @@ export const getTopicDetail = cache(async (paperSlug: string, unitSlug: string, 
   if (!topic || !isDoc(topic.unit) || !isDoc(topic.unit.paper) || topic.unit.slug !== unitSlug || topic.unit.paper.slug !== paperSlug) return null
 
   const [affairs, posts, resolvedBlocks, resolvedBlocksHinglish, tree] = await Promise.all([
-    payload.find({ collection: 'current-affairs', where: { and: [{ topics: { contains: topic.id } }, { _status: { equals: 'published' } }] }, limit: 6, sort: '-date', depth: 3, draft: false, overrideAccess: false }),
+    payload.find({ collection: 'current-affairs', where: { and: [{ topics: { contains: topic.id } }, { _status: { equals: 'published' } }] }, limit: 6, sort: '-date', depth: 3, populate: LIGHT_POPULATE, draft: false, overrideAccess: false }),
     getTopicPosts(topic.id, 4),
     topic.notebookContent ? resolveNotebookBlocks(topic.notebookContent) : Promise.resolve(undefined),
     topic.notebookContentHinglish ? resolveNotebookBlocks(topic.notebookContentHinglish) : Promise.resolve(undefined),

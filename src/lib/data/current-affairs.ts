@@ -7,6 +7,7 @@ import { getPayloadClient } from '@/lib/queries'
 import type { CAArticle, CACard, IssueSummary, Paginated, PaperCode } from './types'
 import { mapCACard } from './mappers'
 import { formatDateIST, issueSummary } from './issue'
+import { LIGHT_POPULATE } from './syllabus'
 import { urls } from './urls'
 
 export type CAListParams = { page?: number; limit?: number; paper?: PaperCode; topic?: string; thinker?: string; month?: string }
@@ -21,13 +22,13 @@ export const getCAList = cache(async (params: CAListParams = {}): Promise<Pagina
   if (params.topic) and.push({ 'topics.slug': { equals: params.topic } })
   if (params.thinker) and.push({ 'thinkers.slug': { equals: params.thinker } })
   if (params.month) and.push({ date: { greater_than_equal: `${params.month}-01`, less_than: `${params.month}-32` } })
-  const result = await payload.find({ collection: 'current-affairs', where: { and }, page, limit, sort: '-date', depth: 3, draft: false, overrideAccess: false })
+  const result = await payload.find({ collection: 'current-affairs', where: { and }, page, limit, sort: '-date', depth: 3, populate: LIGHT_POPULATE, draft: false, overrideAccess: false })
   return { items: result.docs.map(mapCACard), page: result.page ?? page, totalPages: result.totalPages, total: result.totalDocs }
 })
 
 export const getIssue = cache(async (date: string): Promise<{ issue: IssueSummary; items: CACard[] } | null> => {
   const payload = await getPayloadClient()
-  const result = await payload.find({ collection: 'current-affairs', where: { and: [{ date: { equals: date } }, { _status: { equals: 'published' } }] }, limit: 100, sort: '-date', depth: 3, draft: false, overrideAccess: false })
+  const result = await payload.find({ collection: 'current-affairs', where: { and: [{ date: { equals: date } }, { _status: { equals: 'published' } }] }, limit: 100, sort: '-date', depth: 3, populate: LIGHT_POPULATE, draft: false, overrideAccess: false })
   return result.docs.length ? { issue: issueSummary(date, result.totalDocs), items: result.docs.map(mapCACard) } : null
 })
 
@@ -43,7 +44,7 @@ export const getCAArticle = cache(async (date: string, slug: string, preview = f
   const payload = await getPayloadClient()
   const conditions: Where[] = [{ date: { equals: date } }, { slug: { equals: slug } }]
   if (!preview) conditions.push({ _status: { equals: 'published' } })
-  const found = await payload.find({ collection: 'current-affairs', where: { and: conditions }, limit: 1, depth: 3, draft: preview, overrideAccess: preview })
+  const found = await payload.find({ collection: 'current-affairs', where: { and: conditions }, limit: 1, depth: 3, populate: LIGHT_POPULATE, draft: preview, overrideAccess: preview })
   const doc = found.docs[0]
   if (!doc) return null
   const [older, newer] = await Promise.all([

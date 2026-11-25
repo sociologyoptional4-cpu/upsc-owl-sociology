@@ -5,6 +5,7 @@ import type { Thinker } from '@/payload-types'
 import { getPayloadClient } from '@/lib/queries'
 import type { ThinkerCard, ThinkerDetail, TopicChip } from './types'
 import { mapCACard, mapTopicChip } from './mappers'
+import { LIGHT_POPULATE } from './syllabus'
 import { urls } from './urls'
 
 type ThinkerDoc = Thinker & { portrait?: number | ({ url?: string | null; alt?: string | null; width?: number | null; height?: number | null } & { id: number }) | null }
@@ -27,8 +28,8 @@ export const getThinkerDetail = cache(async (slug: string): Promise<ThinkerDetai
   const thinker = result.docs[0] as ThinkerDoc | undefined
   if (!thinker) return null
   const [affairs, topics] = await Promise.all([
-    payload.find({ collection: 'current-affairs', where: { and: [{ thinkers: { contains: thinker.id } }, { _status: { equals: 'published' } }] }, limit: 6, sort: '-date', depth: 3, draft: false, overrideAccess: false }),
-    payload.find({ collection: 'topics', where: { and: [{ thinkers: { contains: thinker.id } }, { _status: { equals: 'published' } }] }, limit: 200, depth: 3, sort: 'title', draft: false, overrideAccess: false }),
+    payload.find({ collection: 'current-affairs', where: { and: [{ thinkers: { contains: thinker.id } }, { _status: { equals: 'published' } }] }, limit: 6, sort: '-date', depth: 3, populate: LIGHT_POPULATE, draft: false, overrideAccess: false }),
+    payload.find({ collection: 'topics', where: { and: [{ thinkers: { contains: thinker.id } }, { _status: { equals: 'published' } }] }, limit: 200, depth: 2, select: { title: true, slug: true, unit: true, order: true, createdAt: true, updatedAt: true }, populate: LIGHT_POPULATE, sort: 'title', draft: false, overrideAccess: false }),
   ])
   const chips = topics.docs.map((topic) => mapTopicChip(topic)).filter((item): item is TopicChip => item !== null)
   return { ...mapThinker(thinker), layout: thinker.layout ?? [], latestCA: affairs.docs.map(mapCACard), topics: chips }

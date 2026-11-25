@@ -4,7 +4,7 @@ import { useRef, type HTMLAttributes, type MouseEvent, type ReactNode } from 're
 
 /**
  * GPU-accelerated drifting Aurora gradient layer (emerald, cyan, violet)
- * positioned behind site content at subtle opacity so typography stays razor-sharp.
+ * using wide soft radial falloff (without full-screen blur filters) for smooth scrolling.
  */
 export function AuroraBackground({ className = '' }: { className?: string }) {
   return (
@@ -13,21 +13,24 @@ export function AuroraBackground({ className = '' }: { className?: string }) {
       className={`pointer-events-none select-none fixed inset-0 z-0 overflow-hidden ${className}`.trim()}
     >
       <div
-        className="aurora-blob-1 transform-gpu absolute -left-24 -top-24 h-[420px] w-[420px] rounded-full opacity-[0.14] blur-3xl"
+        className="aurora-blob-1 transform-gpu absolute -left-24 -top-24 h-[460px] w-[460px] rounded-full opacity-[0.12]"
         style={{
-          background: 'radial-gradient(circle, rgba(16, 185, 129, 0.9) 0%, rgba(16, 185, 129, 0) 70%)',
+          background:
+            'radial-gradient(circle, rgba(16, 185, 129, 0.75) 0%, rgba(16, 185, 129, 0.28) 35%, rgba(16, 185, 129, 0) 70%)',
         }}
       />
       <div
-        className="aurora-blob-2 transform-gpu absolute -right-24 top-1/4 h-[460px] w-[460px] rounded-full opacity-[0.14] blur-3xl"
+        className="aurora-blob-2 transform-gpu absolute -right-24 top-1/4 h-[500px] w-[500px] rounded-full opacity-[0.12]"
         style={{
-          background: 'radial-gradient(circle, rgba(6, 182, 212, 0.85) 0%, rgba(6, 182, 212, 0) 70%)',
+          background:
+            'radial-gradient(circle, rgba(6, 182, 212, 0.7) 0%, rgba(6, 182, 212, 0.24) 35%, rgba(6, 182, 212, 0) 70%)',
         }}
       />
       <div
-        className="aurora-blob-3 transform-gpu absolute bottom-[-10%] left-1/3 h-[440px] w-[440px] rounded-full opacity-[0.12] blur-3xl"
+        className="aurora-blob-3 transform-gpu absolute bottom-[-10%] left-1/3 h-[480px] w-[480px] rounded-full opacity-[0.10]"
         style={{
-          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.85) 0%, rgba(139, 92, 246, 0) 70%)',
+          background:
+            'radial-gradient(circle, rgba(139, 92, 246, 0.7) 0%, rgba(139, 92, 246, 0.24) 35%, rgba(139, 92, 246, 0) 70%)',
         }}
       />
     </div>
