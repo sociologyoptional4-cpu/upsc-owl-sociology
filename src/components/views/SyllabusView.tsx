@@ -15,7 +15,7 @@ export function SyllabusView({ data }: { data: SyllabusPaper[] }) {
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <div className="relative">
           <PageHeader
-            kicker="Syllabus"
+            kicker="Syllabus Mapped · Full Notes"
             title="UPSC Sociology Optional, ek jagah"
             highlight="ek jagah"
             description={<>Har topic ke saath peele dots batate hain ki usse kitni recent khabrein judi hain. Jitne zyada dots, utna &quot;live&quot; topic.</>}

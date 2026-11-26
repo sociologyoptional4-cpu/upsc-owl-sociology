@@ -16,6 +16,14 @@ describe('resolveNav', () => {
     ])
   })
 
+  it('labels Unit 1 accurately and shows Syllabus / Full Notes', () => {
+    const unit1 = DEFAULT_NAV.find((i) => i.href === '/syllabus/paper-1/sociology-the-discipline')
+    const syllabus = DEFAULT_NAV.find((i) => i.href === '/syllabus')
+    expect(unit1?.label).toBe('Unit 1 Infographics')
+    expect(unit1?.label).not.toBe('Notes')
+    expect(syllabus?.label).toBe('Syllabus / Full Notes')
+  })
+
   it('does not duplicate /blog', () => {
     const items = [{ label: 'Blog', href: '/blog' }]
     expect(resolveNav(items)).toEqual(items)

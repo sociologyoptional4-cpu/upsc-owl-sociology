@@ -26,7 +26,7 @@ export function HomeView({ data }: { data: HomeData }) {
       </section>
 
       <section aria-labelledby="syllabus-heading" className="mx-auto mt-[var(--space-section)] max-w-7xl px-5 md:px-8">
-        <SectionHeading id="syllabus-heading" kicker="Syllabus" title="Do papers, ek jaal" action={{ label: 'Poora syllabus', href: '/syllabus' }} />
+        <SectionHeading id="syllabus-heading" kicker="Syllabus Mapped · Full Notes" title="Do papers, ek jaal" action={{ label: 'Poora syllabus & full notes', href: '/syllabus' }} />
         <SyllabusBento papers={data.syllabus} />
       </section>
 

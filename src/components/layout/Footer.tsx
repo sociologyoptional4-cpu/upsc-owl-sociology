@@ -5,7 +5,17 @@ import { isExternalHref } from '@/lib/href'
 import { TELEGRAM_MENTORSHIP_URL, TELEGRAM_URL } from '../ui/links'
 
 const COLUMNS = [
-  { title: 'Quick links', links: [{ label: 'Current Affairs', href: '/current-affairs' }, { label: 'Syllabus', href: '/syllabus' }, { label: 'Thinkers', href: '/thinkers' }, { label: 'Glossary (A-Z)', href: '/glossary' }, { label: 'Search', href: '/search' }] },
+  {
+    title: 'Quick links',
+    links: [
+      { label: 'Unit 1 Infographics', href: '/syllabus/paper-1/sociology-the-discipline' },
+      { label: 'Current Affairs', href: '/current-affairs' },
+      { label: 'Syllabus Mapped / Full Notes', href: '/syllabus' },
+      { label: 'Thinkers', href: '/thinkers' },
+      { label: 'Glossary (A-Z)', href: '/glossary' },
+      { label: 'Search', href: '/search' },
+    ],
+  },
   {
     title: 'Connect',
     links: [

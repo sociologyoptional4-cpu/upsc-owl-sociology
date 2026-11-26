@@ -126,7 +126,14 @@ async function seedContent(payload: Payload, topicIds: Map<string, number>, thin
     const existing = await payload.find({ collection: 'blog-categories', where: { slug: { equals: cat.slug } }, limit: 1, depth: 0, overrideAccess: true })
     if (!existing.docs.length) await payload.create({ collection: 'blog-categories', context: CTX, data: cat, overrideAccess: true })
   }
-  const navItems = [{ label: 'Current Affairs', href: '/current-affairs' }, { label: 'Blog', href: '/blog' }, { label: 'Syllabus', href: '/syllabus' }, { label: 'Thinkers', href: '/thinkers' }, { label: 'About', href: '/about' }]
+  const navItems = [
+    { label: 'Unit 1 Infographics', href: '/syllabus/paper-1/sociology-the-discipline' },
+    { label: 'Current Affairs', href: '/current-affairs' },
+    { label: 'Blog', href: '/blog' },
+    { label: 'Syllabus / Full Notes', href: '/syllabus' },
+    { label: 'Thinkers', href: '/thinkers' },
+    { label: 'About', href: '/about' },
+  ]
   await payload.updateGlobal({ slug: 'navigation', context: CTX, data: { header: navItems, footer: navItems } })
 }
 

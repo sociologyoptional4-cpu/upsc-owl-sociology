@@ -26,7 +26,7 @@ export function Header({ nav }: { nav: NavItem[] }) {
               <li key={item.href} className="-ml-px">
                 <Link
                   href={item.href}
-                  className="block border border-rule bg-paper px-4 py-1.5 text-sm text-ink-soft transition-colors hover:z-10 hover:border-ink hover:text-ink"
+                  className="block whitespace-nowrap border border-rule bg-paper px-2.5 py-1.5 text-xs text-ink-soft transition-colors hover:z-10 hover:border-ink hover:text-ink lg:px-3.5 lg:text-sm"
                 >
                   {item.label}
                 </Link>
