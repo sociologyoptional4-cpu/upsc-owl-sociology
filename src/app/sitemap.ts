@@ -16,16 +16,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     payload.find({ collection: 'blog-tags', limit: 500, depth: 0, select: { slug: true, updatedAt: true }, overrideAccess: false }),
     payload.find({ collection: 'blog-series', limit: 200, depth: 0, select: { slug: true, updatedAt: true }, overrideAccess: false }),
   ])
-  const entries: MetadataRoute.Sitemap = [{ url: '/', changeFrequency: 'daily', priority: 1 }, ...['/current-affairs', '/blog', '/syllabus', '/thinkers', '/pyq', '/glossary'].map((url) => ({ url, changeFrequency: 'daily' as const, priority: 0.8 }))]
+  const entries: MetadataRoute.Sitemap = [
+    { url: '/', changeFrequency: 'daily', priority: 1 },
+    ...['/current-affairs', '/blog', '/syllabus', '/thinkers', '/pyq', '/glossary'].map((url) => ({ url, changeFrequency: 'daily' as const, priority: 0.85 })),
+    { url: '/pro', changeFrequency: 'weekly', priority: 0.7 },
+  ]
   for (const page of pages.docs) if (page.path && page.path !== 'home') entries.push({ url: `/${page.path}`, lastModified: page.updatedAt })
-  for (const post of posts.docs) if (post.slug) entries.push({ url: `/blog/${post.slug}`, lastModified: post.updatedAt, changeFrequency: 'weekly', priority: 0.75 })
+  for (const post of posts.docs) if (post.slug) entries.push({ url: `/blog/${post.slug}`, lastModified: post.updatedAt, changeFrequency: 'weekly', priority: 0.8 })
   for (const cat of categories.docs) if (cat.slug) entries.push({ url: `/blog/category/${cat.slug}`, lastModified: cat.updatedAt, changeFrequency: 'weekly', priority: 0.6 })
-  for (const tag of tags.docs) if (tag.slug) entries.push({ url: `/blog/tag/${tag.slug}`, lastModified: tag.updatedAt, changeFrequency: 'weekly', priority: 0.5 })
+  for (const tag of tags.docs) if (tag.slug) entries.push({ url: `/blog/tag/${tag.slug}`, lastModified: tag.updatedAt, changeFrequency: 'weekly', priority: 0.55 })
   for (const one of series.docs) if (one.slug) entries.push({ url: `/blog/series/${one.slug}`, lastModified: one.updatedAt, changeFrequency: 'weekly', priority: 0.65 })
-  for (const item of ca) entries.push({ url: urls.article(item.date, item.slug), changeFrequency: 'weekly', priority: 0.7 })
+  for (const item of ca) entries.push({ url: urls.article(item.date, item.slug), changeFrequency: 'weekly', priority: 0.75 })
   for (const issue of issues) entries.push({ url: issue.href, changeFrequency: 'daily', priority: 0.8 })
-  for (const paper of syllabus) for (const unit of paper.units) for (const topic of unit.topics) entries.push({ url: topic.href, priority: 0.6 })
-  for (const thinker of thinkers) entries.push({ url: thinker.href, priority: 0.5 })
+  for (const paper of syllabus) {
+    entries.push({ url: paper.href, changeFrequency: 'weekly', priority: 0.85 })
+    for (const unit of paper.units) {
+      entries.push({ url: unit.href, changeFrequency: 'weekly', priority: 0.8 })
+      for (const topic of unit.topics) entries.push({ url: topic.href, changeFrequency: 'weekly', priority: 0.65 })
+    }
+  }
+  for (const thinker of thinkers) entries.push({ url: thinker.href, priority: 0.6 })
   const base = getServerSideURL()
   return entries.map((entry) => ({ ...entry, url: new URL(entry.url, base).toString() }))
 }

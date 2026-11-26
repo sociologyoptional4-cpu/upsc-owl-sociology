@@ -6,14 +6,17 @@ import type { ReactNode } from 'react'
 
 import { Footer } from '@/components/layout/Footer'
 import { Header } from '@/components/layout/Header'
+import { MobileAppShell } from '@/components/mobile/MobileAppShell'
 import { JsonLd } from '@/components/ui/Breadcrumbs'
 import { SmoothScroll } from '@/components/layout/SmoothScroll'
 import { themeInitScript } from '@/components/layout/ThemeToggle'
 import { DuotoneDefs } from '@/components/thinkers/DuotoneDefs'
 import { AuroraBackground } from '@/components/ui/AuroraBackground'
+import { buildSiteKeywords } from '@/lib/seo/keywords'
 import { siteJsonLd } from '@/lib/seo/jsonld'
 import { getServerSideURL } from '@/lib/url'
 import { getNavigation } from '@/lib/data/navigation'
+import { getSyllabusTree } from '@/lib/data/syllabus'
 import '@/styles/global.css'
 
 const poppins = Poppins({
@@ -37,6 +40,18 @@ export const metadata: Metadata = {
   },
   description:
     'UPSC Sociology Optional ke notes, thinkers aur roz ke current affairs, syllabus topics se jude hue.',
+  keywords: buildSiteKeywords(),
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1, 'max-video-preview': -1 },
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_IN',
+    siteName: 'UPSC OWL Sociology',
+  },
+  twitter: { card: 'summary_large_image' },
   verification: {
     ...(process.env.GOOGLE_SITE_VERIFICATION ? { google: process.env.GOOGLE_SITE_VERIFICATION } : {}),
     ...(process.env.BING_SITE_VERIFICATION ? { other: { 'msvalidate.01': process.env.BING_SITE_VERIFICATION } } : {}),
@@ -46,7 +61,7 @@ export const metadata: Metadata = {
 type Props = { children: ReactNode }
 
 export default async function RootLayout({ children }: Props) {
-  const navigation = await getNavigation()
+  const [navigation, syllabus] = await Promise.all([getNavigation(), getSyllabusTree()])
   return (
     <html lang="en" className={`${poppins.variable} ${inter.variable}`} suppressHydrationWarning>
       <head>
@@ -68,10 +83,11 @@ export default async function RootLayout({ children }: Props) {
         </a>
         <SmoothScroll />
         <Header nav={navigation.header} />
-        <main id="main" className="relative z-10">
+        <main id="main" className="relative z-10 pb-24 md:pb-0">
           {children}
         </main>
         <Footer />
+        <MobileAppShell papers={syllabus} />
         <Analytics />
         <SpeedInsights />
       </body>

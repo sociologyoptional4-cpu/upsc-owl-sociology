@@ -42,7 +42,7 @@ export function Footer() {
           </p>
         </div>
       </div>
-      <p className="border-t border-neutral-800 py-5 text-center text-xs text-neutral-500">© {year} UPSC OWL Sociology</p>
+      <p className="border-t border-neutral-800 pb-24 pt-5 text-center text-xs text-neutral-500 md:py-5">© {year} UPSC OWL Sociology</p>
     </footer>
   )
 }

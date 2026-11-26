@@ -21,37 +21,80 @@ export function SyllabusBento({ papers }: { papers: SyllabusPaper[] }) {
       {papers.map((paper, index) => {
         const tone = paperTone(paper.code)
         const stats = statsFor(paper)
+        const sampleChapters = paper.units.slice(0, 2).flatMap((u) => u.topics).slice(0, 3)
+
         return (
           <Reveal key={paper.code} index={index}>
-            <article className="group relative h-full overflow-hidden rounded-sheet border border-rule bg-paper-raised p-7 shadow-paper md:p-9">
-              <span aria-hidden className={`absolute -right-20 -top-20 size-64 rounded-full opacity-10 transition-transform duration-700 ease-out-expo group-hover:scale-125 ${tone.bg}`} />
-              <p className={`text-xs font-semibold uppercase tracking-[0.25em] ${tone.text}`}>{tone.label}</p>
-              <h3 className="mt-2 max-w-[18ch] text-[length:var(--text-h3)]">
-                <Link href={paper.href} className="link-draw after:absolute after:inset-0 after:content-['']">
+            <article className="relative h-full overflow-hidden rounded-sheet border-2 border-ink bg-paper-raised p-6 shadow-paper md:p-9">
+              <span aria-hidden className={`pointer-events-none absolute -right-20 -top-20 size-64 rounded-full opacity-10 ${tone.bg}`} />
+              <div className="relative z-10 flex items-center justify-between gap-2">
+                <p className={`text-xs font-semibold uppercase tracking-[0.25em] ${tone.text}`}>{tone.label}</p>
+                <span className="rounded-chip border border-ink/40 bg-pastel-yellow px-2.5 py-0.5 text-[11px] font-bold text-ink">
+                  {paper.code === 'P1' ? 'Units 1–5 Free' : 'Pro Unlock'}
+                </span>
+              </div>
+              <h3 className="relative z-10 mt-2 max-w-[20ch] text-[length:var(--text-h3)]">
+                <Link href={paper.href} className="link-draw hover:underline">
                   {paper.title.replace(/^Paper \d:\s*/, '')}
                 </Link>
               </h3>
-              <dl className="mt-6 flex gap-8 text-sm">
+              <dl className="relative z-10 mt-5 flex flex-wrap gap-6 text-sm md:gap-8">
                 {[
                   ['Units', stats.units],
-                  ['Topics', stats.topics],
+                  ['Chapters', stats.topics],
                   ['Stories linked', stats.stories],
                 ].map(([label, value]) => (
                   <div key={label}>
                     <dt className="text-ink-mute">{label}</dt>
-                    <dd className="font-display text-2xl">{value}</dd>
+                    <dd className="font-display text-2xl font-extrabold">{value}</dd>
                   </div>
                 ))}
               </dl>
-              <ul className="relative z-10 mt-6 flex flex-wrap gap-2">
-                {paper.units.slice(0, 6).map((unit) => (
+
+              {sampleChapters.length > 0 ? (
+                <div className="relative z-10 mt-5 rounded-card border border-ink/25 bg-paper p-3.5">
+                  <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-ink-mute">
+                    {paper.code === 'P1' ? 'Free Chapters (Tap to Read)' : 'Featured Chapters (Tap to Explore)'}
+                  </p>
+                  <ul className="space-y-1.5">
+                    {sampleChapters.map((topic) => (
+                      <li key={topic.href}>
+                        <Link
+                          href={topic.href}
+                          className="flex min-h-[42px] items-center justify-between gap-2 rounded-md border border-rule bg-paper-raised px-3 py-1.5 text-xs font-semibold text-ink transition-transform active:scale-[0.99] hover:border-ink"
+                        >
+                          <span className="truncate">{topic.title}</span>
+                          <span className="shrink-0 font-extrabold text-saffron-deep">
+                            {topic.isLocked ? '🔒 Pro →' : 'Read →'}
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+
+              <ul className="relative z-10 mt-5 flex flex-wrap gap-2">
+                {paper.units.slice(0, 5).map((unit) => (
                   <li key={unit.href}>
-                    <Link href={unit.href} className="inline-flex rounded-chip border border-rule px-3 py-1 text-xs text-ink-soft transition-colors hover:border-ink/40 hover:text-ink">
-                      {unit.number}. {unit.title} <span className="ml-1 text-ink-mute">({pluralize(unit.topics.length, 'topic', 'topics')})</span>
+                    <Link
+                      href={unit.href}
+                      className="inline-flex rounded-chip border border-rule px-3 py-1 text-xs text-ink-soft transition-colors hover:border-ink hover:text-ink"
+                    >
+                      {unit.number}. {unit.title} <span className="ml-1 text-ink-mute">({pluralize(unit.topics.length, 'ch', 'chs')})</span>
                     </Link>
                   </li>
                 ))}
               </ul>
+
+              <div className="relative z-10 mt-5">
+                <Link
+                  href={paper.href}
+                  className="inline-flex items-center gap-2 rounded-md border-2 border-ink bg-pastel-yellow px-4 py-2 text-xs font-extrabold text-ink transition-transform active:scale-95 hover:bg-saffron"
+                >
+                  View All {stats.units} Units &amp; {stats.topics} Chapters →
+                </Link>
+              </div>
             </article>
           </Reveal>
         )

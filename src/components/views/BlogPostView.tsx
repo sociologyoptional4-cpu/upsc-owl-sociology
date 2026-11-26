@@ -45,7 +45,7 @@ export function BlogPostView({ post }: { post: BlogPostDetail }) {
         </div>
 
         <h1 className="mt-5 text-[length:var(--text-h2)] font-extrabold leading-tight">{post.title}</h1>
-        {post.excerpt && <p className="mt-4 max-w-[62ch] text-[length:var(--text-lg)] text-ink-soft">{post.excerpt}</p>}
+        {post.excerpt && <p className="blog-lead-excerpt mt-4 max-w-[62ch] text-[length:var(--text-lg)] text-ink-soft">{post.excerpt}</p>}
 
         <div className="mt-5 flex flex-wrap items-center justify-between gap-4 border-y border-rule py-3 text-xs text-ink-mute">
           <div className="flex flex-wrap items-center gap-2">
@@ -71,8 +71,44 @@ export function BlogPostView({ post }: { post: BlogPostDetail }) {
 
       <div className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,1fr)_18rem]">
         <div className="min-w-0">
+          {post.toc.length > 0 || post.relatedTopics.length > 0 ? (
+            <details className="mb-6 rounded-card border-2 border-ink bg-paper-raised p-4 shadow-paper lg:hidden">
+              <summary className="cursor-pointer font-display text-xs font-extrabold text-ink">
+                📑 Quick Jump: Contents ({post.toc.length}) &amp; Syllabus Chapters
+              </summary>
+              <div className="mt-3 space-y-3 border-t border-rule pt-3 text-xs">
+                {post.toc.length > 0 ? (
+                  <ol className="space-y-1.5">
+                    {post.toc.map((item) => (
+                      <li key={item.id} className={item.level === 3 ? 'pl-3' : ''}>
+                        <a href={`#${item.id}`} className="font-medium text-ink-soft hover:text-saffron-deep">
+                          {item.text}
+                        </a>
+                      </li>
+                    ))}
+                  </ol>
+                ) : null}
+                {post.relatedTopics.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {post.relatedTopics.map((t) => (
+                      <TopicChipLink key={t.href} topic={t} />
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+            </details>
+          ) : null}
           <SeriesBox series={post.series} placement="top" />
           <BlogRichText data={post.content} resolved={post.resolved} />
+
+          {post.relatedTopics.length > 0 && (
+            <section aria-label="Linked syllabus chapters" className="mt-10 rounded-card border-2 border-ink bg-paper-raised p-5 shadow-paper">
+              <p className="font-display text-sm font-extrabold text-ink">Is Blog Se Jude Syllabus Chapters</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {post.relatedTopics.map((t) => <TopicChipLink key={t.href} topic={t} />)}
+              </div>
+            </section>
+          )}
 
           <AttachmentList items={post.attachments} />
           <PostQuiz items={post.quiz} />

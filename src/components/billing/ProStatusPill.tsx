@@ -35,7 +35,7 @@ export function ProStatusPill() {
       {member ? (
         <Link
           href="/account"
-          className="hidden rounded-md border border-ink bg-paper-raised px-2.5 py-1.5 text-xs font-bold text-ink transition-colors hover:bg-pastel-lavender sm:inline-flex"
+          className="inline-flex max-w-[5.5rem] truncate rounded-md border border-ink bg-paper-raised px-2 py-1 text-[11px] font-bold text-ink transition-colors hover:bg-pastel-lavender md:max-w-none md:px-2.5 md:py-1.5 md:text-xs"
           title={`Logged in as ${member.email}`}
         >
           {firstName}
@@ -43,7 +43,7 @@ export function ProStatusPill() {
       ) : (
         <Link
           href="/login"
-          className="hidden rounded-md border border-ink bg-paper-raised px-2.5 py-1.5 text-xs font-bold text-ink transition-colors hover:bg-paper-sunk sm:inline-flex"
+          className="inline-flex rounded-md border border-ink bg-paper-raised px-2 py-1 text-[11px] font-bold text-ink transition-colors hover:bg-paper-sunk md:px-2.5 md:py-1.5 md:text-xs"
           title="Login or Create Student Account"
         >
           Login
@@ -51,7 +51,7 @@ export function ProStatusPill() {
       )}
       <Link
         href={unlocked && member ? '/account' : '/pro'}
-        className={`inline-flex items-center gap-1 rounded-md border border-ink px-2.5 py-1.5 text-xs font-extrabold transition-colors ${
+        className={`inline-flex items-center gap-1 rounded-md border border-ink px-2 py-1 text-[11px] font-extrabold transition-colors md:px-2.5 md:py-1.5 md:text-xs ${
           unlocked ? 'bg-pastel-mint text-ink hover:bg-pastel-yellow' : 'bg-pastel-yellow text-ink hover:bg-saffron'
         }`}
         title={unlocked ? 'UPSC OWL Pro Active' : 'Unlock All Chapters — ₹399/yr (60% OFF ₹999)'}

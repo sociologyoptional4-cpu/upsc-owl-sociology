@@ -232,8 +232,14 @@ function UnitShellInner(props: BilingualUnitShellProps) {
           totalPyqs={props.totalPyqs}
         />
         <LanguageSwitch variant="banner" className="mt-6" />
-        {showHi ? (props.sequenceHiNode ?? props.sequenceEnNode) : props.sequenceEnNode}
-        <UnitChaptersSection topics={props.topics} unitNumber={props.unitNumber} unitLocked={props.unitLocked} toneBg={tone.bg} showHi={showHi} />
+        <div className="flex flex-col">
+          <div className="order-1 md:order-2">
+            <UnitChaptersSection topics={props.topics} unitNumber={props.unitNumber} unitLocked={props.unitLocked} toneBg={tone.bg} showHi={showHi} />
+          </div>
+          <div className="order-2 md:order-1">
+            {showHi ? (props.sequenceHiNode ?? props.sequenceEnNode) : props.sequenceEnNode}
+          </div>
+        </div>
         {showHi ? (props.mindMapHiNode ?? props.mindMapEnNode) : props.mindMapEnNode}
         {showHi ? (props.infographicsHiNode ?? props.infographicsEnNode) : props.infographicsEnNode}
         <SyllabusDmcaFooter canonicalHref={props.canonicalHref} title={props.unitTitle} />

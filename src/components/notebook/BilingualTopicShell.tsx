@@ -57,10 +57,10 @@ function TopicStickyNav({ sections }: { sections: NavSection[] }) {
   return (
     <nav
       aria-label="On this page"
-      className="sticky top-16 z-30 -mx-5 mt-10 border-y border-rule bg-paper/90 px-5 backdrop-blur-md md:-mx-8 md:px-8"
+      className="sticky top-14 z-30 -mx-5 mt-8 border-y border-rule bg-paper/90 px-5 backdrop-blur-md md:top-16 md:-mx-8 md:mt-10 md:px-8"
     >
       <div className="flex items-center justify-between gap-3">
-        <ul className="flex min-w-0 flex-1 items-center gap-5 overflow-x-auto py-3 text-sm md:gap-6">
+        <ul className="no-scrollbar flex min-w-0 flex-1 items-center gap-4 overflow-x-auto py-3 text-xs sm:text-sm md:gap-6">
           {sections.map((section) => (
             <li key={section.id} className="shrink-0">
               <a href={`#${section.id}`} className="whitespace-nowrap font-semibold text-ink-soft hover:text-ink">
@@ -218,6 +218,58 @@ function TopicMainColumn({
   )
 }
 
+function MobileTopicQuickJump({
+  toc,
+  unitBreadcrumb,
+  nextTopic,
+}: {
+  toc: { id: string; text: string; level: 2 | 3 }[]
+  unitBreadcrumb: { label: string; href: string } | undefined
+  nextTopic: { title: string; href: string } | null
+}) {
+  if (toc.length === 0 && !unitBreadcrumb && !nextTopic) return null
+  return (
+    <div className="mt-5 space-y-2.5 lg:hidden">
+      {unitBreadcrumb || nextTopic ? (
+        <div className="flex flex-wrap items-center gap-2">
+          {unitBreadcrumb ? (
+            <Link
+              href={unitBreadcrumb.href}
+              className="rounded-chip border border-ink bg-pastel-lavender px-3 py-1 text-xs font-bold text-ink"
+            >
+              ↑ {unitBreadcrumb.label}
+            </Link>
+          ) : null}
+          {nextTopic ? (
+            <Link
+              href={nextTopic.href}
+              className="rounded-chip border border-ink bg-pastel-mint px-3 py-1 text-xs font-bold text-ink"
+            >
+              Next: {nextTopic.title.slice(0, 26)} →
+            </Link>
+          ) : null}
+        </div>
+      ) : null}
+      {toc.length > 0 ? (
+        <details className="rounded-card border-2 border-ink bg-paper-raised p-3.5 shadow-paper">
+          <summary className="cursor-pointer font-display text-xs font-extrabold text-ink">
+            📑 Chapter Contents ({toc.length} sections) — Tap to jump
+          </summary>
+          <ul className="mt-2.5 max-h-56 space-y-1.5 overflow-y-auto border-t border-rule pt-2 text-xs">
+            {toc.map((item) => (
+              <li key={item.id} className={item.level === 3 ? 'pl-3' : ''}>
+                <a href={`#${item.id}`} className="block py-0.5 text-ink-soft hover:text-saffron-deep">
+                  {item.text}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
+    </div>
+  )
+}
+
 function TopicShellInner(props: BilingualTopicShellProps) {
   const { lang, hasHinglish } = useNoteLanguage()
   const showHi = hasHinglish && lang === 'hi'
@@ -252,8 +304,9 @@ function TopicShellInner(props: BilingualTopicShellProps) {
         </header>
         <LanguageSwitch variant="banner" className="mt-6" />
         <TopicStickyNav sections={navSections} />
+        <MobileTopicQuickJump toc={toc} unitBreadcrumb={props.unitBreadcrumb} nextTopic={props.nextTopic} />
 
-        <div className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,1fr)_17rem]">
+        <div className="mt-8 grid gap-12 md:mt-10 lg:grid-cols-[minmax(0,1fr)_17rem]">
           <TopicMainColumn props={props} showHi={showHi} hasMindMap={hasMindMap} tocCount={toc.length} />
           <aside className="space-y-6 lg:sticky lg:top-32 lg:self-start">
             <TopicTocCard toc={toc} />

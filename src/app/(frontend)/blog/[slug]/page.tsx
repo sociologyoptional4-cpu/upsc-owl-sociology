@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import { BlogPostView } from '@/components/views/BlogPostView'
 import { getPost, getPostStaticParams } from '@/lib/data/blog'
 import { slugParamSchema } from '@/lib/data/route-schemas'
+import { buildBlogKeywords } from '@/lib/seo/keywords'
 import { getServerSideURL } from '@/lib/url'
 
 export const revalidate = 3600
@@ -12,7 +13,7 @@ export const revalidate = 3600
 type Props = { params: Promise<{ slug: string }> }
 
 export async function generateStaticParams() {
-  return getPostStaticParams(50)
+  return getPostStaticParams(200)
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -31,10 +32,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
+    keywords: buildBlogKeywords(post),
     alternates: { canonical },
-    robots: post.seo.noindex ? { index: false, follow: true } : { index: true, follow: true },
+    robots: post.seo.noindex
+      ? { index: false, follow: true }
+      : { index: true, follow: true, googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1, 'max-video-preview': -1 } },
     openGraph: {
       type: 'article',
+      locale: 'en_IN',
+      siteName: 'UPSC OWL Sociology',
       title,
       description,
       url: canonical,

@@ -43,16 +43,16 @@ export function HomeHero({ data }: { data: HomeData }) {
           </p>
           <div className="mt-9 flex flex-wrap gap-3">
             <Link
-              href={issue?.href ?? '/current-affairs'}
-              className="btn-cta rounded-md px-6 py-3 text-sm transition-transform duration-300 ease-out-expo hover:-translate-y-0.5 active:scale-[0.98]"
+              href="/syllabus"
+              className="btn-cta rounded-md px-6 py-3 text-sm font-bold transition-transform duration-300 ease-out-expo hover:-translate-y-0.5 active:scale-[0.98]"
             >
-              Aaj ka issue padho →
+              Chapters Explore Karo →
             </Link>
             <Link
-              href="/syllabus"
+              href={issue?.href ?? '/current-affairs'}
               className="rounded-md border border-ink px-6 py-3 text-sm font-semibold transition-colors hover:bg-ink hover:text-paper"
             >
-              Syllabus map dekho
+              Aaj ka issue padho →
             </Link>
           </div>
         </div>
@@ -68,7 +68,7 @@ export function HomeHero({ data }: { data: HomeData }) {
               <div className="float-soft relative" style={{ ['--float-delay' as string]: '-1s' }}>
                 <Portrait thinker={featuredThinker} size="lg" priority sizes="(min-width: 1024px) 320px, 60vw" />
               </div>
-              <span className="absolute -right-3 top-[30%] rounded-2xl rounded-bl-none border-2 border-ink bg-paper px-3 py-1.5 text-xs font-semibold shadow-paper">
+              <span className="absolute right-0 top-[26%] rounded-2xl rounded-bl-none border-2 border-ink bg-paper px-3 py-1.5 text-xs font-semibold shadow-paper sm:-right-3 sm:top-[30%]">
                 Thinker of the week · {featuredThinker.name}
               </span>
             </Link>

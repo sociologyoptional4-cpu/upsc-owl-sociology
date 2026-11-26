@@ -27,13 +27,13 @@ export function BlogHubView({ data }: { data: BlogHubData }) {
         description="Thinkers, concepts, answer writing aur current affairs ke syllabus-linked notes."
       />
 
-      {/* Category & Paper/Unit filters */}
+      {/* Category & Paper/Unit filters (horizontal rail on mobile, wrapping on desktop) */}
       <div className="mt-8 space-y-3 rounded-card border-2 border-ink bg-paper-raised p-4 shadow-paper">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-bold uppercase tracking-wide text-ink-mute">Category:</span>
+        <div className="no-scrollbar flex flex-nowrap items-center gap-2 overflow-x-auto pb-1 md:flex-wrap md:overflow-visible md:pb-0">
+          <span className="shrink-0 text-xs font-bold uppercase tracking-wide text-ink-mute">Category:</span>
           <Link
             href={makeQuery({ paper: filters.paper, unit: filters.unit })}
-            className={`rounded-chip border border-ink px-3 py-1 text-xs font-bold ${!filters.category ? 'bg-saffron text-ink' : 'bg-paper hover:bg-pastel-yellow'}`}
+            className={`shrink-0 rounded-chip border border-ink px-3 py-1 text-xs font-bold ${!filters.category ? 'bg-saffron text-ink' : 'bg-paper hover:bg-pastel-yellow'}`}
           >
             Sab
           </Link>
@@ -41,20 +41,20 @@ export function BlogHubView({ data }: { data: BlogHubData }) {
             <Link
               key={cat.slug}
               href={makeQuery({ category: cat.slug, paper: filters.paper, unit: filters.unit })}
-              className={`rounded-chip border border-ink px-3 py-1 text-xs font-bold ${filters.category === cat.slug ? 'bg-saffron text-ink' : 'bg-paper hover:bg-pastel-yellow'}`}
+              className={`shrink-0 rounded-chip border border-ink px-3 py-1 text-xs font-bold ${filters.category === cat.slug ? 'bg-saffron text-ink' : 'bg-paper hover:bg-pastel-yellow'}`}
             >
               {cat.title}
             </Link>
           ))}
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-bold uppercase tracking-wide text-ink-mute">Paper:</span>
+        <div className="no-scrollbar flex flex-nowrap items-center gap-2 overflow-x-auto pb-1 md:flex-wrap md:overflow-visible md:pb-0">
+          <span className="shrink-0 text-xs font-bold uppercase tracking-wide text-ink-mute">Paper:</span>
           {(['P1', 'P2'] as const).map((code) => (
             <Link
               key={code}
               href={makeQuery({ category: filters.category, paper: filters.paper === code ? undefined : code })}
-              className={`rounded-chip border border-ink px-3 py-1 text-xs font-bold ${filters.paper === code ? 'bg-ink text-paper' : 'bg-paper hover:bg-pastel-lavender'}`}
+              className={`shrink-0 rounded-chip border border-ink px-3 py-1 text-xs font-bold ${filters.paper === code ? 'bg-ink text-paper' : 'bg-paper hover:bg-pastel-lavender'}`}
             >
               {code}
             </Link>
@@ -63,7 +63,7 @@ export function BlogHubView({ data }: { data: BlogHubData }) {
             <Link
               key={u.slug}
               href={makeQuery({ category: filters.category, paper: filters.paper, unit: filters.unit === u.slug ? undefined : u.slug })}
-              className={`rounded-chip border border-rule px-2.5 py-0.5 text-xs ${filters.unit === u.slug ? 'border-ink bg-pastel-mint font-bold text-ink' : 'text-ink-soft hover:border-ink'}`}
+              className={`shrink-0 rounded-chip border border-rule px-2.5 py-0.5 text-xs ${filters.unit === u.slug ? 'border-ink bg-pastel-mint font-bold text-ink' : 'text-ink-soft hover:border-ink'}`}
             >
               {u.title}
             </Link>

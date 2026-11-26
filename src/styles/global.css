@@ -40,6 +40,7 @@
     background: var(--paper);
     color: var(--ink);
     color-scheme: light;
+    overflow-x: clip;
   }
   html[data-theme='dark'] {
     color-scheme: dark;
@@ -51,6 +52,7 @@
     -webkit-font-smoothing: antialiased;
     min-height: 100dvh;
     position: relative;
+    overflow-x: clip;
   }
   /* Graph-paper grid, fixed behind content */
   body::before {
@@ -367,4 +369,21 @@ html.lenis body {
 
 .spotlight-card:hover::before {
   opacity: 1;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .prose-journal :where(table) {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 }

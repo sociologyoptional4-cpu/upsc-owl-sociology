@@ -115,7 +115,7 @@ export function TopicView({ data, isPaywalled = false }: { data: TopicDetail; is
 
   return (
     <>
-      <JsonLd data={syllabusTopicJsonLd(data)} />
+      <JsonLd data={syllabusTopicJsonLd(data, isPaywalled)} />
       <BilingualTopicShell
         isPaywalled={isPaywalled}
         paperCode={data.paper}
