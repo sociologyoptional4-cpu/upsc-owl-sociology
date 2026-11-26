@@ -4,6 +4,7 @@ import { cookies, headers } from 'next/headers'
 import type { Payload } from 'payload'
 
 import { hasRole, type Role } from '@/access/roles'
+import { findActiveSubscriptionByEmail, getCurrentMember } from '@/lib/auth/member'
 import type { ProAccessStatus } from '@/lib/data/types'
 import { getPayloadClient } from '@/lib/queries'
 import { PRO_ANNUAL_PLAN } from './plans'
@@ -117,6 +118,24 @@ export async function getProAccessStatus(): Promise<ProAccessStatus> {
     }
   } catch {
     // Unauthenticated visitor; proceed to Pro cookie check.
+  }
+
+  try {
+    const member = await getCurrentMember()
+    if (member) {
+      const memberSub = await findActiveSubscriptionByEmail(payload, member.email)
+      if (memberSub) {
+        return {
+          unlocked: true,
+          reason: 'subscription',
+          email: memberSub.email,
+          expiresAt: memberSub.expiresAt,
+          accessCode: memberSub.accessCode,
+        }
+      }
+    }
+  } catch {
+    // Member lookup failed; continue to Pro cookie fallback.
   }
 
   const cookieStore = await cookies()

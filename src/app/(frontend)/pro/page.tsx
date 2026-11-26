@@ -47,6 +47,12 @@ export default async function ProPage() {
             <Link href="/syllabus" className="btn-cta rounded-md px-5 py-2.5 text-sm font-bold">
               Syllabus Padhna Shuru Karein →
             </Link>
+            <Link
+              href="/account"
+              className="rounded-md border-2 border-ink bg-paper px-4 py-2.5 text-sm font-bold text-ink hover:bg-pastel-lavender"
+            >
+              My Account
+            </Link>
             <a
               href={TELEGRAM_MENTORSHIP_URL}
               target="_blank"

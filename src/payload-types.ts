@@ -77,6 +77,7 @@ export interface Config {
     media: Media;
     users: User;
     subscriptions: Subscription;
+    members: Member;
     sources: Source;
     'pipeline-runs': PipelineRun;
     digests: Digest;
@@ -103,6 +104,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     subscriptions: SubscriptionsSelect<false> | SubscriptionsSelect<true>;
+    members: MembersSelect<false> | MembersSelect<true>;
     sources: SourcesSelect<false> | SourcesSelect<true>;
     'pipeline-runs': PipelineRunsSelect<false> | PipelineRunsSelect<true>;
     digests: DigestsSelect<false> | DigestsSelect<true>;
@@ -744,6 +746,21 @@ export interface Subscription {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "members".
+ */
+export interface Member {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string | null;
+  passwordHash: string;
+  status: 'active' | 'suspended';
+  lastLoginAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "sources".
  */
 export interface Source {
@@ -1173,6 +1190,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'subscriptions';
         value: number | Subscription;
+      } | null)
+    | ({
+        relationTo: 'members';
+        value: number | Member;
       } | null)
     | ({
         relationTo: 'sources';
@@ -1694,6 +1715,20 @@ export interface SubscriptionsSelect<T extends boolean = true> {
   startsAt?: T;
   expiresAt?: T;
   notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "members_select".
+ */
+export interface MembersSelect<T extends boolean = true> {
+  name?: T;
+  email?: T;
+  phone?: T;
+  passwordHash?: T;
+  status?: T;
+  lastLoginAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }

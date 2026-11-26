@@ -1,11 +1,13 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 
 import { TELEGRAM_MENTORSHIP_URL } from '../ui/links'
+import { PostPaymentAccountBox } from './PostPaymentAccountBox'
 import { RazorpayQrPanel, type QrData, type UnlockedInfo } from './RazorpayQrPanel'
+import { RestoreAccessBox } from './RestoreAccessBox'
 
 type PaywallGateProps = {
   mode?: 'chapter' | 'standalone'
@@ -14,6 +16,8 @@ type PaywallGateProps = {
   tocCount?: number
   pyqCount?: number
 }
+
+type LoggedInMember = { id: number; name: string; email: string; phone: string | null }
 
 declare global {
   interface Window {
@@ -38,39 +42,42 @@ function loadRazorpayScript(): Promise<boolean> {
 
 export function PaywallGate({ mode = 'chapter', chapterTitle, paperLabel, tocCount = 0, pyqCount = 0 }: PaywallGateProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
+  const [member, setMember] = useState<LoggedInMember | null>(null)
   const [method, setMethod] = useState<'checkout' | 'qr'>('checkout')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [qr, setQr] = useState<QrData | null>(null)
   const [unlocked, setUnlocked] = useState<UnlockedInfo | null>(null)
 
-  const [showRestore, setShowRestore] = useState(false)
-  const [restoreEmail, setRestoreEmail] = useState('')
-  const [restoreCred, setRestoreCred] = useState('')
-  const [restoreLoading, setRestoreLoading] = useState(false)
-  const [restoreError, setRestoreError] = useState<string | null>(null)
-
   useEffect(() => {
     let active = true
-    Promise.resolve().then(() => {
-      if (!active) return
-      try {
-        const saved = localStorage.getItem(PROFILE_STORAGE_KEY)
-        if (!saved) return
-        const parsed = JSON.parse(saved) as { name?: string; email?: string; phone?: string }
-        if (parsed.name) setName(parsed.name)
-        if (parsed.email) {
-          setEmail(parsed.email)
-          setRestoreEmail(parsed.email)
+    fetch('/api/auth/me', { cache: 'no-store' })
+      .then((res) => (res.ok ? (res.json() as Promise<{ member?: LoggedInMember | null }>) : null))
+      .then((data) => {
+        if (!active) return
+        if (data?.member) {
+          setMember(data.member)
+          setName(data.member.name)
+          setEmail(data.member.email)
+          if (data.member.phone) setPhone(data.member.phone)
+          return
         }
-        if (parsed.phone) setPhone(parsed.phone)
-      } catch {
-        // Ignore storage errors
-      }
-    })
+        try {
+          const saved = localStorage.getItem(PROFILE_STORAGE_KEY)
+          if (!saved) return
+          const parsed = JSON.parse(saved) as { name?: string; email?: string; phone?: string }
+          if (parsed.name) setName(parsed.name)
+          if (parsed.email) setEmail(parsed.email)
+          if (parsed.phone) setPhone(parsed.phone)
+        } catch {
+          // Ignore storage errors
+        }
+      })
+      .catch(() => undefined)
     return () => {
       active = false
     }
@@ -100,7 +107,7 @@ export function PaywallGate({ mode = 'chapter', chapterTitle, paperLabel, tocCou
       return false
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      setError('Valid email address daalein (access restore ke liye zaroori hai).')
+      setError('Valid email address daalein (account aur access restore ke liye zaroori hai).')
       return false
     }
     if (phone.replace(/\D/g, '').length < 10) {
@@ -201,28 +208,6 @@ export function PaywallGate({ mode = 'chapter', chapterTitle, paperLabel, tocCou
     }
   }
 
-  const submitRestore = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setRestoreLoading(true)
-    setRestoreError(null)
-    try {
-      const res = await fetch('/api/billing/restore', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: restoreEmail.trim(), credential: restoreCred.trim() }),
-      })
-      const json = (await res.json()) as UnlockedInfo & { unlocked?: boolean; error?: string }
-      if (!res.ok || !json.unlocked) {
-        throw new Error(json.error || 'Active pass nahi mila.')
-      }
-      handleSuccess({ accessCode: json.accessCode, expiresAt: json.expiresAt, email: json.email })
-    } catch (err) {
-      setRestoreError(err instanceof Error ? err.message : 'Restore fail hua.')
-    } finally {
-      setRestoreLoading(false)
-    }
-  }
-
   if (unlocked) {
     return (
       <section className="rounded-card border-2 border-ink bg-pastel-mint p-6 text-ink shadow-paper md:p-8">
@@ -238,6 +223,9 @@ export function PaywallGate({ mode = 'chapter', chapterTitle, paperLabel, tocCou
           <p className="text-xs font-bold uppercase tracking-wide text-ink-mute">Apna Backup Access Code Save Karein</p>
           <p className="mt-1 select-all font-mono text-xl font-extrabold tracking-wider text-ink">{unlocked.accessCode}</p>
         </div>
+        {!member ? (
+          <PostPaymentAccountBox name={name.trim()} email={unlocked.email} phone={phone.trim()} />
+        ) : null}
         <div className="mt-5 flex flex-wrap gap-3">
           <button
             type="button"
@@ -246,13 +234,15 @@ export function PaywallGate({ mode = 'chapter', chapterTitle, paperLabel, tocCou
           >
             {mode === 'chapter' ? 'Chapter Padhna Shuru Karein →' : 'Syllabus Explore Karein →'}
           </button>
-          <Link href="/syllabus" className="rounded-md border-2 border-ink bg-paper px-4 py-2.5 text-sm font-bold text-ink hover:bg-pastel-yellow">
-            Full Syllabus Dekhein
+          <Link href="/account" className="rounded-md border-2 border-ink bg-paper px-4 py-2.5 text-sm font-bold text-ink hover:bg-pastel-yellow">
+            My Account
           </Link>
         </div>
       </section>
     )
   }
+
+  const loginHref = pathname ? `/login?next=${encodeURIComponent(pathname)}` : '/login'
 
   return (
     <section id="unlock-pro" className="rounded-card border-2 border-ink bg-paper-raised p-6 shadow-paper md:p-8">
@@ -260,9 +250,21 @@ export function PaywallGate({ mode = 'chapter', chapterTitle, paperLabel, tocCou
         <span className="inline-flex items-center gap-1.5 rounded-chip border border-ink bg-pastel-yellow px-3 py-1 text-xs font-extrabold text-ink">
           🔒 PRO PASS · 60% OFF
         </span>
-        <span className="rounded-chip border border-ink/30 bg-paper-sunk px-3 py-1 text-xs font-bold text-ink-soft">
-          Paper 1 Units 1–5 Free · Units 6+ &amp; Paper 2 Locked
-        </span>
+        {member ? (
+          <Link
+            href="/account"
+            className="rounded-chip border border-ink bg-pastel-lavender px-3 py-1 text-xs font-bold text-ink"
+          >
+            Logged in: {member.name} ({member.email})
+          </Link>
+        ) : (
+          <Link
+            href={loginHref}
+            className="rounded-chip border border-ink bg-paper px-3 py-1 text-xs font-bold text-saffron-deep hover:bg-pastel-yellow"
+          >
+            Pehle hi Pro liya hai? Login Karein →
+          </Link>
+        )}
       </div>
 
       {mode === 'chapter' && chapterTitle ? (
@@ -271,7 +273,7 @@ export function PaywallGate({ mode = 'chapter', chapterTitle, paperLabel, tocCou
             Unlock &ldquo;{chapterTitle}&rdquo; &amp; Complete Sociology Syllabus
           </h2>
           <p className="mt-2 text-sm text-ink-soft">
-            {paperLabel ? `${paperLabel} · ` : ''}Unit 5 ke baad ke saare chapters Pro Pass mein aate hain. Ek baar unlock karne par poora saal Paper 1 (Units 6–10) aur complete Paper 2 (Units 1–15) open ho jayega.
+            {paperLabel ? `${paperLabel} · ` : ''}Paper 1 Units 1–5 free hain. Unit 5 ke baad ke saare chapters Pro Pass mein aate hain — ek baar unlock karne par poora saal sab kuch khul jayega.
           </p>
           {tocCount > 0 || pyqCount > 0 ? (
             <div className="mt-3 flex flex-wrap gap-2 text-xs font-bold">
@@ -306,7 +308,7 @@ export function PaywallGate({ mode = 'chapter', chapterTitle, paperLabel, tocCou
             <li>✓ Paper 1 Units 6–10 + Complete Paper 2 (All 20 Locked Units)</li>
             <li>✓ Bilingual Notes (English + Hinglish) har chapter mein</li>
             <li>✓ Interactive Mind Maps &amp; 597 Solved PYQs (2013–2025)</li>
-            <li>✓ Ek hi Pro Pass se laptop &amp; phone dono par instant restore</li>
+            <li>✓ Ek hi Account (Email + Password) se kisi bhi device par Login</li>
           </ul>
           <div className="mt-5 border-t border-rule pt-3 text-xs text-ink-mute">
             Koi doubt ya payment help chahiye?{' '}
@@ -340,13 +342,14 @@ export function PaywallGate({ mode = 'chapter', chapterTitle, paperLabel, tocCou
             </label>
           </div>
           <label className="mt-3 block text-xs font-bold text-ink">
-            Email Address * (Access Code &amp; restore ke liye)
+            Email Address * (Login &amp; Pro Pass isi email se link hoga)
             <input
               type="email"
               value={email}
+              readOnly={Boolean(member)}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="name@example.com"
-              className="mt-1 w-full rounded-md border border-ink bg-paper-raised px-3 py-2 text-sm font-normal text-ink"
+              className="mt-1 w-full rounded-md border border-ink bg-paper-raised px-3 py-2 text-sm font-normal text-ink read-only:opacity-80"
             />
           </label>
 
@@ -409,43 +412,7 @@ export function PaywallGate({ mode = 'chapter', chapterTitle, paperLabel, tocCou
         </div>
       </div>
 
-      <div className="mt-6 border-t border-rule pt-4">
-        <button
-          type="button"
-          onClick={() => setShowRestore((v) => !v)}
-          className="text-xs font-bold text-saffron-deep underline"
-        >
-          {showRestore ? 'Hide Restore Access ▲' : 'Pehle hi pay kar chuke ho? Apna Pro Access Restore karein →'}
-        </button>
-        {showRestore ? (
-          <form onSubmit={(e) => void submitRestore(e)} className="mt-3 grid gap-3 rounded-card border border-ink bg-paper p-4 sm:grid-cols-[1fr_1fr_auto]">
-            <input
-              type="email"
-              required
-              value={restoreEmail}
-              onChange={(e) => setRestoreEmail(e.target.value)}
-              placeholder="Registered Email"
-              className="rounded-md border border-ink bg-paper-raised px-3 py-2 text-sm text-ink"
-            />
-            <input
-              type="text"
-              required
-              value={restoreCred}
-              onChange={(e) => setRestoreCred(e.target.value)}
-              placeholder="Access Code (OWL-...), Mobile, or Payment ID"
-              className="rounded-md border border-ink bg-paper-raised px-3 py-2 text-sm text-ink"
-            />
-            <button
-              type="submit"
-              disabled={restoreLoading}
-              className="rounded-md border-2 border-ink bg-pastel-yellow px-4 py-2 text-sm font-extrabold text-ink hover:bg-pastel-mint disabled:opacity-60"
-            >
-              {restoreLoading ? 'Checking...' : 'Restore'}
-            </button>
-            {restoreError ? <p className="sm:col-span-3 text-xs font-semibold text-red-700">{restoreError}</p> : null}
-          </form>
-        ) : null}
-      </div>
+      <RestoreAccessBox initialEmail={email} onRestored={handleSuccess} />
     </section>
   )
 }

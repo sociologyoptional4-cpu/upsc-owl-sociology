@@ -74,6 +74,14 @@ export function Header({ nav }: { nav: NavItem[] }) {
           ))}
           <li className="shrink-0">
             <Link
+              href="/account"
+              className="block rounded-chip border border-ink bg-pastel-lavender px-3 py-1 text-xs font-bold text-ink"
+            >
+              Account / Login
+            </Link>
+          </li>
+          <li className="shrink-0">
+            <Link
               href={TELEGRAM_MENTORSHIP_URL}
               target="_blank"
               rel="noopener noreferrer"
