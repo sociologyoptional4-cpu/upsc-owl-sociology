@@ -2,21 +2,22 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 import {
   isBlockedScraperUa,
-  isBulkSyllabusApiRequest,
+  isProtectedContentApiPath,
+  isUnauthorizedHotlink,
   isVerifiedSearchBot,
 } from '@/lib/security/syllabus-shield'
 
-const SYLLABUS_API_PREFIXES = ['/api/topics', '/api/units', '/api/papers'] as const
+const ASSET_PATH_PREFIXES = ['/assets/', '/api/media/file/'] as const
 
-function isSyllabusApiPath(pathname: string): boolean {
-  return SYLLABUS_API_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))
+function isAssetPath(pathname: string): boolean {
+  return ASSET_PATH_PREFIXES.some((prefix) => pathname.startsWith(prefix))
 }
 
-function handleSyllabusApi(request: NextRequest, pathname: string, ua: string | null): NextResponse {
+function handleProtectedApi(request: NextRequest, ua: string | null): NextResponse {
   if (request.cookies.has('payload-token')) return NextResponse.next()
-  if (pathname.startsWith('/api/topics') || isBlockedScraperUa(ua) || isBulkSyllabusApiRequest(pathname, request.nextUrl.searchParams)) {
+  if (isBlockedScraperUa(ua) || !request.cookies.has('payload-token')) {
     return NextResponse.json(
-      { error: 'Syllabus notes API requires admin or Pro access at https://sociology4upsc.com/pro.' },
+      { error: 'Protected content API requires admin access. Read online at https://sociology4upsc.com.' },
       { status: 403, headers: { 'Cache-Control': 'no-store' } },
     )
   }
@@ -27,14 +28,26 @@ export function middleware(request: NextRequest): NextResponse {
   const { pathname } = request.nextUrl
   const ua = request.headers.get('user-agent')
 
-  if (isSyllabusApiPath(pathname)) {
-    return handleSyllabusApi(request, pathname, ua)
+  if (isProtectedContentApiPath(pathname)) {
+    return handleProtectedApi(request, ua)
+  }
+
+  if (isAssetPath(pathname)) {
+    const referer = request.headers.get('referer')
+    const host = request.headers.get('host')
+    if (isUnauthorizedHotlink(referer, host)) {
+      return new NextResponse('Direct asset hotlinking is prohibited.', {
+        status: 403,
+        headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' },
+      })
+    }
+    return NextResponse.next()
   }
 
   if (isVerifiedSearchBot(ua)) return NextResponse.next()
 
   if (isBlockedScraperUa(ua)) {
-    return new NextResponse('Automated scraping of Upscowl syllabus content is prohibited.', {
+    return new NextResponse('Automated cloning or scraping of UPSC OWL Sociology content is prohibited.', {
       status: 403,
       headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' },
     })
@@ -46,5 +59,26 @@ export function middleware(request: NextRequest): NextResponse {
 }
 
 export const config = {
-  matcher: ['/syllabus/:path*', '/api/topics/:path*', '/api/units/:path*', '/api/papers/:path*'],
+  matcher: [
+    '/syllabus/:path*',
+    '/blog/:path*',
+    '/current-affairs/:path*',
+    '/thinkers/:path*',
+    '/pyq/:path*',
+    '/glossary/:path*',
+    '/assets/:path*',
+    '/api/media/file/:path*',
+    '/api/topics/:path*',
+    '/api/units/:path*',
+    '/api/papers/:path*',
+    '/api/posts/:path*',
+    '/api/current-affairs/:path*',
+    '/api/pyqs/:path*',
+    '/api/thinkers/:path*',
+    '/api/pages/:path*',
+    '/api/digests/:path*',
+    '/api/quizzes/:path*',
+    '/api/graphql/:path*',
+    '/api/graphql-playground/:path*',
+  ],
 }

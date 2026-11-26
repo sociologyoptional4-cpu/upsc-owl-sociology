@@ -6,6 +6,7 @@ import type { CAArticle } from '@/lib/data/types'
 import { articleJsonLd } from '@/lib/seo/jsonld'
 
 import { Cover } from '../cards/CaCard'
+import { ContentGuard } from '../ContentGuard'
 import { AiBadge } from '../ui/Badges'
 import { Breadcrumbs, JsonLd } from '../ui/Breadcrumbs'
 import { ChipRow } from '../ui/Chips'
@@ -21,6 +22,7 @@ export function CAArticleView({ data }: { data: CAArticle }) {
   ]
 
   return (
+    <ContentGuard canonicalPath={data.href}>
     <article className="mx-auto max-w-7xl px-5 pt-10 md:px-8 md:pt-16">
       <JsonLd data={articleJsonLd(data)} />
       <Breadcrumbs items={crumbs} />
@@ -64,6 +66,7 @@ export function CAArticleView({ data }: { data: CAArticle }) {
         {data.next ? <StoryLink label="Agli story →" story={data.next} align="right" /> : <span />}
       </nav>
     </article>
+    </ContentGuard>
   )
 }
 

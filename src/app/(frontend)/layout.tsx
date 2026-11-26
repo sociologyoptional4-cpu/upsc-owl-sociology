@@ -8,6 +8,7 @@ import { AgencyUtmPreserver } from '@/components/analytics/AgencyTracker'
 import { Footer } from '@/components/layout/Footer'
 import { Header } from '@/components/layout/Header'
 import { MobileAppShell } from '@/components/mobile/MobileAppShell'
+import { AntiCloneGuard } from '@/components/security/AntiCloneGuard'
 import { JsonLd } from '@/components/ui/Breadcrumbs'
 import { SmoothScroll } from '@/components/layout/SmoothScroll'
 import { themeInitScript } from '@/components/layout/ThemeToggle'
@@ -78,6 +79,7 @@ export default async function RootLayout({ children }: Props) {
       <body>
         <AuroraBackground />
         <JsonLd data={siteJsonLd()} />
+        <AntiCloneGuard />
         <AgencyUtmPreserver />
         <DuotoneDefs />
         <a

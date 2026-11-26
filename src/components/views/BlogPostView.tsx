@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import type { BlogPostDetail } from '@/lib/data/types'
+import { ContentGuard } from '@/components/ContentGuard'
 import { AttachmentList } from '@/components/blog/AttachmentList'
 import { BlogRichText } from '@/components/blog/BlogRichText'
 import { PostQuiz } from '@/components/blog/PostQuiz'
@@ -25,6 +26,7 @@ export function BlogPostView({ post }: { post: BlogPostDetail }) {
   ]
 
   return (
+    <ContentGuard canonicalPath={post.href}>
     <article className="mx-auto max-w-7xl px-5 pb-20 pt-10 md:px-8 md:pt-14">
       <ReadingProgressBar />
       <JsonLd data={blogPostingJsonLd(post)} />
@@ -273,5 +275,6 @@ export function BlogPostView({ post }: { post: BlogPostDetail }) {
         </section>
       )}
     </article>
+    </ContentGuard>
   )
 }

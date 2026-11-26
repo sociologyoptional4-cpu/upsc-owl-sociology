@@ -8,6 +8,7 @@ const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
 
 const nextConfig: NextConfig = {
+  productionBrowserSourceMaps: false,
   // Smart paste reads the AI prompt files at runtime; make sure Vercel bundles them with the API routes.
   // Prerendering many DB-backed pages at once exhausted Supabase connections on Vercel; fewer at a time + retry.
   experimental: { staticGenerationMaxConcurrency: 2, staticGenerationRetryCount: 3 },
@@ -35,7 +36,7 @@ const nextConfig: NextConfig = {
       { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
       { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
       { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
-      { key: 'Content-Security-Policy', value: "frame-src 'self' https://www.youtube-nocookie.com;" },
+      { key: 'Content-Security-Policy', value: "frame-ancestors 'self'; frame-src 'self' https://www.youtube-nocookie.com https://checkout.razorpay.com https://api.razorpay.com;" },
     ] }]
   },
   async rewrites() {

@@ -3,6 +3,7 @@ import type { ThinkerDetail } from '@/lib/data/types'
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 
 import { CaCard } from '../cards/CaCard'
+import { ContentGuard } from '../ContentGuard'
 import { Reveal } from '../motion/Reveal'
 import { Portrait } from '../thinkers/Portrait'
 import { getPortraitAsset } from '../thinkers/portrait-assets'
@@ -14,6 +15,7 @@ const IDEA_TINTS = ['bg-pastel-lavender', 'bg-pastel-yellow', 'bg-pastel-mint', 
 export function ThinkerView({ data }: { data: ThinkerDetail }) {
   const credit = getPortraitAsset(data.slug)?.attribution
   return (
+    <ContentGuard canonicalPath={data.href}>
     <div className="mx-auto max-w-7xl px-5 pt-10 md:px-8 md:pt-16">
       <Breadcrumbs items={[{ label: 'Thinkers', href: '/thinkers' }, { label: data.name, href: data.href }]} />
 
@@ -64,5 +66,6 @@ export function ThinkerView({ data }: { data: ThinkerDetail }) {
         )}
       </div>
     </div>
+    </ContentGuard>
   )
 }
