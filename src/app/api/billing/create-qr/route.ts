@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
 import { PRO_ANNUAL_PLAN } from '@/lib/billing/plans'
+import { cropRazorpayQrImage } from '@/lib/billing/qr-crop'
 import { createRazorpayQrCode } from '@/lib/billing/razorpay'
 import { normalizeEmail, normalizePhone } from '@/lib/billing/token'
 
@@ -33,11 +34,13 @@ export async function POST(req: Request) {
       email: normalizeEmail(parsed.data.email),
       phone: normalizePhone(parsed.data.phone),
     })
+    const qrDataUrl = await cropRazorpayQrImage(qr.image_url)
 
     return NextResponse.json(
       {
         qrId: qr.id,
         imageUrl: qr.image_url,
+        qrDataUrl,
         shortUrl: qr.short_url ?? null,
         closeBy: qr.close_by,
         amountInr: PRO_ANNUAL_PLAN.priceInr,

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react'
 export type QrData = {
   qrId: string
   imageUrl: string
+  qrDataUrl?: string | null
   shortUrl: string | null
   closeBy: number
   amountInr: number
@@ -34,6 +35,10 @@ export function RazorpayQrPanel({ qr, email, phone, onUnlocked, onRefreshQr }: R
   const [secondsLeft, setSecondsLeft] = useState(() => Math.max(0, qr.closeBy - Math.floor(Date.now() / 1000)))
   const [checking, setChecking] = useState(false)
   const [statusNote, setStatusNote] = useState<string | null>(null)
+  const [zoomOpen, setZoomOpen] = useState(false)
+
+  const displaySrc = qr.qrDataUrl || qr.imageUrl
+  const hasCroppedSquare = Boolean(qr.qrDataUrl)
 
   const checkStatus = useCallback(
     async (manual = false) => {
@@ -89,16 +94,36 @@ export function RazorpayQrPanel({ qr, email, phone, onUnlocked, onRefreshQr }: R
       </div>
       <p className="mt-2 text-xs text-ink-soft">GPay · PhonePe · Paytm · BHIM · Amazon Pay</p>
 
-      <div className="mx-auto mt-4 w-fit rounded-card border-2 border-ink bg-white p-3 shadow-paper">
-        {/* Official Razorpay hosted UPI QR image URL */}
+      <div className="mx-auto mt-4 w-full max-w-[340px] rounded-card border-2 border-ink bg-white p-4 shadow-paper">
+        {/* Official Razorpay UPI QR (server-cropped square or poster fallback) */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={qr.imageUrl}
+          src={displaySrc}
           alt={`Scan to pay Rs ${qr.amountInr} via Razorpay UPI`}
-          width={240}
-          height={240}
-          className="mx-auto h-60 w-60 object-contain"
+          className={
+            hasCroppedSquare
+              ? 'mx-auto block aspect-square w-full max-w-[304px] object-contain [image-rendering:pixelated]'
+              : 'mx-auto block h-auto w-full max-w-[340px]'
+          }
         />
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-xs">
+        <button
+          type="button"
+          onClick={() => setZoomOpen(true)}
+          className="rounded-chip border border-ink bg-paper-raised px-3 py-1 font-bold text-ink hover:bg-pastel-yellow"
+        >
+          Full Screen QR ⤢
+        </button>
+        <a
+          href={qr.imageUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rounded-chip border border-ink/40 bg-paper-sunk px-3 py-1 font-semibold text-ink-soft hover:border-ink hover:text-ink"
+        >
+          Open Razorpay QR Poster ↗
+        </a>
       </div>
 
       <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs">
@@ -134,6 +159,40 @@ export function RazorpayQrPanel({ qr, email, phone, onUnlocked, onRefreshQr }: R
       ) : null}
 
       {statusNote ? <p className="mt-3 text-xs font-medium text-red-700 dark:text-red-400">{statusNote}</p> : null}
+
+      {zoomOpen ? (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Full screen UPI QR code"
+          onClick={() => setZoomOpen(false)}
+          className="fixed inset-0 z-50 grid place-items-center bg-black/75 p-4 backdrop-blur-xs"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md rounded-card border-2 border-ink bg-white p-6 text-center text-ink shadow-float"
+          >
+            <p className="text-sm font-extrabold">Scan &amp; Pay ₹{qr.amountInr} · UPSC OWL Pro (1 Year)</p>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={displaySrc}
+              alt={`Full screen UPI QR for Rs ${qr.amountInr}`}
+              className={
+                hasCroppedSquare
+                  ? 'mx-auto mt-4 block aspect-square w-full max-w-[360px] object-contain [image-rendering:pixelated]'
+                  : 'mx-auto mt-4 block max-h-[75vh] w-auto object-contain'
+              }
+            />
+            <button
+              type="button"
+              onClick={() => setZoomOpen(false)}
+              className="mt-4 rounded-md border-2 border-ink bg-pastel-yellow px-4 py-2 text-xs font-extrabold text-ink"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }

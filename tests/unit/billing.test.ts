@@ -11,6 +11,7 @@ vi.mock('@/lib/env', () => ({
 }))
 
 import { FREE_PAPER1_MAX_UNIT, PRO_ANNUAL_PLAN, isChapterLocked } from '@/lib/billing/plans'
+import { detectQrBounds } from '@/lib/billing/qr-crop'
 import { verifyRazorpayPaymentSignature, verifyRazorpayWebhookSignature } from '@/lib/billing/razorpay'
 import { generateAccessCode, normalizeEmail, normalizePhone, signProToken, verifyProToken } from '@/lib/billing/token'
 
@@ -81,5 +82,25 @@ describe('billing tokens & Razorpay signatures', () => {
     expect(generateAccessCode()).toMatch(/^OWL-[A-Z0-9]{4}-[A-Z0-9]{4}$/)
     expect(normalizeEmail('  Aspirant@Example.COM ')).toBe('aspirant@example.com')
     expect(normalizePhone('+91 98765-43210')).toBe('9876543210')
+  })
+
+  it('detects square QR matrix bounds inside tall Razorpay poster and rejects blank buffers', () => {
+    const width = 674
+    const height = 1644
+    const blank = new Uint8Array(width * height).fill(255)
+    expect(detectQrBounds(blank, width, height)).toBeNull()
+
+    const poster = new Uint8Array(width * height).fill(255)
+    for (let y = 658; y <= 1037; y += 1) {
+      for (let x = 146; x <= 525; x += 1) {
+        poster[y * width + x] = 0
+      }
+    }
+    const box = detectQrBounds(poster, width, height)
+    expect(box).not.toBeNull()
+    expect(box!.left).toBe(146 - 28)
+    expect(box!.top).toBe(658 - 28)
+    expect(box!.width).toBe(379 + 56)
+    expect(box!.height).toBe(379 + 56)
   })
 })
