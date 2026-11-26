@@ -66,7 +66,7 @@ export function AuthForm({ initialTab = 'login', nextPath }: AuthFormProps) {
           UPSC OWL Account
         </span>
         <Link href="/pro" className="text-xs font-bold text-saffron-deep underline">
-          Pro Plan ₹399/yr →
+          UPSC OWL Pro →
         </Link>
       </div>
 

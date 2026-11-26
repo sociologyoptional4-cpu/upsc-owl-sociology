@@ -47,7 +47,7 @@ export function UnitList({ units, accent }: { units: SyllabusUnit[]; accent: str
                   <Link
                     href="/pro"
                     className="rounded-chip border border-ink bg-pastel-yellow px-2 py-0.5 text-[11px] font-extrabold text-ink hover:bg-saffron"
-                    title="Chapters in this unit require UPSC OWL Pro (₹399/yr)"
+                    title="Chapters in this unit require UPSC OWL Pro"
                   >
                     🔒 Pro
                   </Link>

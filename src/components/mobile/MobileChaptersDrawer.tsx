@@ -71,7 +71,7 @@ export function MobileChaptersDrawer({ open, onClose, papers }: MobileChaptersDr
                 <div>
                   <p className="font-display text-base font-extrabold text-ink">Syllabus Mapped · Full Notes</p>
                   <p className="text-[11px] font-medium text-ink-mute">
-                    Paper 1 Units 1–5 Free · Units 6+ &amp; Paper 2 Pro (₹399/yr)
+                    Paper 1 Units 1–5 Free · Units 6+ &amp; Paper 2 Pro
                   </p>
                 </div>
                 <button

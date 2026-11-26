@@ -63,7 +63,7 @@ type Props = { children: ReactNode }
 export default async function RootLayout({ children }: Props) {
   const [navigation, syllabus] = await Promise.all([getNavigation(), getSyllabusTree()])
   return (
-    <html lang="en" className={`${poppins.variable} ${inter.variable}`} suppressHydrationWarning>
+    <html lang="en" data-theme="light" className={`${poppins.variable} ${inter.variable}`} suppressHydrationWarning>
       <head>
         {/* Static, first-party script (no user input): sets theme before paint to avoid a flash. */}
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />

@@ -197,7 +197,7 @@ function UnitChaptersSection({
             href="/pro"
             className="inline-flex items-center gap-2 rounded-chip border-2 border-ink bg-pastel-yellow px-3.5 py-1.5 text-xs font-extrabold text-ink shadow-paper transition-colors hover:bg-saffron"
           >
-            <span>🔒 Pro Unit · Unlock all chapters ₹399/yr (60% OFF ₹999)</span>
+            <span>🔒 Pro Unit · Unlock with UPSC OWL Pro</span>
           </Link>
         ) : null}
       </div>

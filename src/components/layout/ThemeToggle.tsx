@@ -5,8 +5,8 @@ import { useSyncExternalStore } from 'react'
 type Theme = 'light' | 'dark'
 const STORAGE_KEY = 'aum-theme'
 
-/** Inline script for <head>: applies the saved theme before paint (no flash). */
-export const themeInitScript = `(function(){try{var t=localStorage.getItem('${STORAGE_KEY}');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.dataset.theme=t}catch(e){}})()`
+/** Inline script for <head>: applies the saved theme before paint (defaults to light). */
+export const themeInitScript = `(function(){try{var t=localStorage.getItem('${STORAGE_KEY}');document.documentElement.dataset.theme=t==='dark'?'dark':'light'}catch(e){document.documentElement.dataset.theme='light'}})()`
 
 // The <html data-theme> attribute is the single source of truth.
 function subscribe(onChange: () => void): () => void {

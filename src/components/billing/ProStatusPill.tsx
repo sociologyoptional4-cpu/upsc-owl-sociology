@@ -54,9 +54,12 @@ export function ProStatusPill() {
         className={`inline-flex items-center gap-1 rounded-md border border-ink px-2 py-1 text-[11px] font-extrabold transition-colors md:px-2.5 md:py-1.5 md:text-xs ${
           unlocked ? 'bg-pastel-mint text-ink hover:bg-pastel-yellow' : 'bg-pastel-yellow text-ink hover:bg-saffron'
         }`}
-        title={unlocked ? 'UPSC OWL Pro Active' : 'Unlock All Chapters — ₹399/yr (60% OFF ₹999)'}
+        title={unlocked ? 'UPSC OWL Pro Active' : 'UPSC OWL Pro'}
       >
-        {unlocked ? 'Pro ✓' : 'Pro ₹399'}
+        <svg aria-hidden width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round">
+          <path d="M3 18h18v2H3v-2Zm0-2 2-9 5 4 2-6 2 6 5-4 2 9H3Z" />
+        </svg>
+        <span>{unlocked ? 'Pro ✓' : 'Pro'}</span>
       </Link>
     </div>
   )
