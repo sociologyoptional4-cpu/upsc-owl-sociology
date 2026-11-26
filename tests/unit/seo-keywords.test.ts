@@ -64,8 +64,9 @@ describe('SEO keywords and rich JSON-LD helpers', () => {
     expect(ld.itemListElement[1]!.item).toBe('https://sociology4upsc.com/blog/category/thinkers')
   })
 
-  it('enriches BlogPosting JSON-LD with Speakable, wordCount, timeRequired, logo, and about entities', () => {
+  it('enriches Article + BlogPosting JSON-LD with Speakable, wordCount, timeRequired, logo, and about entities', () => {
     const ld = blogPostingJsonLd(samplePost)
+    expect(ld['@type']).toEqual(['Article', 'BlogPosting'])
     expect(ld.inLanguage).toBe('en-IN')
     expect(ld.isAccessibleForFree).toBe(true)
     expect(ld.timeRequired).toBe('PT6M')

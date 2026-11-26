@@ -82,7 +82,7 @@ export function blogPostingJsonLd(post: BlogPostDetail) {
 
   return {
     '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
+    '@type': ['Article', 'BlogPosting'],
     headline: post.seo.title ?? post.title,
     description: post.seo.description ?? post.excerpt ?? post.title,
     url,

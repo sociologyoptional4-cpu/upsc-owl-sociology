@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import { Inter, Poppins } from 'next/font/google'
 import type { ReactNode } from 'react'
 
+import { AgencyUtmPreserver } from '@/components/analytics/AgencyTracker'
 import { Footer } from '@/components/layout/Footer'
 import { Header } from '@/components/layout/Header'
 import { MobileAppShell } from '@/components/mobile/MobileAppShell'
@@ -12,6 +13,7 @@ import { SmoothScroll } from '@/components/layout/SmoothScroll'
 import { themeInitScript } from '@/components/layout/ThemeToggle'
 import { DuotoneDefs } from '@/components/thinkers/DuotoneDefs'
 import { AuroraBackground } from '@/components/ui/AuroraBackground'
+import { getAgencyTrackerScriptUrl } from '@/lib/analytics/agency-tracker'
 import { buildSiteKeywords } from '@/lib/seo/keywords'
 import { siteJsonLd } from '@/lib/seo/jsonld'
 import { getServerSideURL } from '@/lib/url'
@@ -62,11 +64,13 @@ type Props = { children: ReactNode }
 
 export default async function RootLayout({ children }: Props) {
   const [navigation, syllabus] = await Promise.all([getNavigation(), getSyllabusTree()])
+  const trackerSrc = getAgencyTrackerScriptUrl()
   return (
     <html lang="en" data-theme="light" className={`${poppins.variable} ${inter.variable}`} suppressHydrationWarning>
       <head>
         {/* Static, first-party script (no user input): sets theme before paint to avoid a flash. */}
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        {trackerSrc ? <script defer src={trackerSrc} /> : null}
         <noscript>
           <style>{'[data-reveal]{opacity:1!important;transform:none!important}'}</style>
         </noscript>
@@ -74,6 +78,7 @@ export default async function RootLayout({ children }: Props) {
       <body>
         <AuroraBackground />
         <JsonLd data={siteJsonLd()} />
+        <AgencyUtmPreserver />
         <DuotoneDefs />
         <a
           href="#main"

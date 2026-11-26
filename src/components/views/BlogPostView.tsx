@@ -110,6 +110,38 @@ export function BlogPostView({ post }: { post: BlogPostDetail }) {
             </section>
           )}
 
+          {/* Pro Pass CTA Banner */}
+          <section
+            aria-label="UPSC OWL Pro Pass"
+            className="mt-10 rounded-sheet border-2 border-ink bg-pastel-lavender p-6 text-ink shadow-float"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="rounded-chip border border-ink bg-pastel-yellow px-3 py-1 text-[11px] font-extrabold uppercase tracking-wide text-ink">
+                Yearly Sale · 60% OFF
+              </span>
+              <span className="font-mono text-xs font-extrabold text-ink">
+                <s className="opacity-60">₹999</s> <span className="text-saffron-deep">₹399/yr</span>
+              </span>
+            </div>
+            <h2 className="mt-3 font-display text-xl font-extrabold leading-snug text-ink md:text-2xl">
+              Every Unit Note + Topic-Wise PYQ Mapped (English + Hinglish)
+            </h2>
+            <p className="mt-2 text-sm text-ink-soft">
+              Paper 1 (10 Units) aur Paper 2 (15 Units) — Complete structured notes, thinkers, mind maps &amp; 597 solved PYQs ek saath.
+            </p>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <Link
+                href="/pro"
+                className="btn-cta inline-flex items-center gap-2 rounded-md border-2 border-ink px-5 py-2.5 text-sm font-extrabold shadow-paper"
+              >
+                Unlock Full Sociology Pro Pass →
+              </Link>
+              <Link href="/syllabus" className="text-xs font-extrabold text-ink underline hover:text-saffron-deep">
+                Browse Full Syllabus
+              </Link>
+            </div>
+          </section>
+
           <AttachmentList items={post.attachments} />
           <PostQuiz items={post.quiz} />
           <SeriesBox series={post.series} placement="bottom" />

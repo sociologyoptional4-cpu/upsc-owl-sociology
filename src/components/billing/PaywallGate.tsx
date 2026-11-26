@@ -2,7 +2,9 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+
+import { trackAgencyPurchase } from '@/lib/analytics/agency-tracker'
 
 import { TELEGRAM_MENTORSHIP_URL } from '../ui/links'
 import { PostPaymentAccountBox } from './PostPaymentAccountBox'
@@ -52,6 +54,7 @@ export function PaywallGate({ mode = 'chapter', chapterTitle, paperLabel, tocCou
   const [error, setError] = useState<string | null>(null)
   const [qr, setQr] = useState<QrData | null>(null)
   const [unlocked, setUnlocked] = useState<UnlockedInfo | null>(null)
+  const purchaseTrackedRef = useRef(false)
 
   useEffect(() => {
     let active = true
@@ -93,6 +96,10 @@ export function PaywallGate({ mode = 'chapter', chapterTitle, paperLabel, tocCou
 
   const handleSuccess = useCallback(
     (info: UnlockedInfo) => {
+      if (!purchaseTrackedRef.current) {
+        purchaseTrackedRef.current = true
+        trackAgencyPurchase(399)
+      }
       setUnlocked(info)
       setError(null)
       setLoading(false)
