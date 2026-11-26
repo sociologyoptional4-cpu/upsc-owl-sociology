@@ -127,10 +127,9 @@ async function seedContent(payload: Payload, topicIds: Map<string, number>, thin
     if (!existing.docs.length) await payload.create({ collection: 'blog-categories', context: CTX, data: cat, overrideAccess: true })
   }
   const navItems = [
-    { label: 'Unit 1 Infographics', href: '/syllabus/paper-1/sociology-the-discipline' },
+    { label: 'Full Notes', href: '/syllabus' },
     { label: 'Current Affairs', href: '/current-affairs' },
     { label: 'Blog', href: '/blog' },
-    { label: 'Syllabus / Full Notes', href: '/syllabus' },
     { label: 'Thinkers', href: '/thinkers' },
     { label: 'About', href: '/about' },
   ]

@@ -43,7 +43,19 @@ export function Header({ nav }: { nav: NavItem[] }) {
             href={TELEGRAM_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-cta hidden rounded-md px-4 py-2 text-sm transition-transform duration-300 ease-out-expo hover:-translate-y-0.5 active:scale-[0.98] sm:inline-flex"
+            aria-label="Telegram Channel join karo"
+            title="Telegram Channel join karo"
+            className="grid size-9 shrink-0 place-items-center rounded-md border border-ink bg-[#229ED9] text-white shadow-paper transition-transform active:scale-95 sm:hidden"
+          >
+            <svg aria-hidden width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M21.9 4.6a1 1 0 0 0-1.1-.2L2.8 11.6a1 1 0 0 0 .1 1.9l4.4 1.4 1.7 5.2a1 1 0 0 0 1.7.4l2.5-2.6 4.5 3.3a1 1 0 0 0 1.6-.6l2.9-14.9a1 1 0 0 0-.3-1.1Zm-3.6 3.5-8.4 7.6-.4 3.1-1.3-4.1 10.1-6.6Z" />
+            </svg>
+          </Link>
+          <Link
+            href={TELEGRAM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-cta hidden shrink-0 whitespace-nowrap rounded-md px-4 py-2 text-sm transition-transform duration-300 ease-out-expo hover:-translate-y-0.5 active:scale-[0.98] sm:inline-flex"
           >
             Telegram join
           </Link>
@@ -52,7 +64,7 @@ export function Header({ nav }: { nav: NavItem[] }) {
             target="_blank"
             rel="noopener noreferrer"
             title="Direct contact & mentorship on Telegram"
-            className="hidden rounded-md border border-ink bg-paper-raised px-3 py-2 text-xs font-bold text-ink transition-colors hover:bg-pastel-yellow lg:inline-flex"
+            className="hidden shrink-0 whitespace-nowrap rounded-md border border-ink bg-paper-raised px-3 py-2 text-xs font-bold text-ink transition-colors hover:bg-pastel-yellow lg:inline-flex"
           >
             Mentorship
           </Link>

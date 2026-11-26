@@ -1,10 +1,9 @@
 export type NavLink = { label: string; href: string }
 
 export const DEFAULT_NAV: NavLink[] = [
-  { label: 'Unit 1 Infographics', href: '/syllabus/paper-1/sociology-the-discipline' },
+  { label: 'Full Notes', href: '/syllabus' },
   { label: 'Current Affairs', href: '/current-affairs' },
   { label: 'Blog', href: '/blog' },
-  { label: 'Syllabus / Full Notes', href: '/syllabus' },
   { label: 'Thinkers', href: '/thinkers' },
   { label: 'About', href: '/about' },
 ]

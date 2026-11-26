@@ -16,12 +16,11 @@ describe('resolveNav', () => {
     ])
   })
 
-  it('labels Unit 1 accurately and shows Syllabus / Full Notes', () => {
+  it('shows Full Notes for /syllabus and omits Unit 1 Infographics from header nav', () => {
     const unit1 = DEFAULT_NAV.find((i) => i.href === '/syllabus/paper-1/sociology-the-discipline')
     const syllabus = DEFAULT_NAV.find((i) => i.href === '/syllabus')
-    expect(unit1?.label).toBe('Unit 1 Infographics')
-    expect(unit1?.label).not.toBe('Notes')
-    expect(syllabus?.label).toBe('Syllabus / Full Notes')
+    expect(unit1).toBeUndefined()
+    expect(syllabus?.label).toBe('Full Notes')
   })
 
   it('does not duplicate /blog', () => {

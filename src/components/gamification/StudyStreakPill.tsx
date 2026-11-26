@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'motion/react'
-import { useEffect, useState } from 'react'
+import { useSyncExternalStore } from 'react'
 
 const STORAGE_KEY = 'sociology4upsc_xp_v1'
 const XP_EVENT = 'sociology-xp-updated'
@@ -86,20 +86,35 @@ export function recordStudyXp(kind: StudyXpKind): void {
   }
 }
 
+let cachedRaw: string | null | undefined
+let cachedSnapshot: StudyXpState = DEFAULT_XP_STATE
+
+function subscribeXp(onChange: () => void): () => void {
+  window.addEventListener(XP_EVENT, onChange)
+  window.addEventListener('storage', onChange)
+  return () => {
+    window.removeEventListener(XP_EVENT, onChange)
+    window.removeEventListener('storage', onChange)
+  }
+}
+
+function getXpSnapshot(): StudyXpState {
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY)
+    if (raw === cachedRaw) return cachedSnapshot
+    cachedRaw = raw
+    cachedSnapshot = readXpState()
+    return cachedSnapshot
+  } catch {
+    return DEFAULT_XP_STATE
+  }
+}
+
+const getServerXpSnapshot = (): StudyXpState => DEFAULT_XP_STATE
+
 /** Compact animated study streak & XP pill for the top navbar. */
 export function StudyStreakPill() {
-  const [state, setState] = useState<StudyXpState>(DEFAULT_XP_STATE)
-
-  useEffect(() => {
-    setState(readXpState())
-    const sync = () => setState(readXpState())
-    window.addEventListener(XP_EVENT, sync)
-    window.addEventListener('storage', sync)
-    return () => {
-      window.removeEventListener(XP_EVENT, sync)
-      window.removeEventListener('storage', sync)
-    }
-  }, [])
+  const state = useSyncExternalStore(subscribeXp, getXpSnapshot, getServerXpSnapshot)
 
   return (
     <motion.div
@@ -108,7 +123,7 @@ export function StudyStreakPill() {
       animate={{ scale: 1 }}
       transition={{ type: 'spring', stiffness: 360, damping: 22 }}
       title={`${state.chaptersRead} chapters read · ${state.pyqsReviewed} PYQs recalled`}
-      className="hidden items-center gap-1.5 rounded-chip border border-ink/25 bg-pastel-mint px-2.5 py-1 text-xs font-extrabold text-ink shadow-paper sm:inline-flex"
+      className="hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-chip border border-ink/25 bg-pastel-mint px-2.5 py-1 text-xs font-extrabold text-ink shadow-paper sm:inline-flex"
     >
       <span aria-hidden>🔥</span>
       <span>{state.streak}d</span>

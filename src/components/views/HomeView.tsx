@@ -4,6 +4,7 @@ import { HomeHero } from '../home/HomeHero'
 import { HowItWorks } from '../home/HowItWorks'
 import { LatestFeed } from '../home/LatestFeed'
 import { SyllabusBento } from '../home/SyllabusBento'
+import { TelegramJoinBanner } from '../home/TelegramJoinBanner'
 import { ThinkerBanter } from '../home/ThinkerBanter'
 import { ThinkerSpotlight } from '../home/ThinkerSpotlight'
 import { CtaBlockComponent } from '@/blocks/cta/Component'
@@ -29,6 +30,10 @@ export function HomeView({ data }: { data: HomeData }) {
         <SectionHeading id="syllabus-heading" kicker="Syllabus Mapped · Full Notes" title="Do papers, ek jaal" action={{ label: 'Poora syllabus & full notes', href: '/syllabus' }} />
         <SyllabusBento papers={data.syllabus} />
       </section>
+
+      <div className="mt-[var(--space-section)]">
+        <TelegramJoinBanner />
+      </div>
 
       {data.featuredThinker && (
         <div className="mt-[calc(var(--space-section)+6rem)]">
