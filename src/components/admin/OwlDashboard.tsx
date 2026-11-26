@@ -4,7 +4,9 @@ import type { AdminViewServerProps, CollectionSlug, Payload } from 'payload'
 
 import styles from './admin.module.css'
 import { TodayWidget } from './TodayWidget'
+import { VisitorStatsWidget } from './VisitorStatsWidget'
 import { countPendingReview } from '@/lib/admin/review-helpers'
+import { getVisitorAnalyticsSummary, type VisitorAnalyticsSummary } from '@/lib/analytics/site-visits'
 import { getBlogGaps } from '@/lib/data/blog'
 
 type Action = { title: string; body: string; href: string; badge?: number; isHot?: boolean }
@@ -65,7 +67,18 @@ export async function OwlDashboard({ initPageResult }: AdminViewServerProps) {
   const payload = req.payload
   const name = (req.user as { name?: string; email?: string } | null)?.name || req.user?.email?.split('@')[0] || 'Admin'
 
-  const [pending, caPub, caDraft, postsPub, postsDraft, topics, topicsDraft, pages, thinkers, pyqs, recent, blogGaps] = await Promise.all([
+  const emptyVisits: VisitorAnalyticsSummary = {
+    today: { uniqueUsers: 0, pageViews: 0 },
+    yesterday: { uniqueUsers: 0, pageViews: 0 },
+    last7Days: { uniqueUsers: 0, pageViews: 0 },
+    last30Days: { uniqueUsers: 0, pageViews: 0 },
+    dailySeries: [],
+    topPages: [],
+    topSources: [],
+    devices: { mobile: 0, desktop: 0, tablet: 0 },
+  }
+
+  const [pending, caPub, caDraft, postsPub, postsDraft, topics, topicsDraft, pages, thinkers, pyqs, recent, blogGaps, visitorStats] = await Promise.all([
     pendingReviewCount(payload),
     countBy(payload, 'current-affairs', 'published'),
     countBy(payload, 'current-affairs', 'draft'),
@@ -78,6 +91,7 @@ export async function OwlDashboard({ initPageResult }: AdminViewServerProps) {
     countBy(payload, 'pyqs'),
     recentEdits(payload),
     getBlogGaps(5).catch(() => []),
+    getVisitorAnalyticsSummary(payload).catch(() => emptyVisits),
   ])
 
   const actions: Action[] = [
@@ -115,6 +129,8 @@ export async function OwlDashboard({ initPageResult }: AdminViewServerProps) {
       </div>
 
       <TodayWidget />
+
+      <VisitorStatsWidget data={visitorStats} />
 
       <section aria-labelledby="dash-actions">
         <h2 id="dash-actions" className={styles.sectionTitle}>Kya karna hai</h2>

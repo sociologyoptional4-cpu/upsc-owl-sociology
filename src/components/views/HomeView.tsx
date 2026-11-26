@@ -16,7 +16,12 @@ export function HomeView({ data }: { data: HomeData }) {
     <>
       <HomeHero data={data} />
 
-      <section aria-labelledby="latest-heading" className="mx-auto max-w-7xl px-5 md:px-8">
+      <section aria-labelledby="syllabus-heading" className="mx-auto max-w-7xl px-5 md:px-8">
+        <SectionHeading id="syllabus-heading" kicker="Syllabus Mapped · Full Notes" title="Do papers, ek jaal" action={{ label: 'Poora syllabus & full notes', href: '/syllabus' }} />
+        <SyllabusBento papers={data.syllabus} />
+      </section>
+
+      <section aria-labelledby="latest-heading" className="mx-auto mt-[var(--space-section)] max-w-7xl px-5 md:px-8">
         <SectionHeading
           id="latest-heading"
           kicker="Latest"
@@ -24,11 +29,6 @@ export function HomeView({ data }: { data: HomeData }) {
           action={{ label: 'Poora archive', href: '/current-affairs' }}
         />
         <LatestFeed items={data.latestCA} />
-      </section>
-
-      <section aria-labelledby="syllabus-heading" className="mx-auto mt-[var(--space-section)] max-w-7xl px-5 md:px-8">
-        <SectionHeading id="syllabus-heading" kicker="Syllabus Mapped · Full Notes" title="Do papers, ek jaal" action={{ label: 'Poora syllabus & full notes', href: '/syllabus' }} />
-        <SyllabusBento papers={data.syllabus} />
       </section>
 
       <div className="mt-[var(--space-section)]">

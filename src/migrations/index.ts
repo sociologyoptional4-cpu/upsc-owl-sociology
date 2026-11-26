@@ -11,6 +11,7 @@ import * as migration_20261122_040919_blog_extras from './20261122_040919_blog_e
 import * as migration_20261122_055900_media_object_key from './20261122_055900_media_object_key';
 import * as migration_20261126_031500_subscriptions_paywall from './20261126_031500_subscriptions_paywall';
 import * as migration_20261126_222500_members_auth from './20261126_222500_members_auth';
+import * as migration_20261127_032000_site_visits_analytics from './20261127_032000_site_visits_analytics';
 
 export const migrations = [
   {
@@ -72,5 +73,10 @@ export const migrations = [
     up: migration_20261126_222500_members_auth.up,
     down: migration_20261126_222500_members_auth.down,
     name: '20261126_222500_members_auth',
+  },
+  {
+    up: migration_20261127_032000_site_visits_analytics.up,
+    down: migration_20261127_032000_site_visits_analytics.down,
+    name: '20261127_032000_site_visits_analytics',
   },
 ];
